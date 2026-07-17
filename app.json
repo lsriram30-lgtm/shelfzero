@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "ShelfZero",
+    "slug": "shelfzero",
+    "scheme": "shelfzero",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#FFFAF2"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shelfzero.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "ShelfZero uses your camera to scan receipts and barcodes so items can be added to your pantry automatically."
+      }
+    },
+    "android": {
+      "package": "com.shelfzero.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFAF2"
+      },
+      "permissions": ["CAMERA"],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "shelfzero",
+              "host": "join"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "extra": {
+      "apiBaseUrl": "https://rs1ilxb2il.preview.c24.airoapp.ai"
+    }
+  }
+}

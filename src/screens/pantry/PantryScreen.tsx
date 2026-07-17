@@ -1,0 +1,276 @@
+import React, { useMemo, useState } from "react";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../../context/ThemeContext";
+import { usePantry } from "../../hooks/usePantry";
+import { Screen, Header, Card, EmptyState, Pill } from "../../components";
+import { spacing, typography, radius } from "../../theme";
+import { PantryStackParamList } from "../../navigation/types";
+import { PantryItem } from "../../types";
+
+type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function groupByCategory(items: PantryItem[]): Record<string, PantryItem[]> {
+  return items.reduce<Record<string, PantryItem[]>>((groups, item) => {
+    const key = item.category || "Uncategorized";
+    groups[key] = groups[key] ? [...groups[key], item] : [item];
+    return groups;
+  }, {});
+}
+
+function daysUntil(dateStr: string | null): number | null {
+  if (!dateStr) return null;
+  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / DAY_MS);
+}
+
+function ExpiryTag({ expiresAt }: { expiresAt: string | null }) {
+  const { colors } = useTheme();
+  const days = daysUntil(expiresAt);
+  if (days === null) return null;
+
+  const tone = days <= 3 ? colors.danger : days <= 7 ? colors.warning : colors.textMuted;
+  const label = days < 0 ? "Expired" : days === 0 ? "Expires today" : `${days}d left`;
+
+  return <Text style={[styles.expiryTag, { color: tone }]}>{label}</Text>;
+}
+
+function PantryRow({ item }: { item: PantryItem }) {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.row, { borderColor: colors.border }]}>
+      <View style={styles.rowMain}>
+        <Text style={[styles.rowTitle, { color: colors.text }]}>{item.name}</Text>
+        <Text style={[styles.rowMeta, { color: colors.textMuted }]}>
+          {item.quantity} {item.unit}
+        </Text>
+      </View>
+      <ExpiryTag expiresAt={item.expiresAt} />
+    </View>
+  );
+}
+
+function CategoryGroup({
+  category,
+  items,
+  expanded,
+  onToggle,
+}: {
+  category: string;
+  items: PantryItem[];
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <Card style={styles.groupCard}>
+      <Pressable style={styles.groupHeader} onPress={onToggle}>
+        <Text style={[styles.groupTitle, { color: colors.text }]}>
+          {category} <Text style={{ color: colors.textMuted }}>({items.length})</Text>
+        </Text>
+        <Ionicons
+          name={expanded ? "chevron-up" : "chevron-down"}
+          size={18}
+          color={colors.textMuted}
+        />
+      </Pressable>
+      {expanded ? (
+        <View>
+          {items.map((item) => (
+            <PantryRow key={item.id} item={item} />
+          ))}
+        </View>
+      ) : null}
+    </Card>
+  );
+}
+
+export function PantryScreen() {
+  const { colors } = useTheme();
+  const navigation = useNavigation<PantryNavigationProp>();
+  const { items, loading, refresh } = usePantry();
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
+  const grouped = useMemo(() => groupByCategory(items), [items]);
+  const categories = useMemo(() => Object.keys(grouped).sort(), [grouped]);
+
+  const expiringSoon = useMemo(
+    () => items.filter((item) => {
+      const days = daysUntil(item.expiresAt);
+      return days !== null && days <= 3;
+    }),
+    [items]
+  );
+
+  const toggleCategory = (category: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
+  };
+
+  return (
+    <Screen>
+      <Header
+        title="Pantry"
+        subtitle={`${items.length} item${items.length === 1 ? "" : "s"}`}
+        right={
+          <Pressable
+            onPress={() => navigation.navigate("PantryStats")}
+            style={[styles.statsButton, { borderColor: colors.border }]}
+          >
+            <Ionicons name="stats-chart-outline" size={16} color={colors.text} />
+            <Text style={[styles.statsButtonLabel, { color: colors.text }]}>Stats</Text>
+          </Pressable>
+        }
+      />
+
+      <View style={styles.actionsRow}>
+        <Pressable
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          onPress={() => navigation.navigate("AddPantryItem")}
+        >
+          <Ionicons name="add" size={18} color={colors.surface} />
+          <Text style={[styles.fabLabel, { color: colors.surface }]}>Add item</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.fabOutline, { borderColor: colors.border }]}
+          onPress={() => navigation.navigate("Scan")}
+        >
+          <Ionicons name="camera-outline" size={18} color={colors.text} />
+          <Text style={[styles.fabLabel, { color: colors.text }]}>Scan</Text>
+        </Pressable>
+      </View>
+
+      {expiringSoon.length > 0 ? (
+        <View style={styles.bannerWrapper}>
+          <Pill
+            label={`${expiringSoon.length} item${expiringSoon.length === 1 ? "" : "s"} expiring within 3 days`}
+            tone="warning"
+          />
+        </View>
+      ) : null}
+
+      <ScrollView
+        contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+      >
+        {categories.length === 0 && !loading ? (
+          <EmptyState
+            title="Your pantry is empty"
+            message="Add items manually or scan a receipt to get started."
+            actionLabel="Add an item"
+            onAction={() => navigation.navigate("AddPantryItem")}
+          />
+        ) : (
+          categories.map((category) => (
+            <CategoryGroup
+              key={category}
+              category={category}
+              items={grouped[category]}
+              expanded={!collapsed.has(category)}
+              onToggle={() => toggleCategory(category)}
+            />
+          ))
+        )}
+      </ScrollView>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  statsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  statsButtonLabel: {
+    ...typography.label,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  fab: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    flex: 1,
+  },
+  fabOutline: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    borderWidth: 1,
+    flex: 1,
+  },
+  fabLabel: {
+    ...typography.bodyMedium,
+  },
+  bannerWrapper: {
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  list: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xxxl,
+    gap: spacing.md,
+  },
+  groupCard: {
+    padding: 0,
+    overflow: "hidden",
+  },
+  groupHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: spacing.lg,
+  },
+  groupTitle: {
+    ...typography.h3,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderTopWidth: 1,
+  },
+  rowMain: {
+    flexShrink: 1,
+  },
+  rowTitle: {
+    ...typography.bodyMedium,
+  },
+  rowMeta: {
+    ...typography.caption,
+    marginTop: 2,
+  },
+  expiryTag: {
+    ...typography.caption,
+  },
+});
