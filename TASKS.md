@@ -25,19 +25,19 @@ at the bottom).
 
 ## Up next
 
-**Who's who** (colors match the app's own theme — Blush Beet and Avocado Smoothie):
+**Who's who:** pink = Laasya, green = Laya
 
-![Laasya](https://img.shields.io/badge/Laasya-DDBAAE) ![Laya](https://img.shields.io/badge/Laya-C2C395)
+![Laasya](https://img.shields.io/badge/Laasya-EC4899) ![Laya](https://img.shields.io/badge/Laya-22C55E)
 
 Check the box when a task is done. The color badge stays next to it, so whoever
 didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 ### Currently assigned
 
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-DDBAAE) Add more cuisine options
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-EC4899) Add more cuisine options
       and other choices to the onboarding questionnaire, and simplify/clean up the
       questionnaire flow (branch: `feature/questionnaire-cleanup`)
-- [ ] ![Laya](https://img.shields.io/badge/Laya-C2C395) Clean up the overall look and
+- [ ] ![Laya](https://img.shields.io/badge/Laya-22C55E) Clean up the overall look and
       feel of the app: spacing, colors, and a general polish pass
       (branch: `feature/app-polish`)
 
