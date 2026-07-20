@@ -97,8 +97,8 @@ export interface ScanResult {
 export interface OnboardingProfile {
   name: string;
   location: string;
-  householdSize: number;
-  livingSituation: string;
+  householdAdults: number;
+  householdKids: number;
   cuisinePrefs: string[];
   dietaryPrefs: string[];
   allergies: string[];

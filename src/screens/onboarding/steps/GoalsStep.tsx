@@ -23,8 +23,8 @@ interface Props {
 export function GoalsStep({ draft, update, onNext, onBack }: Props) {
   return (
     <OnboardingStepLayout
-      step={6}
-      totalSteps={8}
+      step={5}
+      totalSteps={7}
       title="What are you hoping to get out of ShelfZero?"
       subtitle="Pick as many as you like."
       onNext={onNext}

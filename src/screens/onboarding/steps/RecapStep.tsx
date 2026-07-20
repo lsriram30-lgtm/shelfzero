@@ -26,8 +26,8 @@ function Row({ label, value }: { label: string; value: string }) {
 export function RecapStep({ draft, onNext, onBack, submitting }: Props) {
   return (
     <OnboardingStepLayout
-      step={7}
-      totalSteps={8}
+      step={6}
+      totalSteps={7}
       title="You're all set"
       subtitle="Here's what we'll use to personalize ShelfZero."
       onNext={onNext}
@@ -38,8 +38,14 @@ export function RecapStep({ draft, onNext, onBack, submitting }: Props) {
       <Card>
         <Row label="Name" value={draft.name} />
         <Row label="Location" value={draft.location} />
-        <Row label="Household size" value={String(draft.householdSize)} />
-        <Row label="Living situation" value={draft.livingSituation} />
+        <Row
+          label="Household"
+          value={`${draft.householdAdults} adult${draft.householdAdults === 1 ? "" : "s"}${
+            draft.householdKids > 0
+              ? `, ${draft.householdKids} kid${draft.householdKids === 1 ? "" : "s"}`
+              : ""
+          }`}
+        />
         <Row label="Cuisines" value={draft.cuisinePrefs.join(", ")} />
         <Row label="Dietary preferences" value={draft.dietaryPrefs.join(", ")} />
         <Row label="Allergies" value={draft.allergies.join(", ")} />
