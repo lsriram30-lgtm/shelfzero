@@ -20,13 +20,30 @@ at the bottom).
       why it wasn't opening before — versions have to match)
 - [x] Fixed content getting hidden under the phone's notch / status bar
 - [x] Put the code on GitHub, so changes are saved and multiple people can work on it
+- [x] Added Laya as a collaborator on the GitHub repo, and set up separate branches
+      so Laasya and Laya can each work on their own task at the same time
 
 ## Up next
 
-- [ ] Clean up the overall look and feel of the app — spacing, colors, and polish pass
+**Who's who** (colors match the app's own theme — Blush Beet and Avocado Smoothie):
+
+![Laasya](https://img.shields.io/badge/Laasya-DDBAAE) ![Laya](https://img.shields.io/badge/Laya-C2C395)
+
+Check the box when a task is done. The color badge stays next to it, so whoever
+didn't do it can tell at a glance "oh, they finished that" and go review it.
+
+### Currently assigned
+
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-DDBAAE) Add more cuisine options
+      and other choices to the onboarding questionnaire, and simplify/clean up the
+      questionnaire flow (branch: `feature/questionnaire-cleanup`)
+- [ ] ![Laya](https://img.shields.io/badge/Laya-C2C395) Clean up the overall look and
+      feel of the app: spacing, colors, and a general polish pass
+      (branch: `feature/app-polish`)
+
+### Not yet assigned
+
 - [ ] Improve the receipt scanning feature so it reads receipts more reliably
-- [ ] Add more cuisine options and other choices to the onboarding questionnaire, and
-      simplify/clean up the questionnaire flow
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
 - [ ] Build the "donate leftover food" feature — currently just a placeholder screen
@@ -34,7 +51,6 @@ at the bottom).
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Invite other people to the GitHub repo so they can help build
 
 ---
 
@@ -68,4 +84,10 @@ to bookmark yet — that only happens once the app is published to the app store
 
 1. On GitHub, open `TASKS.md` and click the pencil (edit) icon.
 2. Change `- [ ]` to `- [x]` next to a finished task (or the reverse to un-finish one).
+   Leave the colored name badge as-is — that's how the other person knows whose task
+   it was, even after it's checked off.
 3. Scroll down, add a short note of what you did, and click **"Commit changes"**.
+
+If you're working from your own branch instead of editing on GitHub directly, just
+check the box in your local copy of `TASKS.md`, commit it along with your other
+changes, and it'll show up once your Pull Request is merged into `master`.
