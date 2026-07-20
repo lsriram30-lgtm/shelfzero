@@ -23,6 +23,10 @@ at the bottom).
 
 ## Up next
 
+- [ ] Clean up the overall look and feel of the app — spacing, colors, and polish pass
+- [ ] Improve the receipt scanning feature so it reads receipts more reliably
+- [ ] Add more cuisine options and other choices to the onboarding questionnaire, and
+      simplify/clean up the questionnaire flow
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
 - [ ] Build the "donate leftover food" feature — currently just a placeholder screen
