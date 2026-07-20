@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
-import { Button } from "../../components";
+import { Button, Screen } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 
 interface OnboardingStepLayoutProps {
@@ -30,7 +30,7 @@ export function OnboardingStepLayout({
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <Screen style={styles.container}>
       <View style={styles.progressTrack}>
         {Array.from({ length: totalSteps }).map((_, i) => (
           <View
@@ -64,7 +64,7 @@ export function OnboardingStepLayout({
           style={styles.nextButton}
         />
       </View>
-    </View>
+    </Screen>
   );
 }
 

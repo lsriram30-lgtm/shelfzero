@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
@@ -149,14 +149,16 @@ export function ScanScreen() {
               We couldn't detect any items. Try again or add items manually.
             </Text>
           ) : (
-            reviewItems.map((item, index) => (
-              <Card key={`${item.name}-${index}`} style={styles.reviewCard}>
-                <Text style={[styles.reviewTitle, { color: colors.text }]}>{item.name}</Text>
-                <Text style={[styles.reviewMeta, { color: colors.textMuted }]}>
-                  {item.quantity} {item.unit} · {item.category}
-                </Text>
-              </Card>
-            ))
+            <ScrollView contentContainerStyle={styles.reviewList}>
+              {reviewItems.map((item, index) => (
+                <Card key={`${item.name}-${index}`} style={styles.reviewCard}>
+                  <Text style={[styles.reviewTitle, { color: colors.text }]}>{item.name}</Text>
+                  <Text style={[styles.reviewMeta, { color: colors.textMuted }]}>
+                    {item.quantity} {item.unit} · {item.category}
+                  </Text>
+                </Card>
+              ))}
+            </ScrollView>
           )}
           <View style={styles.reviewActions}>
             <Button label="Rescan" variant="outline" onPress={reset} style={styles.reviewButton} />
@@ -240,6 +242,9 @@ const styles = StyleSheet.create({
   reviewWrapper: {
     flex: 1,
     paddingHorizontal: spacing.xl,
+  },
+  reviewList: {
+    paddingBottom: spacing.sm,
   },
   reviewCard: {
     marginBottom: spacing.sm,

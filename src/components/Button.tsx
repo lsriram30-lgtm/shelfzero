@@ -4,12 +4,13 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  View,
   ViewStyle,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { radius, spacing, typography } from "../theme";
 
-type Variant = "primary" | "secondary" | "outline" | "ghost";
+type Variant = "primary" | "secondary" | "outline" | "neutral" | "ghost";
 
 interface ButtonProps {
   label: string;
@@ -17,6 +18,7 @@ interface ButtonProps {
   variant?: Variant;
   disabled?: boolean;
   loading?: boolean;
+  icon?: React.ReactNode;
   style?: ViewStyle;
 }
 
@@ -26,6 +28,7 @@ export function Button({
   variant = "primary",
   disabled,
   loading,
+  icon,
   style,
 }: ButtonProps) {
   const { colors } = useTheme();
@@ -34,6 +37,7 @@ export function Button({
     primary: { bg: colors.primary, fg: colors.surface },
     secondary: { bg: colors.secondary, fg: colors.text },
     outline: { bg: "transparent", fg: colors.primary, border: colors.primary },
+    neutral: { bg: "transparent", fg: colors.text, border: colors.border },
     ghost: { bg: "transparent", fg: colors.text },
   };
 
@@ -56,6 +60,11 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator color={p.fg} />
+      ) : icon ? (
+        <View style={styles.content}>
+          {icon}
+          <Text style={[styles.label, { color: p.fg }]}>{label}</Text>
+        </View>
       ) : (
         <Text style={[styles.label, { color: p.fg }]}>{label}</Text>
       )}
@@ -70,6 +79,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
   },
   label: {
     ...typography.bodyMedium,

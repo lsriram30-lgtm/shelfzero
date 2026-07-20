@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
-import { Screen, Header, Card, EmptyState, Pill } from "../../components";
+import { Screen, Header, Card, EmptyState, Pill, Button } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
@@ -137,20 +137,19 @@ export function PantryScreen() {
       />
 
       <View style={styles.actionsRow}>
-        <Pressable
-          style={[styles.fab, { backgroundColor: colors.primary }]}
+        <Button
+          label="Add item"
+          icon={<Ionicons name="add" size={18} color={colors.surface} />}
           onPress={() => navigation.navigate("AddPantryItem")}
-        >
-          <Ionicons name="add" size={18} color={colors.surface} />
-          <Text style={[styles.fabLabel, { color: colors.surface }]}>Add item</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.fabOutline, { borderColor: colors.border }]}
+          style={styles.actionButton}
+        />
+        <Button
+          label="Scan"
+          variant="neutral"
+          icon={<Ionicons name="camera-outline" size={18} color={colors.text} />}
           onPress={() => navigation.navigate("Scan")}
-        >
-          <Ionicons name="camera-outline" size={18} color={colors.text} />
-          <Text style={[styles.fabLabel, { color: colors.text }]}>Scan</Text>
-        </Pressable>
+          style={styles.actionButton}
+        />
       </View>
 
       {expiringSoon.length > 0 ? (
@@ -208,27 +207,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     marginBottom: spacing.md,
   },
-  fab: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.md,
+  actionButton: {
     flex: 1,
-  },
-  fabOutline: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.md,
-    borderWidth: 1,
-    flex: 1,
-  },
-  fabLabel: {
-    ...typography.bodyMedium,
   },
   bannerWrapper: {
     paddingHorizontal: spacing.xl,
