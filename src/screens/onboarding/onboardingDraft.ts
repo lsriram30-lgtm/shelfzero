@@ -5,8 +5,8 @@ export type OnboardingDraft = OnboardingProfile;
 export const initialOnboardingDraft: OnboardingDraft = {
   name: "",
   location: "",
-  householdSize: 1,
-  livingSituation: "",
+  householdAdults: 1,
+  householdKids: 0,
   cuisinePrefs: [],
   dietaryPrefs: [],
   allergies: [],

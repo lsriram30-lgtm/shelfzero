@@ -29,7 +29,8 @@ export function ProfileScreen() {
             {profile?.name ?? "—"} · {profile?.location ?? "—"}
           </Text>
           <Text style={[styles.detailMuted, { color: colors.textMuted }]}>
-            Household of {profile?.householdSize ?? 1} · {profile?.livingSituation ?? "—"}
+            {(profile?.householdAdults ?? 1) + (profile?.householdKids ?? 0)} in household
+            {profile?.householdKids ? ` (${profile.householdKids} kids)` : ""}
           </Text>
           {profile?.dietaryPrefs && profile.dietaryPrefs.length > 0 ? (
             <View style={styles.pillRow}>

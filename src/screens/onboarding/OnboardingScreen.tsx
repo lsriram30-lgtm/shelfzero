@@ -3,14 +3,13 @@ import { useOnboarding } from "../../context/OnboardingContext";
 import { initialOnboardingDraft, OnboardingDraft } from "./onboardingDraft";
 import { NameLocationStep } from "./steps/NameLocationStep";
 import { HouseholdSizeStep } from "./steps/HouseholdSizeStep";
-import { LivingSituationStep } from "./steps/LivingSituationStep";
 import { CuisinePrefsStep } from "./steps/CuisinePrefsStep";
 import { DietaryPrefsStep } from "./steps/DietaryPrefsStep";
 import { AllergiesStep } from "./steps/AllergiesStep";
 import { GoalsStep } from "./steps/GoalsStep";
 import { RecapStep } from "./steps/RecapStep";
 
-const STEP_COUNT = 8;
+const STEP_COUNT = 7;
 
 export function OnboardingScreen() {
   const { completeOnboarding } = useOnboarding();
@@ -37,16 +36,14 @@ export function OnboardingScreen() {
     case 1:
       return <HouseholdSizeStep draft={draft} update={update} onNext={goNext} onBack={goBack} />;
     case 2:
-      return <LivingSituationStep draft={draft} update={update} onNext={goNext} onBack={goBack} />;
-    case 3:
       return <CuisinePrefsStep draft={draft} update={update} onNext={goNext} onBack={goBack} />;
-    case 4:
+    case 3:
       return <DietaryPrefsStep draft={draft} update={update} onNext={goNext} onBack={goBack} />;
-    case 5:
+    case 4:
       return <AllergiesStep draft={draft} update={update} onNext={goNext} onBack={goBack} />;
-    case 6:
+    case 5:
       return <GoalsStep draft={draft} update={update} onNext={goNext} onBack={goBack} />;
-    case 7:
+    case 6:
       return (
         <RecapStep draft={draft} onNext={handleFinish} onBack={goBack} submitting={submitting} />
       );
