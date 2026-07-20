@@ -3,6 +3,9 @@
 A React Native scaffold for ShelfZero, wired against the live backend at
 `https://rs1ilxb2il.preview.c24.airoapp.ai`.
 
+**New here or non-technical?** See [`TASKS.md`](./TASKS.md) for a plain-English
+rundown of what's done, what's next, and a beginner glossary.
+
 ## Prerequisites
 
 This machine did not have Node.js installed when this scaffold was generated, so
