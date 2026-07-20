@@ -34,9 +34,9 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 ### Currently assigned
 
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add more cuisine options
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add more cuisine options
       and other choices to the onboarding questionnaire, and simplify/clean up the
-      questionnaire flow (branch: `feature/questionnaire-cleanup`)
+      questionnaire flow (branch: `feature/questionnaire-cleanup`) — merged into `master`
 - [ ] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Clean up the overall look and
       feel of the app: spacing, colors, and a general polish pass
       (branch: `feature/app-polish`)
