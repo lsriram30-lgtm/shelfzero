@@ -46,7 +46,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Improve the receipt scanning feature so it reads receipts more reliably
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
-- [ ] Build the "donate leftover food" feature — currently just a placeholder screen
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Build the "donate leftover food"
+      feature (branch: `feature/donate-surplus`) — merged into `master`. Note: no backend
+      endpoint exists for this yet, so it's a self-contained flow (pick expiring items,
+      pick a placeholder partner, confirm) that removes items from the pantry for real
+      and keeps a local donation history.
 - [ ] Make notification settings actually save (currently they reset every time)
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
