@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
 import { OnboardingProvider } from "./src/context/OnboardingContext";
+import { DonationProvider } from "./src/context/DonationContext";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { linking } from "./src/navigation/linking";
 
@@ -58,7 +59,9 @@ export default function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <OnboardingProvider>
-            <Navigation />
+            <DonationProvider>
+              <Navigation />
+            </DonationProvider>
           </OnboardingProvider>
         </ThemeProvider>
       </SafeAreaProvider>

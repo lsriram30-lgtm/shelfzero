@@ -104,3 +104,17 @@ export interface OnboardingProfile {
   allergies: string[];
   goals: string[];
 }
+
+export interface DonationPartner {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface DonationRecord {
+  id: string;
+  date: string;
+  partnerId: string;
+  partnerName: string;
+  itemNames: string[];
+}

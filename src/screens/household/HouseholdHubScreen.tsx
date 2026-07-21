@@ -7,7 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useInvites } from "../../hooks/useInvites";
 import { useShoppingList } from "../../hooks/useShoppingList";
-import { Screen, Header, Card, Button, TextField, Pill } from "../../components";
+import { useDonations } from "../../context/DonationContext";
+import { Screen, Header, Card, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { API_BASE_URL } from "../../api/client";
@@ -23,6 +24,7 @@ export function HouseholdHubScreen() {
   const navigation = useNavigation<HouseholdNavigationProp>();
   const { invites, cancelInvite } = useInvites();
   const { items: shoppingItems, addItem, toggleChecked, removeItem } = useShoppingList();
+  const { totalItemsDonated } = useDonations();
 
   const [newItem, setNewItem] = useState("");
   // Notification preferences aren't backed by an API endpoint yet — local only.
@@ -139,9 +141,18 @@ export function HouseholdHubScreen() {
         <Card style={styles.card}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>Donate surplus</Text>
           <Text style={[styles.empty, { color: colors.textMuted }]}>
-            Have extra food nearing expiry? Connect with a local donation partner.
+            {totalItemsDonated > 0
+              ? `You've donated ${totalItemsDonated} item${
+                  totalItemsDonated === 1 ? "" : "s"
+                } so far — thank you!`
+              : "Have extra food nearing expiry? Connect with a local donation partner."}
           </Text>
-          <Pill label="Coming soon" tone="accent" />
+          <Button
+            label="Donate items"
+            variant="outline"
+            onPress={() => navigation.navigate("Donate")}
+            style={styles.donateButton}
+          />
         </Card>
 
         <Card style={styles.card}>
@@ -240,5 +251,9 @@ const styles = StyleSheet.create({
   },
   switchLabel: {
     ...typography.body,
+  },
+  donateButton: {
+    marginTop: spacing.md,
+    alignSelf: "flex-start",
   },
 });
