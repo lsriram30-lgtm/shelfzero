@@ -46,6 +46,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Improve the receipt scanning feature so it reads receipts more reliably
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
+- [ ] Fix the "Household Hub" screen (members/invites) so it actually works end to end
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Build the "donate leftover food"
       feature (branch: `feature/donate-surplus`) — merged into `master`. Note: no backend
       endpoint exists for this yet, so it's a self-contained flow (pick expiring items,
