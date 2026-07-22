@@ -52,6 +52,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       endpoint exists for this yet, so it's a self-contained flow (pick expiring items,
       pick a placeholder partner, confirm) that removes items from the pantry for real
       and keeps a local donation history.
+- [ ] Add a real backend for the donation feature (right now it's local-only, with
+      no server endpoint or actual donation partner behind it)
 - [ ] Make notification settings actually save (currently they reset every time)
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
