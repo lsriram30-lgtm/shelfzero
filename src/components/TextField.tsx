@@ -21,6 +21,9 @@ export function TextField({ label, error, style, secureTextEntry, ...rest }: Tex
         <TextInput
           placeholderTextColor={colors.textMuted}
           secureTextEntry={isPasswordField && hidden}
+          {...(isPasswordField
+            ? { autoComplete: "off", autoCorrect: false, spellCheck: false, textContentType: "oneTimeCode" }
+            : null)}
           style={[
             styles.input,
             isPasswordField && styles.inputWithIcon,
