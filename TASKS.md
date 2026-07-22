@@ -57,6 +57,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       `feature/dashboard-empty-state`) — merged into `master`. Replaced the
       misleading "100% Pantry health" ring with a proper empty-state prompt to
       add your first item.
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Understand and fix the
+      "401 Unauthorized" errors happening across the whole app (pantry, household
+      hub, everywhere) — the backend was built with GoDaddy's Airo AI Builder, which
+      has its own built-in auth, but this app was never given a login or API key to
+      satisfy it. Need to check the Airo dashboard for an API key or an auth toggle.
 
 ### Not yet assigned
 
