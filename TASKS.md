@@ -69,6 +69,18 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
+- [ ] Show a real error message (with "try again") when the app can't reach the
+      server — right now a failed connection just looks like an empty screen,
+      easy to mistake for "you have no items"
+- [ ] Audit every screen so loading, empty, and error states are each shown
+      correctly instead of all looking like the same blank screen — same kind
+      of check as the settings-persistence audit, for these three states
+- [ ] Add automated tests — right now there are none, so the only way to catch
+      something broken (like the pantry or shopping list) is clicking through
+      the app by hand every time
+- [ ] Set up GitHub Actions to automatically check the code on every push or
+      Pull Request, so mistakes get caught before merging instead of relying
+      on someone remembering to check by hand
 
 ---
 
@@ -97,6 +109,9 @@ to bookmark yet — that only happens once the app is published to the app store
 | **Expo Go** | The app on your phone that lets you preview this project without installing it properly |
 | **SDK version** | The "toolkit version" the app is built with — has to match between the code and Expo Go |
 | **Backend** | The server that stores and manages your pantry/shopping data |
+| **Pull Request (PR)** | A request to merge one branch's changes into `master`, so someone can review before it's official |
+| **Automated tests** | Small scripts that check parts of the app still work correctly, without manually clicking through it |
+| **CI** (Continuous Integration, e.g. GitHub Actions) | A robot that automatically re-checks the code every time it's pushed or a Pull Request is opened |
 
 ## How to update this file
 
