@@ -4,9 +4,11 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import { AuthError } from "../../api/auth";
 import { Screen, Header, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { AuthStackParamList } from "../../navigation/types";
+import { isValidEmail } from "../../utils/validation";
 
 type SignUpNavigationProp = NativeStackNavigationProp<AuthStackParamList, "SignUp">;
 
@@ -18,19 +20,36 @@ export function SignUpScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accountExists, setAccountExists] = useState(false);
 
-  const canSubmit = name.trim().length > 0 && email.trim().length > 0 && password.length > 0;
+  const passwordsMatch = confirmPassword.length === 0 || confirmPassword === password;
+  const canSubmit =
+    name.trim().length > 0 &&
+    email.trim().length > 0 &&
+    password.length > 0 &&
+    password === confirmPassword;
 
   const handleSignUp = async () => {
     if (!canSubmit) return;
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
+    setAccountExists(false);
     try {
       await signUp(name.trim(), email.trim(), password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't create your account. Please try again.");
+      if (err instanceof AuthError) {
+        setError(err.message);
+        setAccountExists(err.isAccountExists);
+      } else {
+        setError(err instanceof Error ? err.message : "Couldn't create your account. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -40,7 +59,7 @@ export function SignUpScreen() {
     <Screen>
       <Header title="Create an account" subtitle="Set up your household" />
       <View style={styles.content}>
-        <TextField label="Name" placeholder="Your name" value={name} onChangeText={setName} />
+        <TextField label="Full Name" placeholder="First and last name" value={name} onChangeText={setName} />
         <TextField
           label="Email"
           placeholder="name@email.com"
@@ -56,6 +75,14 @@ export function SignUpScreen() {
           value={password}
           onChangeText={setPassword}
         />
+        <TextField
+          label="Confirm password"
+          placeholder="Type it again"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          error={passwordsMatch ? undefined : "Passwords don't match"}
+        />
         {error ? <Text style={[styles.error, { color: colors.danger }]}>{error}</Text> : null}
         <Button
           label={submitting ? "Creating account…" : "Sign up"}
@@ -65,7 +92,7 @@ export function SignUpScreen() {
           style={styles.submitButton}
         />
         <Button
-          label="Already have an account? Sign in"
+          label={accountExists ? "Sign in instead" : "Already have an account? Sign in"}
           variant="ghost"
           onPress={() => navigation.navigate("SignIn")}
           style={styles.switchButton}

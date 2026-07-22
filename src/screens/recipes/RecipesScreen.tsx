@@ -50,7 +50,12 @@ export function RecipesScreen() {
     setFavoritesLoading(true);
     try {
       const data = await favoritesApi.list();
-      setFavorites(data);
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray((data as { items?: Recipe[] })?.items)
+        ? (data as { items: Recipe[] }).items
+        : [];
+      setFavorites(list);
     } catch {
       setFavorites([]);
     } finally {

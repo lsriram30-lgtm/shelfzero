@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Screen, Header, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { AuthStackParamList } from "../../navigation/types";
+import { isValidEmail } from "../../utils/validation";
 
 type SignInNavigationProp = NativeStackNavigationProp<AuthStackParamList, "SignIn">;
 
@@ -24,6 +25,10 @@ export function SignInScreen() {
 
   const handleSignIn = async () => {
     if (!canSubmit) return;
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {

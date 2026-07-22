@@ -4,10 +4,44 @@ export type AuthResult = {
   token: string;
 };
 
+export class AuthError extends Error {
+  isAccountExists: boolean;
+
+  constructor(message: string, isAccountExists: boolean) {
+    super(message);
+    this.name = "AuthError";
+    this.isAccountExists = isAccountExists;
+  }
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  email: "email address",
+  password: "password",
+  name: "name",
+};
+
+function humanizeMessage(raw: string): string {
+  const match = raw.match(/^\[?\s*body\.(\w+)\s*\]?\s*(.+)$/i);
+  if (!match) return raw;
+
+  const [, field, detail] = match;
+  const label = FIELD_LABELS[field.toLowerCase()] ?? field;
+
+  if (/required|missing/i.test(detail)) return `Please enter your ${label}.`;
+  if (/short|min|length/i.test(detail)) return `Your ${label} is too short.`;
+  if (/invalid/i.test(detail)) return `Please enter a valid ${label}.`;
+  return `There's a problem with your ${label}. Please check it and try again.`;
+}
+
 async function authRequest(path: string, body: unknown): Promise<AuthResult> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      // BetterAuth rejects requests with no Origin header, which a bare
+      // React Native fetch() never sends the way a browser would.
+      Origin: API_BASE_URL,
+    },
     body: JSON.stringify(body),
   });
 
@@ -15,11 +49,15 @@ async function authRequest(path: string, body: unknown): Promise<AuthResult> {
   const data = text ? JSON.parse(text) : undefined;
 
   if (!response.ok) {
-    const message =
+    const rawMessage: string =
       data && typeof data === "object" && "message" in data
         ? String((data as { message: unknown }).message)
         : "Something went wrong. Please try again.";
-    throw new Error(message);
+    const isAccountExists = /already exist|already registered|already in use/i.test(rawMessage);
+    const message = isAccountExists
+      ? "An account with this email already exists."
+      : humanizeMessage(rawMessage);
+    throw new AuthError(message, isAccountExists);
   }
 
   return data as AuthResult;
