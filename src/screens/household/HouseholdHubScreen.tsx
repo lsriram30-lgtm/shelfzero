@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
@@ -12,13 +12,9 @@ import { useDonations } from "../../context/DonationContext";
 import { Screen, Header, Card, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
-import { API_BASE_URL } from "../../api/client";
+import { inviteLink } from "../../utils/inviteLink";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
-
-function inviteLink(token: string): string {
-  return `${API_BASE_URL}/join/${token}`;
-}
 
 export function HouseholdHubScreen() {
   const { colors } = useTheme();
@@ -40,6 +36,26 @@ export function HouseholdHubScreen() {
     if (!newItem.trim()) return;
     await addItem({ name: newItem.trim(), qty: 1 });
     setNewItem("");
+  };
+
+  const handleCancelInvite = (id: string, name: string) => {
+    Alert.alert("Cancel invite", `Cancel the pending invite for ${name}?`, [
+      { text: "Keep it", style: "cancel" },
+      {
+        text: "Cancel invite",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await cancelInvite(id);
+          } catch (err) {
+            Alert.alert(
+              "Couldn't cancel invite",
+              err instanceof Error ? err.message : "Something went wrong. Please try again."
+            );
+          }
+        },
+      },
+    ]);
   };
 
   const pendingInvites = invites.filter((invite) => invite.status === "pending");
@@ -80,7 +96,7 @@ export function HouseholdHubScreen() {
                   <Pressable onPress={() => handleCopyLink(invite.token)}>
                     <Ionicons name="link-outline" size={18} color={colors.primary} />
                   </Pressable>
-                  <Pressable onPress={() => cancelInvite(invite.id)}>
+                  <Pressable onPress={() => handleCancelInvite(invite.id, invite.name)}>
                     <Ionicons name="close-circle-outline" size={18} color={colors.danger} />
                   </Pressable>
                 </View>

@@ -7,15 +7,11 @@ import { invitesApi } from "../../api/invites";
 import { Screen, Header, Card, Button, Pill, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { ContactType } from "../../types";
-import { API_BASE_URL } from "../../api/client";
+import { inviteLink } from "../../utils/inviteLink";
 
 type FlowStep = "choose" | "details" | "sent";
 
 const ROLES = ["Adult", "Teen", "Child", "Guest"];
-
-function inviteLink(token: string): string {
-  return `${API_BASE_URL}/join/${token}`;
-}
 
 export function InviteFlowScreen() {
   const { colors } = useTheme();
