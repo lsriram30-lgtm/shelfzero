@@ -45,11 +45,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       endpoint exists for this yet, so it's a self-contained flow (pick expiring items,
       pick a placeholder partner, confirm) that removes items from the pantry for real
       and keeps a local donation history.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make notification settings
-      actually save (branch: `feature/notification-persistence`) — merged into `master`.
-      The expiry-reminder and invite-activity toggles on the Household Hub screen now
-      persist locally (same AsyncStorage pattern as the donate feature) instead of
-      resetting on every reload.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make settings that actually
+      save, across the whole app, not just notifications (branch:
+      `feature/notification-persistence`) — merged into `master`. Audited every
+      settings-style control in the app: appearance/theme, onboarding profile, and
+      donation history were already persisting; the expiry-reminder and invite-activity
+      toggles on the Household Hub screen were the only ones resetting on reload, so
+      those now persist locally the same way (AsyncStorage).
 
 ### Not yet assigned
 
@@ -57,6 +59,9 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
 - [ ] Fix the "Household Hub" screen (members/invites) so it actually works end to end
+- [ ] Make notifications actually get sent — right now the toggles just remember
+      whether they're on or off, but no expiry reminders or invite alerts are ever
+      delivered (no notification permission request, scheduling, or push setup exists yet)
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
 - [ ] Bring more of the color palette (like Blush Beet and Peach Protein) into the
