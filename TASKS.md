@@ -45,6 +45,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       endpoint exists for this yet, so it's a self-contained flow (pick expiring items,
       pick a placeholder partner, confirm) that removes items from the pantry for real
       and keeps a local donation history.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make notification settings
+      actually save (branch: `feature/notification-persistence`) — merged into `master`.
+      The expiry-reminder and invite-activity toggles on the Household Hub screen now
+      persist locally (same AsyncStorage pattern as the donate feature) instead of
+      resetting on every reload.
 
 ### Not yet assigned
 
@@ -56,7 +61,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       no server endpoint or actual donation partner behind it)
 - [ ] Bring more of the color palette (like Blush Beet and Peach Protein) into the
       app's look — right now only a few of the named colors are actually used
-- [ ] Make notification settings actually save (currently they reset every time)
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
