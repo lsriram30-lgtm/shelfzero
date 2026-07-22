@@ -52,6 +52,10 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       notification toggles; the first three already persisted, the notification
       toggles were the only ones resetting on reload, so those now persist locally
       the same way (AsyncStorage).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) (quick fix) Refine what
+      the Dashboard shows when the pantry is empty (branch:
+      `feature/dashboard-empty-state`) — replaced the misleading "100% Pantry
+      health" ring with a proper empty-state prompt to add your first item.
 
 ### Not yet assigned
 
