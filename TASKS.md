@@ -54,6 +54,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Fix the "Household Hub" screen (members/invites) so it actually works end to end
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
+- [ ] Bring more of the color palette (like Blush Beet and Peach Protein) into the
+      app's look — right now only a few of the named colors are actually used
 - [ ] Make notification settings actually save (currently they reset every time)
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
