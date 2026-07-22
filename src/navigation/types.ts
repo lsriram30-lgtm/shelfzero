@@ -1,16 +1,26 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
-import { Recipe } from "../types";
+import { PantryItem, Recipe } from "../types";
 
 export type PantryStackParamList = {
   Pantry: undefined;
   PantryStats: undefined;
-  AddPantryItem: { prefill?: { name?: string; category?: string; quantity?: number; unit?: string } } | undefined;
+  AddPantryItem:
+    | {
+        prefill?: { name?: string; category?: string; quantity?: number; unit?: string };
+        item?: PantryItem;
+      }
+    | undefined;
   Scan: undefined;
 };
 
 export type RecipesStackParamList = {
   Recipes: undefined;
   RecipeDetail: { recipe: Recipe };
+};
+
+export type AuthStackParamList = {
+  SignIn: undefined;
+  SignUp: undefined;
 };
 
 export type HouseholdStackParamList = {
@@ -29,6 +39,7 @@ export type MainTabParamList = {
 };
 
 export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
   Onboarding: undefined;
   Main: NavigatorScreenParams<MainTabParamList>;
   Join: { token: string };

@@ -11,6 +11,7 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider, useTheme } from "./src/context/ThemeContext";
+import { AuthProvider } from "./src/context/AuthContext";
 import { OnboardingProvider } from "./src/context/OnboardingContext";
 import { DonationProvider } from "./src/context/DonationContext";
 import { NotificationPreferencesProvider } from "./src/context/NotificationPreferencesContext";
@@ -59,13 +60,15 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayout}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <OnboardingProvider>
-            <DonationProvider>
-              <NotificationPreferencesProvider>
-                <Navigation />
-              </NotificationPreferencesProvider>
-            </DonationProvider>
-          </OnboardingProvider>
+          <AuthProvider>
+            <OnboardingProvider>
+              <DonationProvider>
+                <NotificationPreferencesProvider>
+                  <Navigation />
+                </NotificationPreferencesProvider>
+              </DonationProvider>
+            </OnboardingProvider>
+          </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

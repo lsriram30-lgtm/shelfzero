@@ -1,9 +1,10 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { useAuth } from "../../context/AuthContext";
 import { useInvites } from "../../hooks/useInvites";
 import { Screen, Header, Card, Button, Pill } from "../../components";
 import { spacing, typography } from "../../theme";
@@ -14,10 +15,29 @@ type ProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, 
 export function ProfileScreen() {
   const { colors, mode, setMode } = useTheme();
   const navigation = useNavigation<ProfileNavigationProp>();
-  const { profile } = useOnboarding();
+  const { profile, resetOnboarding } = useOnboarding();
   const { invites } = useInvites();
+  const { signOut } = useAuth();
 
   const members = invites.filter((invite) => invite.status === "accepted");
+
+  const handleResetForTesting = () => {
+    Alert.alert(
+      "Reset app for testing",
+      "This signs you out and clears the local questionnaire status, so the next app open starts from the very first screen again. Your account and data on the server aren't affected.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            await resetOnboarding();
+            await signOut();
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <Screen>
@@ -72,6 +92,14 @@ export function ProfileScreen() {
             ))}
           </View>
         </Card>
+
+        <Button label="Sign out" variant="neutral" onPress={signOut} style={styles.signOutButton} />
+        <Button
+          label="Reset app (testing)"
+          variant="outline"
+          onPress={handleResetForTesting}
+          style={styles.signOutButton}
+        />
       </ScrollView>
     </Screen>
   );
@@ -106,5 +134,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  signOutButton: {
+    marginHorizontal: spacing.xl,
   },
 });

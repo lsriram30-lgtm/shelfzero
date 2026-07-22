@@ -35,8 +35,8 @@ export function AllergiesStep({ draft, update, onNext, onBack }: Props) {
 
   return (
     <OnboardingStepLayout
-      step={4}
-      totalSteps={7}
+      step={5}
+      totalSteps={8}
       title="Any allergies we should know about?"
       subtitle="We'll flag these when suggesting recipes."
       onNext={onNext}

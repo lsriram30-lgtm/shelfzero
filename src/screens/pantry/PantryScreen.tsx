@@ -38,18 +38,21 @@ function ExpiryTag({ expiresAt }: { expiresAt: string | null }) {
   return <Text style={[styles.expiryTag, { color: tone }]}>{label}</Text>;
 }
 
-function PantryRow({ item }: { item: PantryItem }) {
+function PantryRow({ item, onPress }: { item: PantryItem; onPress: () => void }) {
   const { colors } = useTheme();
   return (
-    <View style={[styles.row, { borderColor: colors.border }]}>
+    <Pressable style={[styles.row, { borderColor: colors.border }]} onPress={onPress}>
       <View style={styles.rowMain}>
         <Text style={[styles.rowTitle, { color: colors.text }]}>{item.name}</Text>
         <Text style={[styles.rowMeta, { color: colors.textMuted }]}>
           {item.quantity} {item.unit}
         </Text>
       </View>
-      <ExpiryTag expiresAt={item.expiresAt} />
-    </View>
+      <View style={styles.rowEnd}>
+        <ExpiryTag expiresAt={item.expiresAt} />
+        <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+      </View>
+    </Pressable>
   );
 }
 
@@ -58,11 +61,13 @@ function CategoryGroup({
   items,
   expanded,
   onToggle,
+  onSelectItem,
 }: {
   category: string;
   items: PantryItem[];
   expanded: boolean;
   onToggle: () => void;
+  onSelectItem: (item: PantryItem) => void;
 }) {
   const { colors } = useTheme();
   return (
@@ -80,7 +85,7 @@ function CategoryGroup({
       {expanded ? (
         <View>
           {items.map((item) => (
-            <PantryRow key={item.id} item={item} />
+            <PantryRow key={item.id} item={item} onPress={() => onSelectItem(item)} />
           ))}
         </View>
       ) : null}
@@ -180,6 +185,7 @@ export function PantryScreen() {
               items={grouped[category]}
               expanded={!collapsed.has(category)}
               onToggle={() => toggleCategory(category)}
+              onSelectItem={(item) => navigation.navigate("AddPantryItem", { item })}
             />
           ))
         )}
@@ -242,6 +248,11 @@ const styles = StyleSheet.create({
   },
   rowMain: {
     flexShrink: 1,
+  },
+  rowEnd: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
   },
   rowTitle: {
     ...typography.bodyMedium,

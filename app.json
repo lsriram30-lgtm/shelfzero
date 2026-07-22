@@ -9,7 +9,9 @@
     "splash": {
       "backgroundColor": "#FFFAF2"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.shelfzero.app",
@@ -22,7 +24,9 @@
       "adaptiveIcon": {
         "backgroundColor": "#FFFAF2"
       },
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA"
+      ],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -32,12 +36,18 @@
               "host": "join"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
     "extra": {
-      "apiBaseUrl": "https://rs1ilxb2il.preview.c24.airoapp.ai"
-    }
+      "apiBaseUrl": "https://rs1ilxb2il.c24.airoapp.ai"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

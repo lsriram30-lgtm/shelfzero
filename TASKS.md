@@ -57,18 +57,28 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       `feature/dashboard-empty-state`) — merged into `master`. Replaced the
       misleading "100% Pantry health" ring with a proper empty-state prompt to
       add your first item.
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Understand and fix the
-      "401 Unauthorized" errors happening across the whole app (pantry, household
-      hub, everywhere) — the backend was built with GoDaddy's Airo AI Builder, which
-      has its own built-in auth, but this app was never given a login or API key to
-      satisfy it. Need to check the Airo dashboard for an API key or an auth toggle.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add real sign-in/sign-up and
+      fix the app-wide "401 Unauthorized" errors (branch: `feature/mobile-auth`, PR #2 —
+      open, awaiting Laya's review). About 2 hours. Root cause: the backend (built with
+      GoDaddy's Airo AI Builder) requires everyone to be logged in, but the app never had
+      a login screen. Sign-up is now the first question of the questionnaire (just email
+      + password) — the rest of the questionnaire continues right after, unchanged.
+      Choosing "sign in" instead skips past the rest of the questionnaire entirely. Also
+      fixed along the way: a second wave of errors (403s) once signed in, because new
+      accounts had no "household" set up yet — that's now created automatically; the
+      Household Hub's "copy invite link" was pointing at the backend instead of a working
+      link, so invites could never actually be accepted (this also resolves the separate
+      "fix Household Hub end to end" task, folding in an earlier fix from
+      `feature/household-hub` that never got merged); tapping a pantry item now lets
+      you edit or delete it (previously you could only add items, with no way to fix
+      a mistake or remove one); and a crash on the Recipes tab caused by an
+      unexpected shape in the backend's response.
 
 ### Not yet assigned
 
 - [ ] Improve the receipt scanning feature so it reads receipts more reliably
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
-- [ ] Fix the "Household Hub" screen (members/invites) so it actually works end to end
 - [ ] Make notifications actually get sent — right now the toggles just remember
       whether they're on or off, but no expiry reminders or invite alerts are ever
       delivered (no notification permission request, scheduling, or push setup exists yet)
@@ -94,6 +104,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Set up GitHub Actions to automatically check the code on every push or
       Pull Request, so mistakes get caught before merging instead of relying
       on someone remembering to check by hand
+- [ ] Refine the app's icon visuals and general look so it feels more polished
+      and professional overall
 
 ---
 
