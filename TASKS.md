@@ -54,8 +54,9 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       the same way (AsyncStorage).
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) (quick fix) Refine what
       the Dashboard shows when the pantry is empty (branch:
-      `feature/dashboard-empty-state`) — replaced the misleading "100% Pantry
-      health" ring with a proper empty-state prompt to add your first item.
+      `feature/dashboard-empty-state`) — merged into `master`. Replaced the
+      misleading "100% Pantry health" ring with a proper empty-state prompt to
+      add your first item.
 
 ### Not yet assigned
 
