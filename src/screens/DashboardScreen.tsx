@@ -61,7 +61,7 @@ export function DashboardScreen() {
           <Card style={styles.ringCard}>
             <EmptyState
               title="Your pantry is empty"
-              message="Add your first item to start tracking freshness and see your pantry health."
+              message="Add your first item to start tracking freshness and to see your pantry health."
               actionLabel="Add item"
               onAction={() => navigation.navigate("PantryTab", { screen: "AddPantryItem" })}
             />
