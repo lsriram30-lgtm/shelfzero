@@ -58,21 +58,14 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       misleading "100% Pantry health" ring with a proper empty-state prompt to
       add your first item.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add real sign-in/sign-up and
-      fix the app-wide "401 Unauthorized" errors (branch: `feature/mobile-auth`, PR #2 —
-      open, awaiting Laya's review). About 2 hours. Root cause: the backend (built with
-      GoDaddy's Airo AI Builder) requires everyone to be logged in, but the app never had
-      a login screen. Sign-up is now the first question of the questionnaire (just email
-      + password) — the rest of the questionnaire continues right after, unchanged.
-      Choosing "sign in" instead skips past the rest of the questionnaire entirely. Also
-      fixed along the way: a second wave of errors (403s) once signed in, because new
-      accounts had no "household" set up yet — that's now created automatically; the
-      Household Hub's "copy invite link" was pointing at the backend instead of a working
-      link, so invites could never actually be accepted (this also resolves the separate
-      "fix Household Hub end to end" task, folding in an earlier fix from
-      `feature/household-hub` that never got merged); tapping a pantry item now lets
-      you edit or delete it (previously you could only add items, with no way to fix
-      a mistake or remove one); and a crash on the Recipes tab caused by an
-      unexpected shape in the backend's response.
+      fix the app-wide "401 Unauthorized" errors (branch: `feature/mobile-auth`, PR #2)
+      — merged into `master` by Laya. The backend (GoDaddy's Airo AI Builder) requires
+      login for every request, but the app never had one. Sign-up is now the
+      questionnaire's first question (email + password only), rest unchanged; choosing
+      "sign in" instead skips the rest of the questionnaire. Also bundled in: fixed 403s
+      caused by new accounts having no household (now auto-created), the broken
+      Household Hub invite link (resolves that task too), pantry item edit/delete, and a
+      Recipes tab crash.
 
 ### Not yet assigned
 
