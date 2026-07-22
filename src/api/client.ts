@@ -1,8 +1,11 @@
 import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
 
 const API_BASE_URL: string =
   (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ??
-  "https://rs1ilxb2il.preview.c24.airoapp.ai";
+  "https://rs1ilxb2il.c24.airoapp.ai";
+
+export const AUTH_TOKEN_KEY = "shelfzero.authToken";
 
 export class ApiError extends Error {
   status: number;
@@ -20,12 +23,14 @@ type RequestOptions = Omit<RequestInit, "body"> & { body?: unknown };
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { body, headers, ...rest } = options;
+  const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...rest,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -35,6 +40,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const data = text ? safeJsonParse(text) : undefined;
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+    }
     const message: string =
       data && typeof data === "object" && "message" in data
         ? String((data as { message: unknown }).message)

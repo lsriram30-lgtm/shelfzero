@@ -13,6 +13,11 @@ export type RecipesStackParamList = {
   RecipeDetail: { recipe: Recipe };
 };
 
+export type AuthStackParamList = {
+  SignIn: undefined;
+  SignUp: undefined;
+};
+
 export type HouseholdStackParamList = {
   HouseholdHub: undefined;
   Profile: undefined;
@@ -29,6 +34,7 @@ export type MainTabParamList = {
 };
 
 export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
   Onboarding: undefined;
   Main: NavigatorScreenParams<MainTabParamList>;
   Join: { token: string };

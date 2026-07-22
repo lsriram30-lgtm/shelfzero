@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { useAuth } from "../../context/AuthContext";
 import { useInvites } from "../../hooks/useInvites";
 import { Screen, Header, Card, Button, Pill } from "../../components";
 import { spacing, typography } from "../../theme";
@@ -16,6 +17,7 @@ export function ProfileScreen() {
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile } = useOnboarding();
   const { invites } = useInvites();
+  const { signOut } = useAuth();
 
   const members = invites.filter((invite) => invite.status === "accepted");
 
@@ -72,6 +74,8 @@ export function ProfileScreen() {
             ))}
           </View>
         </Card>
+
+        <Button label="Sign out" variant="neutral" onPress={signOut} style={styles.signOutButton} />
       </ScrollView>
     </Screen>
   );
@@ -106,5 +110,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  signOutButton: {
+    marginHorizontal: spacing.xl,
   },
 });
