@@ -53,9 +53,7 @@ export function OnboardingStepLayout({
         <View style={styles.footer}>
           {onBack ? (
             <Button label="Back" variant="ghost" onPress={onBack} style={styles.backButton} />
-          ) : (
-            <View style={styles.backButton} />
-          )}
+          ) : null}
           <Button
             label={nextLabel}
             onPress={onNext}
@@ -102,7 +100,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: spacing.xl,
+    marginTop: spacing.xxl,
     gap: spacing.md,
   },
   backButton: {
