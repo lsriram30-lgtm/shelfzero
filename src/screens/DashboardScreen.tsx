@@ -5,7 +5,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { usePantry } from "../hooks/usePantry";
-import { Card, Header, ProgressRing, Button, Screen } from "../components";
+import { Card, Header, ProgressRing, Button, Screen, EmptyState } from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { PantryItem } from "../types";
@@ -57,10 +57,21 @@ export function DashboardScreen() {
       >
         <Header title={greeting} subtitle="Here's your pantry snapshot" />
 
-        <Card style={styles.ringCard}>
-          <ProgressRing value={health} label="Pantry health" />
-          <Text style={[styles.briefing, { color: colors.text }]}>{briefing}</Text>
-        </Card>
+        {items.length === 0 && !loading ? (
+          <Card style={styles.ringCard}>
+            <EmptyState
+              title="Your pantry is empty"
+              message="Add your first item to start tracking freshness and see your pantry health."
+              actionLabel="Add item"
+              onAction={() => navigation.navigate("PantryTab", { screen: "AddPantryItem" })}
+            />
+          </Card>
+        ) : (
+          <Card style={styles.ringCard}>
+            <ProgressRing value={health} label="Pantry health" />
+            <Text style={[styles.briefing, { color: colors.text }]}>{briefing}</Text>
+          </Card>
+        )}
 
         {recommendedMeal ? (
           <Card style={styles.card}>
