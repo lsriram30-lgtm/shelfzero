@@ -45,13 +45,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       endpoint exists for this yet, so it's a self-contained flow (pick expiring items,
       pick a placeholder partner, confirm) that removes items from the pantry for real
       and keeps a local donation history.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make settings that actually
-      save, across the whole app, not just notifications (branch:
-      `feature/notification-persistence`) — merged into `master`. Audited every
-      settings-style control in the app: appearance/theme, onboarding profile, and
-      donation history were already persisting; the expiry-reminder and invite-activity
-      toggles on the Household Hub screen were the only ones resetting on reload, so
-      those now persist locally the same way (AsyncStorage).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Audit every settings-style
+      control in the app and confirm they persist across app re-entries (branch:
+      `feature/notification-persistence`) — merged into `master`. Checked
+      appearance/theme, onboarding profile, donation history, and the Household Hub
+      notification toggles; the first three already persisted, the notification
+      toggles were the only ones resetting on reload, so those now persist locally
+      the same way (AsyncStorage).
 
 ### Not yet assigned
 
