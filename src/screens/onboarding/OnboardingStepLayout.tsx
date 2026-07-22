@@ -49,21 +49,21 @@ export function OnboardingStepLayout({
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</Text>
         ) : null}
         <View style={styles.body}>{children}</View>
-      </ScrollView>
 
-      <View style={styles.footer}>
-        {onBack ? (
-          <Button label="Back" variant="ghost" onPress={onBack} style={styles.backButton} />
-        ) : (
-          <View style={styles.backButton} />
-        )}
-        <Button
-          label={nextLabel}
-          onPress={onNext}
-          disabled={nextDisabled}
-          style={styles.nextButton}
-        />
-      </View>
+        <View style={styles.footer}>
+          {onBack ? (
+            <Button label="Back" variant="ghost" onPress={onBack} style={styles.backButton} />
+          ) : (
+            <View style={styles.backButton} />
+          )}
+          <Button
+            label={nextLabel}
+            onPress={onNext}
+            disabled={nextDisabled}
+            style={styles.nextButton}
+          />
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
@@ -102,9 +102,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
+    marginTop: spacing.xl,
     gap: spacing.md,
   },
   backButton: {
