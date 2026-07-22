@@ -52,6 +52,10 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       notification toggles; the first three already persisted, the notification
       toggles were the only ones resetting on reload, so those now persist locally
       the same way (AsyncStorage).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) (quick fix) Refine what
+      the Dashboard shows when the pantry is empty (branch:
+      `feature/dashboard-empty-state`) — replaced the misleading "100% Pantry
+      health" ring with a proper empty-state prompt to add your first item.
 
 ### Not yet assigned
 
@@ -78,6 +82,9 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add automated tests — right now there are none, so the only way to catch
       something broken (like the pantry or shopping list) is clicking through
       the app by hand every time
+- [ ] Add a way to remove a household member, or leave a household yourself —
+      right now you can invite people, but once someone's a member there's no
+      way to remove them or leave
 - [ ] Set up GitHub Actions to automatically check the code on every push or
       Pull Request, so mistakes get caught before merging instead of relying
       on someone remembering to check by hand
