@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useInvites } from "../../hooks/useInvites";
 import { useShoppingList } from "../../hooks/useShoppingList";
+import { useNotificationPreferences } from "../../context/NotificationPreferencesContext";
 import { useDonations } from "../../context/DonationContext";
 import { Screen, Header, Card, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
@@ -26,10 +27,10 @@ export function HouseholdHubScreen() {
   const { items: shoppingItems, addItem, toggleChecked, removeItem } = useShoppingList();
   const { totalItemsDonated } = useDonations();
 
+  const { notifyExpiry, notifyInvites, setNotifyExpiry, setNotifyInvites } =
+    useNotificationPreferences();
+
   const [newItem, setNewItem] = useState("");
-  // Notification preferences aren't backed by an API endpoint yet — local only.
-  const [notifyExpiry, setNotifyExpiry] = useState(true);
-  const [notifyInvites, setNotifyInvites] = useState(true);
 
   const handleCopyLink = async (token: string) => {
     await Clipboard.setStringAsync(inviteLink(token));
