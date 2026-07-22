@@ -12,8 +12,8 @@ interface Props {
 export function NameLocationStep({ draft, update, onNext }: Props) {
   return (
     <OnboardingStepLayout
-      step={0}
-      totalSteps={7}
+      step={1}
+      totalSteps={8}
       title="Let's get to know you"
       subtitle="We'll use this to personalize your pantry and meal suggestions."
       onNext={onNext}

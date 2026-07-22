@@ -18,8 +18,8 @@ export function HouseholdSizeStep({ draft, update, onNext, onBack }: Props) {
 
   return (
     <OnboardingStepLayout
-      step={1}
-      totalSteps={7}
+      step={2}
+      totalSteps={8}
       title="Who's in your household?"
       subtitle="This helps us size recipes and portions correctly."
       onNext={onNext}

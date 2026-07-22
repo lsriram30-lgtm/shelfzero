@@ -26,8 +26,8 @@ function Row({ label, value }: { label: string; value: string }) {
 export function RecapStep({ draft, onNext, onBack, submitting }: Props) {
   return (
     <OnboardingStepLayout
-      step={6}
-      totalSteps={7}
+      step={7}
+      totalSteps={8}
       title="You're all set"
       subtitle="Here's what we'll use to personalize ShelfZero."
       onNext={onNext}

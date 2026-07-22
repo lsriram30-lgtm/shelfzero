@@ -42,8 +42,8 @@ export function CuisinePrefsStep({ draft, update, onNext, onBack }: Props) {
 
   return (
     <OnboardingStepLayout
-      step={2}
-      totalSteps={7}
+      step={3}
+      totalSteps={8}
       title="What cuisines do you enjoy?"
       subtitle="Pick as many as you like."
       onNext={onNext}

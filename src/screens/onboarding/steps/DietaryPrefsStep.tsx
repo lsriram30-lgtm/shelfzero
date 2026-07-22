@@ -34,8 +34,8 @@ export function DietaryPrefsStep({ draft, update, onNext, onBack }: Props) {
 
   return (
     <OnboardingStepLayout
-      step={3}
-      totalSteps={7}
+      step={4}
+      totalSteps={8}
       title="Any dietary preferences?"
       subtitle="Pick as many as you like."
       onNext={onNext}
