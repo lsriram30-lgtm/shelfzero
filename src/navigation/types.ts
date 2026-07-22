@@ -1,10 +1,15 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
-import { Recipe } from "../types";
+import { PantryItem, Recipe } from "../types";
 
 export type PantryStackParamList = {
   Pantry: undefined;
   PantryStats: undefined;
-  AddPantryItem: { prefill?: { name?: string; category?: string; quantity?: number; unit?: string } } | undefined;
+  AddPantryItem:
+    | {
+        prefill?: { name?: string; category?: string; quantity?: number; unit?: string };
+        item?: PantryItem;
+      }
+    | undefined;
   Scan: undefined;
 };
 

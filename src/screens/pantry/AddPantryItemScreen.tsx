@@ -26,17 +26,20 @@ export function AddPantryItemScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<AddRouteProp>();
-  const { addItem } = usePantry();
+  const { addItem, updateItem, removeItem } = usePantry();
 
   const prefill = route.params?.prefill;
+  const editingItem = route.params?.item;
+  const isEditing = !!editingItem;
 
-  const [name, setName] = useState(prefill?.name ?? "");
-  const [category, setCategory] = useState(prefill?.category ?? CATEGORIES[0]);
-  const [quantity, setQuantity] = useState(String(prefill?.quantity ?? 1));
-  const [unit, setUnit] = useState(prefill?.unit ?? UNITS[0]);
-  const [expiresAt, setExpiresAt] = useState("");
-  const [notes, setNotes] = useState("");
+  const [name, setName] = useState(editingItem?.name ?? prefill?.name ?? "");
+  const [category, setCategory] = useState(editingItem?.category ?? prefill?.category ?? CATEGORIES[0]);
+  const [quantity, setQuantity] = useState(String(editingItem?.quantity ?? prefill?.quantity ?? 1));
+  const [unit, setUnit] = useState(editingItem?.unit ?? prefill?.unit ?? UNITS[0]);
+  const [expiresAt, setExpiresAt] = useState(editingItem?.expiresAt ?? "");
+  const [notes, setNotes] = useState(editingItem?.notes ?? "");
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const parsedQuantity = Number(quantity);
   const canSubmit = name.trim().length > 0 && !Number.isNaN(parsedQuantity) && parsedQuantity > 0;
@@ -50,18 +53,23 @@ export function AddPantryItemScreen() {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      await addItem({
+      const payload = {
         name: name.trim(),
         category,
         quantity: parsedQuantity,
         unit,
         expiresAt: expiresAt.trim() ? expiresAt.trim() : null,
         notes: notes.trim() ? notes.trim() : null,
-      });
+      };
+      if (editingItem) {
+        await updateItem(editingItem.id, payload);
+      } else {
+        await addItem(payload);
+      }
       navigation.goBack();
     } catch (err) {
       Alert.alert(
-        "Couldn't add item",
+        isEditing ? "Couldn't save changes" : "Couldn't add item",
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     } finally {
@@ -69,9 +77,37 @@ export function AddPantryItemScreen() {
     }
   };
 
+  const handleDelete = () => {
+    if (!editingItem) return;
+    Alert.alert("Remove item", `Remove ${editingItem.name} from your pantry?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: async () => {
+          setDeleting(true);
+          try {
+            await removeItem(editingItem.id);
+            navigation.goBack();
+          } catch (err) {
+            Alert.alert(
+              "Couldn't remove item",
+              err instanceof Error ? err.message : "Something went wrong. Please try again."
+            );
+          } finally {
+            setDeleting(false);
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <Screen>
-      <Header title="Add item" subtitle="Enter the details manually" />
+      <Header
+        title={isEditing ? "Edit item" : "Add item"}
+        subtitle={isEditing ? "Update the details or remove it" : "Enter the details manually"}
+      />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField
           label="Name"
@@ -138,12 +174,23 @@ export function AddPantryItemScreen() {
         />
 
         <Button
-          label={submitting ? "Adding…" : "Add to pantry"}
+          label={submitting ? (isEditing ? "Saving…" : "Adding…") : isEditing ? "Save changes" : "Add to pantry"}
           onPress={handleSubmit}
-          disabled={!canSubmit || submitting}
+          disabled={!canSubmit || submitting || deleting}
           loading={submitting}
           style={styles.submit}
         />
+
+        {isEditing ? (
+          <Button
+            label={deleting ? "Removing…" : "Remove item"}
+            variant="outline"
+            onPress={handleDelete}
+            disabled={submitting || deleting}
+            loading={deleting}
+            style={styles.deleteButton}
+          />
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -171,6 +218,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   submit: {
+    marginTop: spacing.md,
+  },
+  deleteButton: {
     marginTop: spacing.md,
   },
 });

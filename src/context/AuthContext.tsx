@@ -1,7 +1,20 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { authApi } from "../api/auth";
+import { householdApi } from "../api/household";
 import { AUTH_TOKEN_KEY } from "../api/client";
+
+async function ensureHousehold(householdName: string) {
+  try {
+    const me = await householdApi.me();
+    if (!me.householdId) {
+      await householdApi.create(householdName);
+    }
+  } catch {
+    // Best-effort: if this fails, screens that need a household will
+    // surface their own error, and it can be retried later.
+  }
+}
 
 interface AuthContextValue {
   isSignedIn: boolean;
@@ -26,12 +39,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { token } = await authApi.signIn(email, password);
     await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+    await ensureHousehold("My Household");
     setIsSignedIn(true);
   };
 
   const signUp = async (name: string, email: string, password: string) => {
     const { token } = await authApi.signUp(name, email, password);
     await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+    await ensureHousehold(`${name}'s Household`);
     setIsSignedIn(true);
   };
 

@@ -30,6 +30,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      // Same fix as auth.ts: the backend's origin check applies to every
+      // authenticated route, not just sign-in/sign-up.
+      Origin: API_BASE_URL,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
