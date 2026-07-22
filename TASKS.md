@@ -94,6 +94,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Set up GitHub Actions to automatically check the code on every push or
       Pull Request, so mistakes get caught before merging instead of relying
       on someone remembering to check by hand
+- [ ] Refine the app's icon visuals and general look so it feels more polished
+      and professional overall
 
 ---
 

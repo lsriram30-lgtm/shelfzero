@@ -32,6 +32,12 @@ export function SignUpScreen() {
     password.length > 0 &&
     password === confirmPassword;
 
+  const handleTryDifferentEmail = () => {
+    setEmail("");
+    setError(null);
+    setAccountExists(false);
+  };
+
   const handleSignUp = async () => {
     if (!canSubmit) return;
     if (!isValidEmail(email)) {
@@ -91,6 +97,14 @@ export function SignUpScreen() {
           loading={submitting}
           style={styles.submitButton}
         />
+        {accountExists ? (
+          <Button
+            label="Create new account anyway (use a different email)"
+            variant="ghost"
+            onPress={handleTryDifferentEmail}
+            style={styles.switchButton}
+          />
+        ) : null}
         <Button
           label={accountExists ? "Sign in instead" : "Already have an account? Sign in"}
           variant="ghost"
