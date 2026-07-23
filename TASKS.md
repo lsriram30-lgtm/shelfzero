@@ -65,11 +65,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       "sign in" instead skips the rest of the questionnaire. Also bundled in: fixed
       403s caused by new accounts having no household (now auto-created), fixed the
       broken Household Hub invite link (resolves that task too), allowed pantry items
-      to be added/edited/deleted, fixed the Recipes tab crash, added password-field
-      polish (show/hide icon, confirm-password on sign-up, friendlier error messages,
-      a fix for fields getting stuck under the phone's autofill suggestions, and
-      email-format validation), and a "create new account anyway" option when an
-      email's already taken.
+      to be added/edited/deleted, and fixed the Recipes tab crash. On top of that,
+      added password-field polish (show/hide icon, confirm-password on sign-up,
+      friendlier error messages, a fix for fields getting stuck under the phone's
+      autofill suggestions, and email-format validation) and a "create new account
+      anyway" option when an email's already taken.
 
 ### Not yet assigned
 
