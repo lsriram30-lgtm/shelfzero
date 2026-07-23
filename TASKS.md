@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 4 / 10 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 2 / 10 |
 
 ### Currently assigned
@@ -79,6 +79,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       friendlier error messages, a fix for fields getting stuck under the phone's
       autofill suggestions, and email-format validation) and a "create new account
       anyway" option when an email's already taken.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Set up GitHub Actions
+      to automatically check the code on every push or Pull Request, so
+      TypeScript type errors get caught before merging (branch:
+      `feature/ci-actions`) — merged into `master`. Installs dependencies and
+      runs the check; no automated tests exist yet to run alongside it.
 
 ### Not yet assigned
 
@@ -107,10 +112,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
       way to remove them or leave
-- [x] Set up GitHub Actions to automatically check the code on every push or
-      Pull Request, so TypeScript type errors get caught before merging
-      — merged into `master`. Installs dependencies and runs the check; no
-      automated tests exist yet to run alongside it.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
