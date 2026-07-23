@@ -112,6 +112,20 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       on someone remembering to check by hand
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
+- [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
+      but there's no way to recover an account if someone forgets their password)
+- [ ] Add pull-to-refresh on the pantry and shopping list screens, so the data
+      doesn't look stale until the whole app is restarted
+- [ ] Let the pantry list be sorted/filtered by expiry date, so items about to
+      go bad surface first instead of being buried in a flat list
+- [ ] Auto-add an item to the shopping list when its pantry quantity hits zero
+      or low, instead of relying on someone noticing and adding it manually
+- [ ] Add an offline/cached view that shows the last-known pantry state when the
+      server can't be reached, instead of a blank screen (pairs with the
+      real-error-message task above)
+- [ ] Add household member roles (e.g. owner vs. member) — relevant once the
+      "remove a member" task above exists, since removing people needs some
+      notion of who's allowed to do it
 
 ---
 
