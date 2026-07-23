@@ -107,9 +107,10 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
       way to remove them or leave
-- [ ] Set up GitHub Actions to automatically check the code on every push or
-      Pull Request, so mistakes get caught before merging instead of relying
-      on someone remembering to check by hand
+- [x] Set up GitHub Actions to automatically check the code on every push or
+      Pull Request, so TypeScript type errors get caught before merging
+      — merged into `master`. Installs dependencies and runs the check; no
+      automated tests exist yet to run alongside it.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
