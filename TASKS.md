@@ -79,9 +79,9 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       friendlier error messages, a fix for fields getting stuck under the phone's
       autofill suggestions, and email-format validation) and a "create new account
       anyway" option when an email's already taken.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Set up GitHub Actions
-      to automatically check the code on every push or Pull Request, so
-      TypeScript type errors get caught before merging (branch:
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) (quick fix) Set up
+      GitHub Actions to automatically check the code on every push or Pull
+      Request, so TypeScript type errors get caught before merging (branch:
       `feature/ci-actions`) — merged into `master`. Installs dependencies and
       runs the check; no automated tests exist yet to run alongside it.
 
