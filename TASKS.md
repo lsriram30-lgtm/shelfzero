@@ -62,10 +62,10 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       — merged into `master` by Laya. The backend (GoDaddy's Airo AI Builder) requires
       login for every request, but the app never had one. Sign-up is now the
       questionnaire's first question (email + password only), rest unchanged; choosing
-      "sign in" instead skips the rest of the questionnaire. Also bundled in: fixed 403s
-      caused by new accounts having no household (now auto-created), the broken
-      Household Hub invite link (resolves that task too), pantry item edit/delete, and a
-      Recipes tab crash.
+      "sign in" instead skips the rest of the questionnaire. Also bundled in: fixed
+      403s caused by new accounts having no household (now auto-created), fixed the
+      broken Household Hub invite link (resolves that task too), allowed pantry items
+      to be added/edited/deleted, and fixed the Recipes tab crash.
 
 ### Not yet assigned
 
