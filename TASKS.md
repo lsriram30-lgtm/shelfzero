@@ -34,7 +34,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 ### This week's progress
 
-**Goal:** 10 tasks each by end of day 7/22.
+**Goal:** 10 tasks each by end of day 7/25.
 
 | | Completed |
 |---|---|
