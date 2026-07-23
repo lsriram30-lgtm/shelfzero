@@ -32,6 +32,15 @@ at the bottom).
 Check the box when a task is done. The color badge stays next to it, so whoever
 didn't do it can tell at a glance "oh, they finished that" and go review it.
 
+### This week's progress
+
+**Goal:** 10 tasks each by end of day 7/22.
+
+| | Completed |
+|---|---|
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 4 / 10 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 2 / 10 |
+
 ### Currently assigned
 
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add more cuisine options
