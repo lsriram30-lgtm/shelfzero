@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 8 / 10 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 9 / 10 |
 
 ### Currently assigned
 
@@ -114,6 +114,12 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       exist yet) and gave Pill a `highlight` tone; used it for the Dashboard's
       "USE IT UP" badge and cycled the Pantry Stats category bars through
       primary/Blush Beet/Peach Protein/secondary instead of one flat color.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an offline/cached view
+      that shows the last-known pantry state when the server can't be reached
+      (branch: `feature/laya-app-improvements`). Pantry fetches are now cached
+      to AsyncStorage on success; on a failed fetch, the cached list is shown
+      with a "Showing last synced data" banner (Dashboard and Pantry) instead
+      of a blank/error screen.
 
 ### Not yet assigned
 
@@ -138,9 +144,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
       but there's no way to recover an account if someone forgets their password)
-- [ ] Add an offline/cached view that shows the last-known pantry state when the
-      server can't be reached, instead of a blank screen (pairs with the
-      real-error-message task above)
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it

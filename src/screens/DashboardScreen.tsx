@@ -35,7 +35,7 @@ function soonToExpire(items: PantryItem[]): PantryItem[] {
 export function DashboardScreen() {
   const { colors } = useTheme();
   const { profile } = useOnboarding();
-  const { items, loading, error, refresh } = usePantry();
+  const { items, loading, error, isOffline, refresh } = usePantry();
   const navigation = useNavigation<DashboardNavigationProp>();
 
   const health = useMemo(() => computeHealth(items), [items]);
@@ -56,6 +56,12 @@ export function DashboardScreen() {
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
       >
         <Header title={greeting} subtitle="Here's your pantry snapshot" />
+
+        {isOffline ? (
+          <View style={styles.offlineBanner}>
+            <Pill label="Showing last synced data — couldn't reach the server" tone="warning" />
+          </View>
+        ) : null}
 
         {error && items.length === 0 && !loading ? (
           <Card style={styles.ringCard}>
@@ -132,6 +138,10 @@ export function DashboardScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xxxl,
+  },
+  offlineBanner: {
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
   },
   ringCard: {
     marginHorizontal: spacing.xl,

@@ -117,7 +117,7 @@ function CategoryGroup({
 export function PantryScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<PantryNavigationProp>();
-  const { items, loading, error, refresh } = usePantry();
+  const { items, loading, error, isOffline, refresh } = usePantry();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("category");
 
@@ -179,6 +179,12 @@ export function PantryScreen() {
           style={styles.actionButton}
         />
       </View>
+
+      {isOffline ? (
+        <View style={styles.bannerWrapper}>
+          <Pill label="Showing last synced data — couldn't reach the server" tone="warning" />
+        </View>
+      ) : null}
 
       {expiringSoon.length > 0 ? (
         <View style={styles.bannerWrapper}>
