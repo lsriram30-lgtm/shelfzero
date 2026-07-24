@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 9 / 10 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
 
@@ -120,15 +120,23 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       to AsyncStorage on success; on a failed fetch, the cached list is shown
       with a "Showing last synced data" banner (Dashboard and Pantry) instead
       of a blank/error screen.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Make notifications actually
+      get sent (branch: `feature/laya-app-improvements`). Installed
+      `expo-notifications`; turning on either toggle now requests OS
+      notification permission. Expiry reminders are locally scheduled (one per
+      pantry item expiring within 3 days, timed for 9am 3 days before it
+      expires, or shortly if already in that window) and kept in sync as the
+      pantry changes. Invite alerts fire a local notification when a pending
+      invite you sent flips to accepted. Note: this is local/client-side
+      scheduling, not a push server — the app has to have run recently enough
+      for the OS to have the reminder queued; a real push setup would need a
+      backend to trigger notifications when the app isn't running at all.
 
 ### Not yet assigned
 
 - [ ] Improve the receipt scanning feature so it reads receipts more reliably
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
-- [ ] Make notifications actually get sent — right now the toggles just remember
-      whether they're on or off, but no expiry reminders or invite alerts are ever
-      delivered (no notification permission request, scheduling, or push setup exists yet)
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)

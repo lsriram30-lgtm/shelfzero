@@ -1,14 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
 import { useOnboarding } from "../context/OnboardingContext";
+import { useNotificationPreferences } from "../context/NotificationPreferencesContext";
 import { usePantry } from "../hooks/usePantry";
 import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState, Pill } from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { PantryItem } from "../types";
+import { syncExpiryReminders } from "../notifications/expiryNotifications";
 
 type DashboardNavigationProp = BottomTabNavigationProp<MainTabParamList, "Dashboard">;
 
@@ -36,10 +38,15 @@ export function DashboardScreen() {
   const { colors } = useTheme();
   const { profile } = useOnboarding();
   const { items, loading, error, isOffline, refresh } = usePantry();
+  const { notifyExpiry } = useNotificationPreferences();
   const navigation = useNavigation<DashboardNavigationProp>();
 
   const health = useMemo(() => computeHealth(items), [items]);
   const expiringSoon = useMemo(() => soonToExpire(items), [items]);
+
+  useEffect(() => {
+    syncExpiryReminders(items, notifyExpiry).catch(() => {});
+  }, [items, notifyExpiry]);
 
   const greeting = profile?.name ? `Hi ${profile.name.split(" ")[0]}` : "Welcome back";
   const briefing =
