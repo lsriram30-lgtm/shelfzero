@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 2 / 10 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 7 / 10 |
 
 ### Currently assigned
 
@@ -84,6 +84,30 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       Request, so TypeScript type errors get caught before merging (branch:
       `feature/ci-actions`) — merged into `master`. Installs dependencies and
       runs the check; no automated tests exist yet to run alongside it.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Show a real error message
+      (with "try again") when the app can't reach the server (branch:
+      `feature/laya-app-improvements`). Added a shared `ErrorState` component
+      and wired it into Dashboard, Pantry, Recipes, Meal Planner, and the
+      Household Hub (invites + shopping list) — a failed connection now shows
+      a clear message and a retry button instead of looking like an empty screen.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Audit every screen so loading,
+      empty, and error states are each shown correctly (branch:
+      `feature/laya-app-improvements`) — same pass as the error-message task above,
+      covering the same set of screens.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add pull-to-refresh on the
+      pantry and shopping list screens (branch: `feature/laya-app-improvements`).
+      Pantry already had it; added it to the Household Hub's shopping list and
+      invites sections too.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Let the pantry list be
+      sorted/filtered by expiry date (branch: `feature/laya-app-improvements`).
+      Added a Category / Expiry date toggle to the Pantry screen; Expiry date
+      shows a flat list with soonest-expiring items first.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Auto-add an item to the
+      shopping list when its pantry quantity hits zero (branch:
+      `feature/laya-app-improvements`). Editing an item's quantity down to 0 now
+      adds it to the shopping list automatically (quantity 0 was previously
+      blocked by form validation, so that's relaxed for edits only — adding a
+      brand-new item still requires quantity > 0).
 
 ### Not yet assigned
 
@@ -100,12 +124,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Show a real error message (with "try again") when the app can't reach the
-      server — right now a failed connection just looks like an empty screen,
-      easy to mistake for "you have no items"
-- [ ] Audit every screen so loading, empty, and error states are each shown
-      correctly instead of all looking like the same blank screen — same kind
-      of check as the settings-persistence audit, for these three states
 - [ ] Add automated tests — right now there are none, so the only way to catch
       something broken (like the pantry or shopping list) is clicking through
       the app by hand every time
@@ -116,12 +134,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
       but there's no way to recover an account if someone forgets their password)
-- [ ] Add pull-to-refresh on the pantry and shopping list screens, so the data
-      doesn't look stale until the whole app is restarted
-- [ ] Let the pantry list be sorted/filtered by expiry date, so items about to
-      go bad surface first instead of being buried in a flat list
-- [ ] Auto-add an item to the shopping list when its pantry quantity hits zero
-      or low, instead of relying on someone noticing and adding it manually
 - [ ] Add an offline/cached view that shows the last-known pantry state when the
       server can't be reached, instead of a blank screen (pairs with the
       real-error-message task above)
