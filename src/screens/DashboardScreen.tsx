@@ -5,7 +5,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { usePantry } from "../hooks/usePantry";
-import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState } from "../components";
+import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState, Pill } from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { PantryItem } from "../types";
@@ -79,7 +79,7 @@ export function DashboardScreen() {
 
         {recommendedMeal ? (
           <Card style={styles.card}>
-            <Text style={[styles.cardLabel, { color: colors.textMuted }]}>USE IT UP</Text>
+            <Pill label="USE IT UP" tone="highlight" />
             <Text style={[styles.cardTitle, { color: colors.text }]}>{recommendedMeal.name}</Text>
             <Text style={[styles.cardBody, { color: colors.textMuted }]}>
               Expires {new Date(recommendedMeal.expiresAt!).toLocaleDateString()} — check Recipes
@@ -146,12 +146,9 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.xl,
     marginTop: spacing.lg,
   },
-  cardLabel: {
-    ...typography.label,
-  },
   cardTitle: {
     ...typography.h2,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
   },
   cardBody: {
     ...typography.body,

@@ -29,14 +29,24 @@ function groupCounts(items: PantryItem[]): { category: string; count: number }[]
     .sort((a, b) => b.count - a.count);
 }
 
-function CategoryBar({ category, count, max }: { category: string; count: number; max: number }) {
+function CategoryBar({
+  category,
+  count,
+  max,
+  color,
+}: {
+  category: string;
+  count: number;
+  max: number;
+  color: string;
+}) {
   const { colors } = useTheme();
   const width = max === 0 ? 0 : (count / max) * 100;
   return (
     <View style={styles.barRow}>
       <Text style={[styles.barLabel, { color: colors.text }]}>{category}</Text>
       <View style={[styles.barTrack, { backgroundColor: colors.border }]}>
-        <View style={[styles.barFill, { width: `${width}%`, backgroundColor: colors.primary }]} />
+        <View style={[styles.barFill, { width: `${width}%`, backgroundColor: color }]} />
       </View>
       <Text style={[styles.barCount, { color: colors.textMuted }]}>{count}</Text>
     </View>
@@ -50,6 +60,7 @@ export function PantryStatsScreen() {
   const health = useMemo(() => computeHealth(items), [items]);
   const categoryCounts = useMemo(() => groupCounts(items), [items]);
   const maxCount = categoryCounts[0]?.count ?? 0;
+  const barPalette = [colors.primary, colors.accent, colors.highlight, colors.secondary];
 
   const expiredCount = useMemo(
     () =>
@@ -75,8 +86,14 @@ export function PantryStatsScreen() {
               Add pantry items to see a breakdown.
             </Text>
           ) : (
-            categoryCounts.map(({ category, count }) => (
-              <CategoryBar key={category} category={category} count={count} max={maxCount} />
+            categoryCounts.map(({ category, count }, index) => (
+              <CategoryBar
+                key={category}
+                category={category}
+                count={count}
+                max={maxCount}
+                color={barPalette[index % barPalette.length]}
+              />
             ))
           )}
         </Card>

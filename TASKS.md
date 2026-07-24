@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 7 / 10 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 8 / 10 |
 
 ### Currently assigned
 
@@ -108,6 +108,12 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       adds it to the shopping list automatically (quantity 0 was previously
       blocked by form validation, so that's relaxed for edits only — adding a
       brand-new item still requires quantity > 0).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Bring more of the color palette
+      (Blush Beet, Peach Protein) into the app's look (branch:
+      `feature/laya-app-improvements`). Added a "Peach Protein" token (it didn't
+      exist yet) and gave Pill a `highlight` tone; used it for the Dashboard's
+      "USE IT UP" badge and cycled the Pantry Stats category bars through
+      primary/Blush Beet/Peach Protein/secondary instead of one flat color.
 
 ### Not yet assigned
 
@@ -119,8 +125,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       delivered (no notification permission request, scheduling, or push setup exists yet)
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
-- [ ] Bring more of the color palette (like Blush Beet and Peach Protein) into the
-      app's look — right now only a few of the named colors are actually used
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
