@@ -1,14 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
 import { useOnboarding } from "../context/OnboardingContext";
+import { useNotificationPreferences } from "../context/NotificationPreferencesContext";
 import { usePantry } from "../hooks/usePantry";
-import { Card, Header, ProgressRing, Button, Screen, EmptyState } from "../components";
+import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState, Pill } from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { PantryItem } from "../types";
+import { syncExpiryReminders } from "../notifications/expiryNotifications";
 
 type DashboardNavigationProp = BottomTabNavigationProp<MainTabParamList, "Dashboard">;
 
@@ -35,11 +37,16 @@ function soonToExpire(items: PantryItem[]): PantryItem[] {
 export function DashboardScreen() {
   const { colors } = useTheme();
   const { profile } = useOnboarding();
-  const { items, loading, refresh } = usePantry();
+  const { items, loading, error, isOffline, refresh } = usePantry();
+  const { notifyExpiry } = useNotificationPreferences();
   const navigation = useNavigation<DashboardNavigationProp>();
 
   const health = useMemo(() => computeHealth(items), [items]);
   const expiringSoon = useMemo(() => soonToExpire(items), [items]);
+
+  useEffect(() => {
+    syncExpiryReminders(items, notifyExpiry).catch(() => {});
+  }, [items, notifyExpiry]);
 
   const greeting = profile?.name ? `Hi ${profile.name.split(" ")[0]}` : "Welcome back";
   const briefing =
@@ -57,7 +64,17 @@ export function DashboardScreen() {
       >
         <Header title={greeting} subtitle="Here's your pantry snapshot" />
 
-        {items.length === 0 && !loading ? (
+        {isOffline ? (
+          <View style={styles.offlineBanner}>
+            <Pill label="Showing last synced data — couldn't reach the server" tone="warning" />
+          </View>
+        ) : null}
+
+        {error && items.length === 0 && !loading ? (
+          <Card style={styles.ringCard}>
+            <ErrorState onRetry={refresh} />
+          </Card>
+        ) : items.length === 0 && !loading ? (
           <Card style={styles.ringCard}>
             <EmptyState
               title="Your pantry is empty"
@@ -75,7 +92,7 @@ export function DashboardScreen() {
 
         {recommendedMeal ? (
           <Card style={styles.card}>
-            <Text style={[styles.cardLabel, { color: colors.textMuted }]}>USE IT UP</Text>
+            <Pill label="USE IT UP" tone="highlight" />
             <Text style={[styles.cardTitle, { color: colors.text }]}>{recommendedMeal.name}</Text>
             <Text style={[styles.cardBody, { color: colors.textMuted }]}>
               Expires {new Date(recommendedMeal.expiresAt!).toLocaleDateString()} — check Recipes
@@ -129,6 +146,10 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xxxl,
   },
+  offlineBanner: {
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
+  },
   ringCard: {
     marginHorizontal: spacing.xl,
     alignItems: "center",
@@ -142,12 +163,9 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.xl,
     marginTop: spacing.lg,
   },
-  cardLabel: {
-    ...typography.label,
-  },
   cardTitle: {
     ...typography.h2,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
   },
   cardBody: {
     ...typography.body,

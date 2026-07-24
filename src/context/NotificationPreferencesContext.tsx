@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  cancelExpiryReminders,
+  requestNotificationPermission,
+} from "../notifications/expiryNotifications";
 
 const STORAGE_KEY = "shelfzero.notificationPreferences";
 
@@ -35,6 +39,13 @@ export function NotificationPreferencesProvider({ children }: { children: React.
       .finally(() => setIsLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (isLoading) return;
+    if (preferences.notifyExpiry || preferences.notifyInvites) {
+      requestNotificationPermission().catch(() => {});
+    }
+  }, [isLoading, preferences.notifyExpiry, preferences.notifyInvites]);
+
   const updatePreferences = (next: NotificationPreferences) => {
     setPreferences(next);
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
@@ -42,6 +53,7 @@ export function NotificationPreferencesProvider({ children }: { children: React.
 
   const setNotifyExpiry = (value: boolean) => {
     updatePreferences({ ...preferences, notifyExpiry: value });
+    if (!value) cancelExpiryReminders().catch(() => {});
   };
 
   const setNotifyInvites = (value: boolean) => {

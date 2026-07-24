@@ -17,8 +17,10 @@ import { DonationProvider } from "./src/context/DonationContext";
 import { NotificationPreferencesProvider } from "./src/context/NotificationPreferencesContext";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { linking } from "./src/navigation/linking";
+import { configureNotificationHandler } from "./src/notifications/expiryNotifications";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+configureNotificationHandler();
 
 function Navigation() {
   const { isDark, colors } = useTheme();

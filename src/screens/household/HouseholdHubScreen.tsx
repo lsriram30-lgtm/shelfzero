@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
@@ -9,7 +9,7 @@ import { useInvites } from "../../hooks/useInvites";
 import { useShoppingList } from "../../hooks/useShoppingList";
 import { useNotificationPreferences } from "../../context/NotificationPreferencesContext";
 import { useDonations } from "../../context/DonationContext";
-import { Screen, Header, Card, Button, TextField } from "../../components";
+import { Screen, Header, Card, Button, TextField, ErrorState } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { inviteLink } from "../../utils/inviteLink";
@@ -19,9 +19,29 @@ type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList
 export function HouseholdHubScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<HouseholdNavigationProp>();
-  const { invites, cancelInvite } = useInvites();
-  const { items: shoppingItems, addItem, toggleChecked, removeItem } = useShoppingList();
+  const {
+    invites,
+    loading: invitesLoading,
+    error: invitesError,
+    refresh: refreshInvites,
+    cancelInvite,
+  } = useInvites();
+  const {
+    items: shoppingItems,
+    loading: shoppingLoading,
+    error: shoppingError,
+    refresh: refreshShoppingList,
+    addItem,
+    toggleChecked,
+    removeItem,
+  } = useShoppingList();
   const { totalItemsDonated } = useDonations();
+
+  const refreshing = invitesLoading || shoppingLoading;
+  const handleRefresh = () => {
+    refreshInvites();
+    refreshShoppingList();
+  };
 
   const { notifyExpiry, notifyInvites, setNotifyExpiry, setNotifyInvites } =
     useNotificationPreferences();
@@ -71,7 +91,10 @@ export function HouseholdHubScreen() {
           </Pressable>
         }
       />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+      >
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>Members & invites</Text>
@@ -79,7 +102,13 @@ export function HouseholdHubScreen() {
               <Text style={[styles.link, { color: colors.primary }]}>Invite</Text>
             </Pressable>
           </View>
-          {pendingInvites.length === 0 ? (
+          {invitesError && invites.length === 0 && !invitesLoading ? (
+            <ErrorState
+              title="Couldn't load invites"
+              message={invitesError}
+              onRetry={refreshInvites}
+            />
+          ) : pendingInvites.length === 0 ? (
             <Text style={[styles.empty, { color: colors.textMuted }]}>
               No pending invites. Invite someone to share this pantry.
             </Text>
@@ -119,7 +148,13 @@ export function HouseholdHubScreen() {
             </View>
             <Button label="Add" onPress={handleAddShoppingItem} style={styles.shoppingAddButton} />
           </View>
-          {shoppingItems.length === 0 ? (
+          {shoppingError && shoppingItems.length === 0 && !shoppingLoading ? (
+            <ErrorState
+              title="Couldn't load shopping list"
+              message={shoppingError}
+              onRetry={refreshShoppingList}
+            />
+          ) : shoppingItems.length === 0 ? (
             <Text style={[styles.empty, { color: colors.textMuted }]}>
               Your shopping list is empty.
             </Text>

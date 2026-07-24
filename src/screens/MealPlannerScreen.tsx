@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
 import { mealPlanApi } from "../api/mealPlan";
-import { Screen, Header, Card, Button, EmptyState } from "../components";
+import { Screen, Header, Card, Button, EmptyState, ErrorState } from "../components";
 import { spacing, typography } from "../theme";
 import { MealPlanDay } from "../types";
 
@@ -40,9 +40,9 @@ export function MealPlannerScreen() {
           style={styles.generateButton}
         />
 
-        {error ? <Text style={[styles.error, { color: colors.danger }]}>{error}</Text> : null}
-
-        {days.length === 0 && !loading && !error ? (
+        {error ? (
+          <ErrorState message={error} onRetry={handleGenerate} />
+        ) : days.length === 0 && !loading ? (
           <EmptyState
             title="No plan yet"
             message="Generate a plan and we'll suggest meals based on what's in your pantry."

@@ -4,6 +4,7 @@ export const lightColors = {
   primary: "#818263", // Savory Sage
   secondary: "#C2C395", // Avocado Smoothie
   accent: "#DDBAAE", // Blush Beet
+  highlight: "#EFA36B", // Peach Protein
   border: "#DCD4C1", // Oat Latte
   text: "#3F3A35",
   textMuted: "#8A8478",
@@ -19,6 +20,7 @@ export const darkColors = {
   primary: "#C2C395",
   secondary: "#818263",
   accent: "#DDBAAE",
+  highlight: "#F0B587", // Peach Protein
   border: "#3F3A35",
   text: "#FFFAF2",
   textMuted: "#B3ADA0",

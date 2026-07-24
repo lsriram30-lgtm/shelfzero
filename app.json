@@ -47,7 +47,8 @@
       "apiBaseUrl": "https://rs1ilxb2il.c24.airoapp.ai"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-notifications"
     ]
   }
 }

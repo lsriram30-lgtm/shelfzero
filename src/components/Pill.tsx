@@ -7,7 +7,7 @@ interface PillProps {
   label: string;
   selected?: boolean;
   onPress?: () => void;
-  tone?: "default" | "accent" | "danger" | "success" | "warning";
+  tone?: "default" | "accent" | "highlight" | "danger" | "success" | "warning";
 }
 
 export function Pill({ label, selected, onPress, tone = "default" }: PillProps) {
@@ -16,6 +16,8 @@ export function Pill({ label, selected, onPress, tone = "default" }: PillProps) 
   const toneColor =
     tone === "accent"
       ? colors.accent
+      : tone === "highlight"
+      ? colors.highlight
       : tone === "danger"
       ? colors.danger
       : tone === "success"

@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useSuggestedRecipes } from "../../hooks/useSuggestedRecipes";
 import { favoritesApi } from "../../api/favorites";
-import { Screen, Header, Card, EmptyState } from "../../components";
+import { Screen, Header, Card, EmptyState, ErrorState } from "../../components";
 import { spacing, typography } from "../../theme";
 import { RecipesStackParamList } from "../../navigation/types";
 import { Recipe } from "../../types";
@@ -42,7 +42,7 @@ function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }
 export function RecipesScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<RecipesNavigationProp>();
-  const { recipes, loading, generate } = useSuggestedRecipes();
+  const { recipes, loading, error, generate } = useSuggestedRecipes();
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
 
@@ -95,10 +95,20 @@ export function RecipesScreen() {
         }
         ListEmptyComponent={
           !loading ? (
-            <EmptyState
-              title="No recipes yet"
-              message="Add a few pantry items and pull to refresh to get suggestions."
-            />
+            error ? (
+              <ErrorState
+                message={error}
+                onRetry={() => {
+                  generate();
+                  loadFavorites();
+                }}
+              />
+            ) : (
+              <EmptyState
+                title="No recipes yet"
+                message="Add a few pantry items and pull to refresh to get suggestions."
+              />
+            )
           ) : null
         }
         renderItem={({ item }) => (

@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 2 / 10 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
 
@@ -84,28 +84,64 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       Request, so TypeScript type errors get caught before merging (branch:
       `feature/ci-actions`) — merged into `master`. Installs dependencies and
       runs the check; no automated tests exist yet to run alongside it.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Show a real error message
+      (with "try again") when the app can't reach the server (branch:
+      `feature/laya-app-improvements`). Added a shared `ErrorState` component
+      and wired it into Dashboard, Pantry, Recipes, Meal Planner, and the
+      Household Hub (invites + shopping list) — a failed connection now shows
+      a clear message and a retry button instead of looking like an empty screen.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Audit every screen so loading,
+      empty, and error states are each shown correctly (branch:
+      `feature/laya-app-improvements`) — same pass as the error-message task above,
+      covering the same set of screens.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add pull-to-refresh on the
+      pantry and shopping list screens (branch: `feature/laya-app-improvements`).
+      Pantry already had it; added it to the Household Hub's shopping list and
+      invites sections too.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Let the pantry list be
+      sorted/filtered by expiry date (branch: `feature/laya-app-improvements`).
+      Added a Category / Expiry date toggle to the Pantry screen; Expiry date
+      shows a flat list with soonest-expiring items first.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Auto-add an item to the
+      shopping list when its pantry quantity hits zero (branch:
+      `feature/laya-app-improvements`). Editing an item's quantity down to 0 now
+      adds it to the shopping list automatically (quantity 0 was previously
+      blocked by form validation, so that's relaxed for edits only — adding a
+      brand-new item still requires quantity > 0).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Bring more of the color palette
+      (Blush Beet, Peach Protein) into the app's look (branch:
+      `feature/laya-app-improvements`). Added a "Peach Protein" token (it didn't
+      exist yet) and gave Pill a `highlight` tone; used it for the Dashboard's
+      "USE IT UP" badge and cycled the Pantry Stats category bars through
+      primary/Blush Beet/Peach Protein/secondary instead of one flat color.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an offline/cached view
+      that shows the last-known pantry state when the server can't be reached
+      (branch: `feature/laya-app-improvements`). Pantry fetches are now cached
+      to AsyncStorage on success; on a failed fetch, the cached list is shown
+      with a "Showing last synced data" banner (Dashboard and Pantry) instead
+      of a blank/error screen.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Make notifications actually
+      get sent (branch: `feature/laya-app-improvements`). Installed
+      `expo-notifications`; turning on either toggle now requests OS
+      notification permission. Expiry reminders are locally scheduled (one per
+      pantry item expiring within 3 days, timed for 9am 3 days before it
+      expires, or shortly if already in that window) and kept in sync as the
+      pantry changes. Invite alerts fire a local notification when a pending
+      invite you sent flips to accepted. Note: this is local/client-side
+      scheduling, not a push server — the app has to have run recently enough
+      for the OS to have the reminder queued; a real push setup would need a
+      backend to trigger notifications when the app isn't running at all.
 
 ### Not yet assigned
 
 - [ ] Improve the receipt scanning feature so it reads receipts more reliably
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
-- [ ] Make notifications actually get sent — right now the toggles just remember
-      whether they're on or off, but no expiry reminders or invite alerts are ever
-      delivered (no notification permission request, scheduling, or push setup exists yet)
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
-- [ ] Bring more of the color palette (like Blush Beet and Peach Protein) into the
-      app's look — right now only a few of the named colors are actually used
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Show a real error message (with "try again") when the app can't reach the
-      server — right now a failed connection just looks like an empty screen,
-      easy to mistake for "you have no items"
-- [ ] Audit every screen so loading, empty, and error states are each shown
-      correctly instead of all looking like the same blank screen — same kind
-      of check as the settings-persistence audit, for these three states
 - [ ] Add automated tests — right now there are none, so the only way to catch
       something broken (like the pantry or shopping list) is clicking through
       the app by hand every time
@@ -116,15 +152,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
       but there's no way to recover an account if someone forgets their password)
-- [ ] Add pull-to-refresh on the pantry and shopping list screens, so the data
-      doesn't look stale until the whole app is restarted
-- [ ] Let the pantry list be sorted/filtered by expiry date, so items about to
-      go bad surface first instead of being buried in a flat list
-- [ ] Auto-add an item to the shopping list when its pantry quantity hits zero
-      or low, instead of relying on someone noticing and adding it manually
-- [ ] Add an offline/cached view that shows the last-known pantry state when the
-      server can't be reached, instead of a blank screen (pairs with the
-      real-error-message task above)
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it

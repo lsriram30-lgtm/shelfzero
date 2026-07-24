@@ -5,12 +5,13 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
-import { Screen, Header, Card, EmptyState, Pill, Button } from "../../components";
+import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
 
 type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
+type SortMode = "category" | "expiry";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -20,6 +21,15 @@ function groupByCategory(items: PantryItem[]): Record<string, PantryItem[]> {
     groups[key] = groups[key] ? [...groups[key], item] : [item];
     return groups;
   }, {});
+}
+
+function sortByExpiry(items: PantryItem[]): PantryItem[] {
+  return [...items].sort((a, b) => {
+    if (!a.expiresAt && !b.expiresAt) return 0;
+    if (!a.expiresAt) return 1;
+    if (!b.expiresAt) return -1;
+    return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
+  });
 }
 
 function daysUntil(dateStr: string | null): number | null {
@@ -38,10 +48,21 @@ function ExpiryTag({ expiresAt }: { expiresAt: string | null }) {
   return <Text style={[styles.expiryTag, { color: tone }]}>{label}</Text>;
 }
 
-function PantryRow({ item, onPress }: { item: PantryItem; onPress: () => void }) {
+function PantryRow({
+  item,
+  onPress,
+  first,
+}: {
+  item: PantryItem;
+  onPress: () => void;
+  first?: boolean;
+}) {
   const { colors } = useTheme();
   return (
-    <Pressable style={[styles.row, { borderColor: colors.border }]} onPress={onPress}>
+    <Pressable
+      style={[styles.row, { borderColor: colors.border }, first ? styles.rowNoBorder : null]}
+      onPress={onPress}
+    >
       <View style={styles.rowMain}>
         <Text style={[styles.rowTitle, { color: colors.text }]}>{item.name}</Text>
         <Text style={[styles.rowMeta, { color: colors.textMuted }]}>
@@ -96,8 +117,9 @@ function CategoryGroup({
 export function PantryScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<PantryNavigationProp>();
-  const { items, loading, refresh } = usePantry();
+  const { items, loading, error, isOffline, refresh } = usePantry();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [sortMode, setSortMode] = useState<SortMode>("category");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -107,6 +129,7 @@ export function PantryScreen() {
 
   const grouped = useMemo(() => groupByCategory(items), [items]);
   const categories = useMemo(() => Object.keys(grouped).sort(), [grouped]);
+  const byExpiry = useMemo(() => sortByExpiry(items), [items]);
 
   const expiringSoon = useMemo(
     () => items.filter((item) => {
@@ -157,6 +180,12 @@ export function PantryScreen() {
         />
       </View>
 
+      {isOffline ? (
+        <View style={styles.bannerWrapper}>
+          <Pill label="Showing last synced data — couldn't reach the server" tone="warning" />
+        </View>
+      ) : null}
+
       {expiringSoon.length > 0 ? (
         <View style={styles.bannerWrapper}>
           <Pill
@@ -166,17 +195,46 @@ export function PantryScreen() {
         </View>
       ) : null}
 
+      {items.length > 0 ? (
+        <View style={styles.sortRow}>
+          <Text style={[styles.sortLabel, { color: colors.textMuted }]}>Sort by</Text>
+          <Pill
+            label="Category"
+            selected={sortMode === "category"}
+            onPress={() => setSortMode("category")}
+          />
+          <Pill
+            label="Expiry date"
+            selected={sortMode === "expiry"}
+            onPress={() => setSortMode("expiry")}
+          />
+        </View>
+      ) : null}
+
       <ScrollView
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
       >
-        {categories.length === 0 && !loading ? (
+        {error && categories.length === 0 && !loading ? (
+          <ErrorState onRetry={refresh} />
+        ) : categories.length === 0 && !loading ? (
           <EmptyState
             title="Your pantry is empty"
             message="Add items manually or scan a receipt to get started."
             actionLabel="Add an item"
             onAction={() => navigation.navigate("AddPantryItem")}
           />
+        ) : sortMode === "expiry" ? (
+          <Card style={styles.groupCard}>
+            {byExpiry.map((item, index) => (
+              <PantryRow
+                key={item.id}
+                item={item}
+                first={index === 0}
+                onPress={() => navigation.navigate("AddPantryItem", { item })}
+              />
+            ))}
+          </Card>
         ) : (
           categories.map((category) => (
             <CategoryGroup
@@ -220,6 +278,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     marginBottom: spacing.md,
   },
+  sortRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  sortLabel: {
+    ...typography.caption,
+  },
   list: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxxl,
@@ -245,6 +313,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderTopWidth: 1,
+  },
+  rowNoBorder: {
+    borderTopWidth: 0,
   },
   rowMain: {
     flexShrink: 1,
