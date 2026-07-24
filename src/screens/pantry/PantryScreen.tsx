@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
-import { Screen, Header, Card, EmptyState, Pill, Button } from "../../components";
+import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
@@ -96,7 +96,7 @@ function CategoryGroup({
 export function PantryScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<PantryNavigationProp>();
-  const { items, loading, refresh } = usePantry();
+  const { items, loading, error, refresh } = usePantry();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   useFocusEffect(
@@ -170,7 +170,9 @@ export function PantryScreen() {
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
       >
-        {categories.length === 0 && !loading ? (
+        {error && categories.length === 0 && !loading ? (
+          <ErrorState onRetry={refresh} />
+        ) : categories.length === 0 && !loading ? (
           <EmptyState
             title="Your pantry is empty"
             message="Add items manually or scan a receipt to get started."

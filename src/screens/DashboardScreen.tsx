@@ -5,7 +5,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { usePantry } from "../hooks/usePantry";
-import { Card, Header, ProgressRing, Button, Screen, EmptyState } from "../components";
+import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState } from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { PantryItem } from "../types";
@@ -35,7 +35,7 @@ function soonToExpire(items: PantryItem[]): PantryItem[] {
 export function DashboardScreen() {
   const { colors } = useTheme();
   const { profile } = useOnboarding();
-  const { items, loading, refresh } = usePantry();
+  const { items, loading, error, refresh } = usePantry();
   const navigation = useNavigation<DashboardNavigationProp>();
 
   const health = useMemo(() => computeHealth(items), [items]);
@@ -57,7 +57,11 @@ export function DashboardScreen() {
       >
         <Header title={greeting} subtitle="Here's your pantry snapshot" />
 
-        {items.length === 0 && !loading ? (
+        {error && items.length === 0 && !loading ? (
+          <Card style={styles.ringCard}>
+            <ErrorState onRetry={refresh} />
+          </Card>
+        ) : items.length === 0 && !loading ? (
           <Card style={styles.ringCard}>
             <EmptyState
               title="Your pantry is empty"

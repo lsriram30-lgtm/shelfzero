@@ -4,5 +4,6 @@ export * from "./Pill";
 export * from "./TextField";
 export * from "./Header";
 export * from "./EmptyState";
+export * from "./ErrorState";
 export * from "./Screen";
 export * from "./ProgressRing";
