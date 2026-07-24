@@ -42,7 +42,9 @@ export function AddPantryItemScreen() {
   const [deleting, setDeleting] = useState(false);
 
   const parsedQuantity = Number(quantity);
-  const canSubmit = name.trim().length > 0 && !Number.isNaN(parsedQuantity) && parsedQuantity > 0;
+  const minQuantity = isEditing ? 0 : 1;
+  const canSubmit =
+    name.trim().length > 0 && !Number.isNaN(parsedQuantity) && parsedQuantity >= minQuantity;
 
   const applyShortcut = (days: number) => {
     const date = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
@@ -140,6 +142,12 @@ export function AddPantryItemScreen() {
             />
           </View>
         </View>
+        {isEditing ? (
+          <Text style={[styles.hint, { color: colors.textMuted }]}>
+            Set quantity to 0 if you've run out — it'll be added to your shopping list
+            automatically.
+          </Text>
+        ) : null}
 
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Unit</Text>
         <View style={styles.pillRow}>
@@ -216,6 +224,11 @@ const styles = StyleSheet.create({
   },
   quantityField: {
     flex: 1,
+  },
+  hint: {
+    ...typography.caption,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.lg,
   },
   submit: {
     marginTop: spacing.md,

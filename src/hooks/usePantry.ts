@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
-import { pantryApi } from "../api";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { pantryApi, shoppingListApi } from "../api";
 import { NewPantryItem, PantryItem, UpdatePantryItem } from "../types";
 
 export function usePantry() {
   const [items, setItems] = useState<PantryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const itemsRef = useRef<PantryItem[]>([]);
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -31,8 +36,19 @@ export function usePantry() {
   }, []);
 
   const updateItem = useCallback(async (id: string, item: UpdatePantryItem) => {
+    const previous = itemsRef.current.find((existing) => existing.id === id);
     const updated = await pantryApi.update(id, item);
     setItems((prev) => prev.map((existing) => (existing.id === id ? updated : existing)));
+
+    const ranOut = updated.quantity <= 0 && (!previous || previous.quantity > 0);
+    if (ranOut) {
+      try {
+        await shoppingListApi.create({ name: updated.name, qty: 1 });
+      } catch {
+        // Best-effort: don't block the pantry update if the shopping list add fails.
+      }
+    }
+
     return updated;
   }, []);
 
