@@ -270,15 +270,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       features — the "Reset app (testing)" button on Profile (wipes
       everything and signs out) and the "send test notification" button
       above should never reach production users.
-- [ ] Wire cuisine/dietary/allergy prefs into the 7-day meal-plan feature —
-      right now `mealPlanApi.generate()` only sends pantry item names;
-      `cuisinePrefs`, `dietaryPrefs`, and (notably) `allergies` collected
-      during onboarding are never sent at all, even though
-      `MealPlanRequest` already has an optional `preferences` field for
-      exactly this. Ignoring allergies specifically isn't just a missed
-      personalization opportunity, it's a real trust/safety gap. Even once
-      sent, whether the backend's generator actually honors them is a
-      separate thing to verify once it's live.
 
 ---
 
