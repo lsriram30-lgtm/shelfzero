@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 9 / 10 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 10 / 10 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
@@ -179,6 +179,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       a meal like "Pad Thai" already implicitly knows its cuisine — it's
       just not returned today. Once it exists, a real (non-guessed) cuisine
       filter becomes possible on the Recipes screen.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      breakfast/lunch/dinner filter to the Recipes screen (branch:
+      `feature/recipes-mealtype-filter`) — merged into `master`. Unlike
+      cuisine, this was real data already returned by the meal-plan API
+      (`meal.label`), just discarded when converting meals into recipes.
+      Carried it through as `Recipe.mealType` and added filter pills above
+      the grid; favorited recipes without a meal type (they don't come from
+      the meal-plan response) simply won't match a specific filter. Added
+      7 tests, bringing the suite to 58 total.
 
 ### Not yet assigned
 
@@ -212,11 +221,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       (see "Currently assigned"): recipes have no cuisine field today, and
       guessing one from title keywords would misclassify anything with a
       generic name, so this is on hold until that data actually exists.
-- [ ] Add a breakfast/lunch/dinner filter to the Recipes screen — unlike
-      cuisine, this is real data already returned by the meal-plan API
-      (`meal.label` in `MealPlanDay`), it just gets discarded when
-      `useSuggestedRecipes.ts` converts meals into recipes. Just needs
-      carrying that field through and adding filter pills.
+- [ ] Add a "select all" / bulk-check option to the shopping list — pairs
+      with the "clear checked" action, but right now items can only be
+      checked off one at a time
+- [ ] Add quantity +/- controls to shopping list items instead of just
+      add/remove — worth double-checking first whether
+      `PATCH /api/shopping-list/:id` accepts a `quantity` field, since
+      today it's only ever called with `{ checked }`
+- [ ] Show a brief "N items cleared — Undo" toast after clearing checked
+      shopping list items, instead of just silently removing them
 
 ---
 
