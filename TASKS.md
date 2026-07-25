@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 12 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 13 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
 
 ### Currently assigned
@@ -199,6 +199,22 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       persisted. Cached it to AsyncStorage on generate and loaded it back
       on mount, same pattern as the pantry offline cache. No backend
       involved.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Send meal-plan
+      preferences and flag when a cached plan is stale (branch:
+      `feature/mealplan-prefs-and-staleness`) — merged into `master`. Two
+      related fixes: (1) `mealPlanApi.generate()` only ever sent pantry
+      item names — `cuisinePrefs`/`dietaryPrefs`/`allergies` from
+      onboarding are now sent too via the request's previously-unused
+      `preferences` field, though whether the backend's generator
+      actually honors them is unverified; (2) the persisted plan (see the
+      task above) never accounted for the pantry changing after it was
+      generated, so a warning banner with "Regenerate now" / "Leave as
+      is" actions now appears when the current pantry no longer matches
+      what the plan was built from. Added 10 tests, bringing the suite to
+      73 total. Note: testing in Expo Go hit a `429` on
+      `/api/meal-plan` ("AI service is busy"), so the actual generate
+      flow itself is still unverified end to end — see the follow-up task
+      below.
 
 ### Not yet assigned
 
@@ -285,6 +301,14 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       by both Apple and Google at submission for any app collecting
       personal data (this one collects location, dietary/allergy info,
       and camera access), not optional.
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Figure out the
+      `429` on `/api/meal-plan` — testing in Expo Go and a direct check
+      from outside the app both got `{"error":"AI service is busy. Please
+      wait a moment and try again."}`, even unauthenticated, so it's not
+      account- or pantry-specific. Likely a rate limit or usage quota on
+      whatever AI service the backend calls to generate plans. Needs
+      checking in the Airo AI Builder dashboard directly (usage/billing
+      page) — not something visible or fixable from this repo.
 
 ---
 
