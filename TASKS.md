@@ -174,11 +174,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       tests, bringing the suite to 51 total.
 - [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Have the
       meal-plan generator tag each meal with its cuisine (e.g. "Italian,"
-      "Thai") in the `/api/meal-plan` response, the same way it already
-      returns `title` and `description`. Whatever generates a meal like
-      "Pad Thai" already implicitly knows its cuisine — it's just not
-      returned today. Once it exists, a real (non-guessed) cuisine filter
-      becomes possible on the Recipes screen.
+      "Thai") in the `/api/meal-plan` response — a backend change, the same
+      way it already returns `title` and `description`. Whatever generates
+      a meal like "Pad Thai" already implicitly knows its cuisine — it's
+      just not returned today. Once it exists, a real (non-guessed) cuisine
+      filter becomes possible on the Recipes screen.
 
 ### Not yet assigned
 
