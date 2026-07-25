@@ -23,3 +23,9 @@ export function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / DAY_MS);
 }
+
+export function filterByName(items: PantryItem[], query: string): PantryItem[] {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return items;
+  return items.filter((item) => item.name.toLowerCase().includes(trimmed));
+}

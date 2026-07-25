@@ -1,4 +1,4 @@
-import { daysUntil, groupByCategory, sortByExpiry } from "./pantryLogic";
+import { daysUntil, filterByName, groupByCategory, sortByExpiry } from "./pantryLogic";
 import { PantryItem } from "../../types";
 
 function item(overrides: Partial<PantryItem>): PantryItem {
@@ -90,5 +90,34 @@ describe("daysUntil", () => {
 
   it("returns 0 for today", () => {
     expect(daysUntil("2026-01-10T00:00:00.000Z")).toBe(0);
+  });
+});
+
+describe("filterByName", () => {
+  const items = [
+    item({ id: "1", name: "Whole milk" }),
+    item({ id: "2", name: "Almond milk" }),
+    item({ id: "3", name: "Cheddar cheese" }),
+  ];
+
+  it("returns all items when the query is blank", () => {
+    expect(filterByName(items, "")).toEqual(items);
+    expect(filterByName(items, "   ")).toEqual(items);
+  });
+
+  it("matches a substring anywhere in the name", () => {
+    expect(filterByName(items, "milk").map((i) => i.id)).toEqual(["1", "2"]);
+  });
+
+  it("is case-insensitive", () => {
+    expect(filterByName(items, "MILK").map((i) => i.id)).toEqual(["1", "2"]);
+  });
+
+  it("ignores leading/trailing whitespace in the query", () => {
+    expect(filterByName(items, "  cheese  ").map((i) => i.id)).toEqual(["3"]);
+  });
+
+  it("returns an empty array when nothing matches", () => {
+    expect(filterByName(items, "banana")).toEqual([]);
   });
 });

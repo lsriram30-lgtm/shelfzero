@@ -5,11 +5,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
-import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button } from "../../components";
+import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button, TextField } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
-import { groupByCategory, sortByExpiry, daysUntil } from "./pantryLogic";
+import { groupByCategory, sortByExpiry, daysUntil, filterByName } from "./pantryLogic";
 
 type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
 type SortMode = "category" | "expiry";
@@ -97,6 +97,7 @@ export function PantryScreen() {
   const { items, loading, error, isOffline, refresh } = usePantry();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("category");
+  const [query, setQuery] = useState("");
 
   useFocusEffect(
     React.useCallback(() => {
@@ -104,9 +105,10 @@ export function PantryScreen() {
     }, [refresh])
   );
 
-  const grouped = useMemo(() => groupByCategory(items), [items]);
+  const filteredItems = useMemo(() => filterByName(items, query), [items, query]);
+  const grouped = useMemo(() => groupByCategory(filteredItems), [filteredItems]);
   const categories = useMemo(() => Object.keys(grouped).sort(), [grouped]);
-  const byExpiry = useMemo(() => sortByExpiry(items), [items]);
+  const byExpiry = useMemo(() => sortByExpiry(filteredItems), [filteredItems]);
 
   const expiringSoon = useMemo(
     () => items.filter((item) => {
@@ -173,6 +175,19 @@ export function PantryScreen() {
       ) : null}
 
       {items.length > 0 ? (
+        <View style={styles.searchWrapper}>
+          <TextField
+            placeholder="Search pantry"
+            value={query}
+            onChangeText={setQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+          />
+        </View>
+      ) : null}
+
+      {items.length > 0 ? (
         <View style={styles.sortRow}>
           <Text style={[styles.sortLabel, { color: colors.textMuted }]}>Sort by</Text>
           <Pill
@@ -192,15 +207,17 @@ export function PantryScreen() {
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
       >
-        {error && categories.length === 0 && !loading ? (
+        {error && items.length === 0 && !loading ? (
           <ErrorState onRetry={refresh} />
-        ) : categories.length === 0 && !loading ? (
+        ) : items.length === 0 && !loading ? (
           <EmptyState
             title="Your pantry is empty"
             message="Add items manually or scan a receipt to get started."
             actionLabel="Add an item"
             onAction={() => navigation.navigate("AddPantryItem")}
           />
+        ) : categories.length === 0 && !loading ? (
+          <EmptyState title="No matching items" message={`Nothing matches "${query.trim()}".`} />
         ) : sortMode === "expiry" ? (
           <Card style={styles.groupCard}>
             {byExpiry.map((item, index) => (
@@ -254,6 +271,9 @@ const styles = StyleSheet.create({
   bannerWrapper: {
     paddingHorizontal: spacing.xl,
     marginBottom: spacing.md,
+  },
+  searchWrapper: {
+    paddingHorizontal: spacing.xl,
   },
   sortRow: {
     flexDirection: "row",
