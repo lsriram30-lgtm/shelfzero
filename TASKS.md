@@ -86,43 +86,47 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       runs the check; no automated tests exist yet to run alongside it.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Show a real error message
       (with "try again") when the app can't reach the server (branch:
-      `feature/laya-app-improvements`). Added a shared `ErrorState` component
+      `feature/laya-app-improvements`) — merged into `master`. Added a shared
+      `ErrorState` component
       and wired it into Dashboard, Pantry, Recipes, Meal Planner, and the
       Household Hub (invites + shopping list) — a failed connection now shows
       a clear message and a retry button instead of looking like an empty screen.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Audit every screen so loading,
       empty, and error states are each shown correctly (branch:
-      `feature/laya-app-improvements`) — same pass as the error-message task above,
-      covering the same set of screens.
+      `feature/laya-app-improvements`) — merged into `master`. Same pass as the
+      error-message task above, covering the same set of screens.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add pull-to-refresh on the
-      pantry and shopping list screens (branch: `feature/laya-app-improvements`).
-      Pantry already had it; added it to the Household Hub's shopping list and
-      invites sections too.
+      pantry and shopping list screens (branch: `feature/laya-app-improvements`)
+      — merged into `master`. Pantry already had it; added it to the Household
+      Hub's shopping list and invites sections too.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Let the pantry list be
-      sorted/filtered by expiry date (branch: `feature/laya-app-improvements`).
-      Added a Category / Expiry date toggle to the Pantry screen; Expiry date
-      shows a flat list with soonest-expiring items first.
+      sorted/filtered by expiry date (branch: `feature/laya-app-improvements`)
+      — merged into `master`. Added a Category / Expiry date toggle to the
+      Pantry screen; Expiry date shows a flat list with soonest-expiring
+      items first.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Auto-add an item to the
       shopping list when its pantry quantity hits zero (branch:
-      `feature/laya-app-improvements`). Editing an item's quantity down to 0 now
-      adds it to the shopping list automatically (quantity 0 was previously
-      blocked by form validation, so that's relaxed for edits only — adding a
-      brand-new item still requires quantity > 0).
+      `feature/laya-app-improvements`) — merged into `master`. Editing an
+      item's quantity down to 0 now adds it to the shopping list automatically
+      (quantity 0 was previously blocked by form validation, so that's relaxed
+      for edits only — adding a brand-new item still requires quantity > 0).
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Bring more of the color palette
       (Blush Beet, Peach Protein) into the app's look (branch:
-      `feature/laya-app-improvements`). Added a "Peach Protein" token (it didn't
-      exist yet) and gave Pill a `highlight` tone; used it for the Dashboard's
-      "USE IT UP" badge and cycled the Pantry Stats category bars through
-      primary/Blush Beet/Peach Protein/secondary instead of one flat color.
+      `feature/laya-app-improvements`) — merged into `master`. Added a "Peach
+      Protein" token (it didn't exist yet) and gave Pill a `highlight` tone;
+      used it for the Dashboard's "USE IT UP" badge and cycled the Pantry
+      Stats category bars through primary/Blush Beet/Peach Protein/secondary
+      instead of one flat color.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an offline/cached view
       that shows the last-known pantry state when the server can't be reached
-      (branch: `feature/laya-app-improvements`). Pantry fetches are now cached
-      to AsyncStorage on success; on a failed fetch, the cached list is shown
-      with a "Showing last synced data" banner (Dashboard and Pantry) instead
-      of a blank/error screen.
+      (branch: `feature/laya-app-improvements`) — merged into `master`. Pantry
+      fetches are now cached to AsyncStorage on success; on a failed fetch,
+      the cached list is shown with a "Showing last synced data" banner
+      (Dashboard and Pantry) instead of a blank/error screen.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Make notifications actually
-      get sent (branch: `feature/laya-app-improvements`). Installed
-      `expo-notifications`; turning on either toggle now requests OS
+      get sent (branch: `feature/laya-app-improvements`) — merged into
+      `master`. Installed `expo-notifications`; turning on either toggle now
+      requests OS
       notification permission. Expiry reminders are locally scheduled (one per
       pantry item expiring within 3 days, timed for 9am 3 days before it
       expires, or shortly if already in that window) and kept in sync as the
