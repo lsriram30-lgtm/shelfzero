@@ -3,39 +3,57 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
+import { useOnboarding } from "../context/OnboardingContext";
 import { mealPlanApi } from "../api/mealPlan";
-import { Screen, Header, Card, Button, EmptyState, ErrorState } from "../components";
+import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill } from "../components";
 import { spacing, typography } from "../theme";
 import { MealPlanDay } from "../types";
+import { buildMealPlanPreferences, hasPantryChanged } from "./mealPlannerLogic";
 
 const CACHE_KEY = "shelfzero.mealPlan";
+
+interface CachedMealPlan {
+  days: MealPlanDay[];
+  pantryItemNames: string[];
+}
 
 export function MealPlannerScreen() {
   const { colors } = useTheme();
   const { items: pantryItems } = usePantry();
+  const { profile } = useOnboarding();
   const [days, setDays] = useState<MealPlanDay[]>([]);
+  const [cachedPantryNames, setCachedPantryNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(CACHE_KEY)
       .then((cached) => {
-        if (cached) setDays(JSON.parse(cached) as MealPlanDay[]);
+        if (!cached) return;
+        const parsed = JSON.parse(cached) as CachedMealPlan;
+        setDays(parsed.days);
+        setCachedPantryNames(parsed.pantryItemNames);
       })
       .catch(() => {
         // No usable cache — the screen just starts from the empty state.
       });
   }, []);
 
+  const currentPantryNames = pantryItems.map((item) => item.name);
+  const isStale = days.length > 0 && hasPantryChanged(currentPantryNames, cachedPantryNames);
+
   const handleGenerate = async () => {
     setLoading(true);
     setError(null);
     try {
       const plan = await mealPlanApi.generate({
-        pantryItems: pantryItems.map((item) => item.name),
+        pantryItems: currentPantryNames,
+        preferences: buildMealPlanPreferences(profile),
       });
       setDays(plan.days);
-      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(plan.days)).catch(() => {});
+      setCachedPantryNames(currentPantryNames);
+      const toCache: CachedMealPlan = { days: plan.days, pantryItemNames: currentPantryNames };
+      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(toCache)).catch(() => {});
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't generate a meal plan.");
     } finally {
@@ -53,6 +71,15 @@ export function MealPlannerScreen() {
           loading={loading}
           style={styles.generateButton}
         />
+
+        {isStale && !loading ? (
+          <View style={styles.staleBanner}>
+            <Pill
+              label="Your pantry has changed since this plan was made — regenerate for updated suggestions"
+              tone="warning"
+            />
+          </View>
+        ) : null}
 
         {error ? (
           <ErrorState message={error} onRetry={handleGenerate} />
@@ -90,6 +117,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
   },
   generateButton: {
+    marginBottom: spacing.lg,
+  },
+  staleBanner: {
     marginBottom: spacing.lg,
   },
   error: {
