@@ -9,33 +9,10 @@ import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button } from "../.
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
+import { groupByCategory, sortByExpiry, daysUntil } from "./pantryLogic";
 
 type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
 type SortMode = "category" | "expiry";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function groupByCategory(items: PantryItem[]): Record<string, PantryItem[]> {
-  return items.reduce<Record<string, PantryItem[]>>((groups, item) => {
-    const key = item.category || "Uncategorized";
-    groups[key] = groups[key] ? [...groups[key], item] : [item];
-    return groups;
-  }, {});
-}
-
-function sortByExpiry(items: PantryItem[]): PantryItem[] {
-  return [...items].sort((a, b) => {
-    if (!a.expiresAt && !b.expiresAt) return 0;
-    if (!a.expiresAt) return 1;
-    if (!b.expiresAt) return -1;
-    return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime();
-  });
-}
-
-function daysUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  return Math.ceil((new Date(dateStr).getTime() - Date.now()) / DAY_MS);
-}
 
 function ExpiryTag({ expiresAt }: { expiresAt: string | null }) {
   const { colors } = useTheme();

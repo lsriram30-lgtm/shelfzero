@@ -9,30 +9,10 @@ import { usePantry } from "../hooks/usePantry";
 import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState, Pill } from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
-import { PantryItem } from "../types";
 import { syncExpiryReminders } from "../notifications/expiryNotifications";
+import { computeHealth, soonToExpire } from "./dashboardLogic";
 
 type DashboardNavigationProp = BottomTabNavigationProp<MainTabParamList, "Dashboard">;
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function computeHealth(items: PantryItem[]): number {
-  if (items.length === 0) return 100;
-  const now = Date.now();
-  const healthy = items.filter((item) => {
-    if (!item.expiresAt) return true;
-    const expires = new Date(item.expiresAt).getTime();
-    return expires - now > 3 * DAY_MS;
-  });
-  return Math.round((healthy.length / items.length) * 100);
-}
-
-function soonToExpire(items: PantryItem[]): PantryItem[] {
-  const now = Date.now();
-  return items
-    .filter((item) => item.expiresAt && new Date(item.expiresAt).getTime() - now <= 3 * DAY_MS)
-    .sort((a, b) => new Date(a.expiresAt!).getTime() - new Date(b.expiresAt!).getTime());
-}
 
 export function DashboardScreen() {
   const { colors } = useTheme();
