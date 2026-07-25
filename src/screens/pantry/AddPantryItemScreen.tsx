@@ -6,6 +6,7 @@ import { usePantry } from "../../hooks/usePantry";
 import { Screen, Header, TextField, Button, Pill } from "../../components";
 import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
+import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL"];
@@ -16,8 +17,12 @@ const EXPIRY_SHORTCUTS: { label: string; days: number }[] = [
   { label: "1 month", days: 30 },
 ];
 
-function toDateInputString(date: Date): string {
-  return date.toISOString().slice(0, 10);
+function partsFromDate(date: Date): DateParts {
+  return {
+    month: String(date.getMonth() + 1).padStart(2, "0"),
+    day: String(date.getDate()).padStart(2, "0"),
+    year: String(date.getFullYear()),
+  };
 }
 
 type AddRouteProp = RouteProp<PantryStackParamList, "AddPantryItem">;
@@ -36,19 +41,37 @@ export function AddPantryItemScreen() {
   const [category, setCategory] = useState(editingItem?.category ?? prefill?.category ?? CATEGORIES[0]);
   const [quantity, setQuantity] = useState(String(editingItem?.quantity ?? prefill?.quantity ?? 1));
   const [unit, setUnit] = useState(editingItem?.unit ?? prefill?.unit ?? UNITS[0]);
-  const [expiresAt, setExpiresAt] = useState(editingItem?.expiresAt ?? "");
+  const [expiryParts, setExpiryParts] = useState<DateParts>(() =>
+    fromIsoDate(editingItem?.expiresAt)
+  );
   const [notes, setNotes] = useState(editingItem?.notes ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const parsedQuantity = Number(quantity);
   const minQuantity = isEditing ? 0 : 1;
+  const expiryComplete = isDateComplete(expiryParts);
+  const expiryEmpty = isDateEmpty(expiryParts);
+  const isoExpiry = expiryComplete ? toIsoDate(expiryParts) : null;
+  const expiryError =
+    expiryComplete && !isoExpiry
+      ? "That's not a real date."
+      : !expiryEmpty && !expiryComplete
+        ? "Enter a full month, day, and year, or leave it blank."
+        : undefined;
   const canSubmit =
-    name.trim().length > 0 && !Number.isNaN(parsedQuantity) && parsedQuantity >= minQuantity;
+    name.trim().length > 0 &&
+    !Number.isNaN(parsedQuantity) &&
+    parsedQuantity >= minQuantity &&
+    (expiryEmpty || !!isoExpiry);
+
+  const setExpiryField = (field: keyof DateParts, maxLength: number) => (text: string) => {
+    setExpiryParts((prev) => ({ ...prev, [field]: onlyDigits(text, maxLength) }));
+  };
 
   const applyShortcut = (days: number) => {
     const date = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-    setExpiresAt(toDateInputString(date));
+    setExpiryParts(partsFromDate(date));
   };
 
   const handleSubmit = async () => {
@@ -60,7 +83,7 @@ export function AddPantryItemScreen() {
         category,
         quantity: parsedQuantity,
         unit,
-        expiresAt: expiresAt.trim() ? expiresAt.trim() : null,
+        expiresAt: isoExpiry,
         notes: notes.trim() ? notes.trim() : null,
       };
       if (editingItem) {
@@ -166,11 +189,38 @@ export function AddPantryItemScreen() {
             />
           ))}
         </View>
-        <TextField
-          placeholder="YYYY-MM-DD (optional)"
-          value={expiresAt}
-          onChangeText={setExpiresAt}
-        />
+        <View style={styles.dateRow}>
+          <View style={styles.dateFieldMonth}>
+            <TextField
+              placeholder="MM"
+              keyboardType="number-pad"
+              maxLength={2}
+              value={expiryParts.month}
+              onChangeText={setExpiryField("month", 2)}
+            />
+          </View>
+          <View style={styles.dateFieldDay}>
+            <TextField
+              placeholder="DD"
+              keyboardType="number-pad"
+              maxLength={2}
+              value={expiryParts.day}
+              onChangeText={setExpiryField("day", 2)}
+            />
+          </View>
+          <View style={styles.dateFieldYear}>
+            <TextField
+              placeholder="YYYY"
+              keyboardType="number-pad"
+              maxLength={4}
+              value={expiryParts.year}
+              onChangeText={setExpiryField("year", 4)}
+            />
+          </View>
+        </View>
+        {expiryError ? (
+          <Text style={[styles.dateError, { color: colors.danger }]}>{expiryError}</Text>
+        ) : null}
 
         <TextField
           label="Notes"
@@ -226,6 +276,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hint: {
+    ...typography.caption,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  dateRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  dateFieldMonth: {
+    flex: 1,
+  },
+  dateFieldDay: {
+    flex: 1,
+  },
+  dateFieldYear: {
+    flex: 1.5,
+  },
+  dateError: {
     ...typography.caption,
     marginTop: -spacing.sm,
     marginBottom: spacing.lg,
