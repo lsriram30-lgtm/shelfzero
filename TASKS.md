@@ -172,15 +172,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       expiry-date views filter through it, with separate messaging for a
       genuinely empty pantry vs. "no items match this search." Added 5
       tests, bringing the suite to 51 total.
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Backend: have
-      the meal-plan generator tag each meal with its cuisine (e.g.
-      "Italian," "Mexican") in the `/api/meal-plan` response, the same way
-      it already returns `title` and `description` — whatever generates a
-      meal like "Chicken Tikka Masala" already implicitly knows it's
-      Indian, it's just not returned today. Lives outside this repo (the
-      GoDaddy Airo AI Builder project the backend runs on). Once it exists,
-      a real (non-guessed) cuisine filter becomes possible on the Recipes
-      screen.
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Have the
+      meal-plan generator tag each meal with its cuisine (e.g. "Italian,"
+      "Thai") in the `/api/meal-plan` response, the same way it already
+      returns `title` and `description`. Whatever generates a meal like
+      "Pad Thai" already implicitly knows its cuisine — it's just not
+      returned today. Once it exists, a real (non-guessed) cuisine filter
+      becomes possible on the Recipes screen.
 
 ### Not yet assigned
 
