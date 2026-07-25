@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 6 / 10 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 7 / 10 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
@@ -146,6 +146,16 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       modules (`pantryLogic.ts`, `dashboardLogic.ts`) were split out of their
       screen files so tests can import them without pulling in React
       Native/Expo UI code — no behavior change, same functions, just moved.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Validate the
+      expiry-date field when adding or editing a pantry item (branch:
+      `feature/expiry-date-validation`) — merged into `master`. It was a raw
+      text box with no format checking, so a malformed date silently broke
+      the days-until-expiry math elsewhere (a literal "NaNd left" badge,
+      items miscounted in the health score, or dropped from "expiring soon").
+      Replaced it with three numeric-only MM/DD/YYYY fields; submit is
+      blocked with an inline error unless they form a real calendar date
+      (correctly rejects things like Feb 30). Added 17 tests for the new
+      date-combination logic, bringing the test suite to 46 total.
 
 ### Not yet assigned
 
@@ -167,9 +177,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it
-- [ ] Validate the expiry-date field when adding or editing a pantry item —
-      right now it's a raw text box with no format checking, so a malformed
-      date can quietly break the days-until-expiry math elsewhere in the app
 - [ ] Add a "clear checked items" bulk action to the Household Hub shopping
       list — right now there's no way to clear things out once they're
       checked off, they just sit there with a strikethrough
