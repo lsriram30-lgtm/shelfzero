@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
 import { mealPlanApi } from "../api/mealPlan";
@@ -7,12 +8,24 @@ import { Screen, Header, Card, Button, EmptyState, ErrorState } from "../compone
 import { spacing, typography } from "../theme";
 import { MealPlanDay } from "../types";
 
+const CACHE_KEY = "shelfzero.mealPlan";
+
 export function MealPlannerScreen() {
   const { colors } = useTheme();
   const { items: pantryItems } = usePantry();
   const [days, setDays] = useState<MealPlanDay[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(CACHE_KEY)
+      .then((cached) => {
+        if (cached) setDays(JSON.parse(cached) as MealPlanDay[]);
+      })
+      .catch(() => {
+        // No usable cache — the screen just starts from the empty state.
+      });
+  }, []);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -22,6 +35,7 @@ export function MealPlannerScreen() {
         pantryItems: pantryItems.map((item) => item.name),
       });
       setDays(plan.days);
+      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(plan.days)).catch(() => {});
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't generate a meal plan.");
     } finally {
