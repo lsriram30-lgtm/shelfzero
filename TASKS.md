@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 11 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 12 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
 
 ### Currently assigned
@@ -192,6 +192,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       No backend involved — the onboarding profile is AsyncStorage-only.
       Added 5 tests for `toggleValue`, which had none; suite is now 63
       total.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Save the
+      generated meal plan so it doesn't disappear when you navigate away
+      (branch: `feature/mealplan-persistence`) — merged into `master`.
+      "Generate 7-day plan" produced a real plan but it was never
+      persisted. Cached it to AsyncStorage on generate and loaded it back
+      on mount, same pattern as the pantry offline cache. No backend
+      involved.
 
 ### Not yet assigned
 
@@ -213,9 +220,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it
-- [ ] Save the generated meal plan so it doesn't disappear when you navigate
-      away — right now "Generate 7-day plan" produces a real plan but it's
-      never persisted
 - [ ] Add an "add ingredients to shopping list" action on a planned meal —
       right now meals in the plan are just display-only, with no way to turn
       one into shopping list items
