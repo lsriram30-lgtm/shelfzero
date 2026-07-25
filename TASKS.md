@@ -201,7 +201,14 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       one into shopping list items
 - [ ] Add a cuisine filter to the Recipes screen — right now onboarding
       collects a cuisine preference, but it isn't used to filter or sort the
-      Recipes screen at all
+      Recipes screen at all. Turns out to be bigger than it looks: recipes
+      have no cuisine field at all (not even from the backend), since
+      they're just derived from meal-plan titles/descriptions
+      (`useSuggestedRecipes.ts`) — a real filter would need either a backend
+      change or guessing cuisine from title keywords, which would
+      misclassify anything with a generic name. Skipped for now rather than
+      building something unreliable; revisit once there's real recipe
+      metadata to filter on.
 
 ---
 
