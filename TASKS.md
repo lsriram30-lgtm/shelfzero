@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 8 / 10 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 9 / 10 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
@@ -163,6 +163,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       strikethrough. Added a "Clear checked" link to the shopping list card
       header (shown only when something's checked), gated behind a confirm
       dialog matching the existing cancel-invite pattern.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      search/filter box to the Pantry screen (branch:
+      `feature/pantry-search-filter`) — merged into `master`. There was no
+      way to filter the list by name, only scrolling through category
+      groups. Added a case-insensitive `filterByName` helper and wired a
+      search field above the sort controls; both the category and
+      expiry-date views filter through it, with separate messaging for a
+      genuinely empty pantry vs. "no items match this search." Added 5
+      tests, bringing the suite to 51 total.
 
 ### Not yet assigned
 
@@ -184,8 +193,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it
-- [ ] Add a search/filter box to the Pantry screen — right now there's no way
-      to filter the list by name, only scrolling through category groups
 - [ ] Save the generated meal plan so it doesn't disappear when you navigate
       away — right now "Generate 7-day plan" produces a real plan but it's
       never persisted
