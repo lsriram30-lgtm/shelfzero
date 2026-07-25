@@ -229,6 +229,12 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       today it's only ever called with `{ checked }`
 - [ ] Show a brief "N items cleared — Undo" toast after clearing checked
       shopping list items, instead of just silently removing them
+- [ ] Let individual pantry items opt out of the "auto-add to shopping
+      list on zero stock" behavior — a one-time buy like a specialty
+      ingredient or a gift basket item shouldn't keep landing back on the
+      shopping list every time it's used up. Default should stay on for
+      everything else; a global Settings toggle to flip that default could
+      come later if needed.
 
 ---
 
