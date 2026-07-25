@@ -20,7 +20,7 @@ export const darkColors = {
   primary: "#C2C395",
   secondary: "#818263",
   accent: "#DDBAAE",
-  highlight: "#D7C2BA", // Peach Protein, deepened ~10% from the light value for dark-mode contrast
+  highlight: "#D7BDBA", // Peach Protein, deepened from the light value for dark-mode contrast
   border: "#3F3A35",
   text: "#FFFAF2",
   textMuted: "#B3ADA0",
