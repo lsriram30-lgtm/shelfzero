@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 5 / 10 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 6 / 10 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
@@ -135,6 +135,17 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       scheduling, not a push server — the app has to have run recently enough
       for the OS to have the reminder queued; a real push setup would need a
       backend to trigger notifications when the app isn't running at all.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add automated tests
+      — right now there weren't any, so the only way to catch something broken
+      was clicking through the app by hand (branch: `feature/automated-tests`)
+      — merged into `master`. Added Jest (`jest-expo` preset) with 29 tests
+      covering email validation, the pantry category/expiry-sort/days-until
+      logic, dashboard health scoring, and the API client's error handling
+      (bad responses, 401 token clearing, auth headers). Wired `npm test` into
+      the GitHub Actions workflow alongside the typecheck. Two pure-logic
+      modules (`pantryLogic.ts`, `dashboardLogic.ts`) were split out of their
+      screen files so tests can import them without pulling in React
+      Native/Expo UI code — no behavior change, same functions, just moved.
 
 ### Not yet assigned
 
@@ -146,9 +157,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a real app icon and splash screen image (using a placeholder right now)
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Add automated tests — right now there are none, so the only way to catch
-      something broken (like the pantry or shopping list) is clicking through
-      the app by hand every time
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
       way to remove them or leave
