@@ -84,8 +84,7 @@ export function MealPlannerScreen() {
               <Pill label="Pantry changed" tone="warning" />
             </View>
             <Text style={[styles.staleText, { color: colors.text }]}>
-              Your pantry has changed since this plan was generated, so some suggestions may no
-              longer match what you have on hand.
+              Your pantry's changed since this plan was made — some suggestions may no longer fit.
             </Text>
             <View style={styles.staleActions}>
               <Button
