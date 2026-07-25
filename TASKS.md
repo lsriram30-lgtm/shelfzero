@@ -172,6 +172,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       expiry-date views filter through it, with separate messaging for a
       genuinely empty pantry vs. "no items match this search." Added 5
       tests, bringing the suite to 51 total.
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Backend: have
+      the meal-plan generator tag each meal with its cuisine (e.g.
+      "Italian," "Mexican") in the `/api/meal-plan` response, the same way
+      it already returns `title` and `description` — whatever generates a
+      meal like "Chicken Tikka Masala" already implicitly knows it's
+      Indian, it's just not returned today. Lives outside this repo (the
+      GoDaddy Airo AI Builder project the backend runs on). Once it exists,
+      a real (non-guessed) cuisine filter becomes possible on the Recipes
+      screen.
 
 ### Not yet assigned
 
@@ -201,27 +210,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       one into shopping list items
 - [ ] Add a cuisine filter to the Recipes screen — right now onboarding
       collects a cuisine preference, but it isn't used to filter or sort the
-      Recipes screen at all. Turns out to be bigger than it looks: recipes
-      have no cuisine field at all (not even from the backend), since
-      they're just derived from meal-plan titles/descriptions
-      (`useSuggestedRecipes.ts`) — a real filter would need either a backend
-      change or guessing cuisine from title keywords, which would
-      misclassify anything with a generic name. Skipped for now rather than
-      building something unreliable; revisit once there's real recipe
-      metadata to filter on.
+      Recipes screen at all. Blocked on the backend cuisine-tagging task
+      (see "Currently assigned"): recipes have no cuisine field today, and
+      guessing one from title keywords would misclassify anything with a
+      generic name, so this is on hold until that data actually exists.
 - [ ] Add a breakfast/lunch/dinner filter to the Recipes screen — unlike
       cuisine, this is real data already returned by the meal-plan API
       (`meal.label` in `MealPlanDay`), it just gets discarded when
       `useSuggestedRecipes.ts` converts meals into recipes. Just needs
       carrying that field through and adding filter pills.
-- [ ] Backend: have the meal-plan generator tag each meal with its cuisine
-      (e.g. "Italian," "Mexican") in the `/api/meal-plan` response, the same
-      way it already returns `title` and `description` — whatever generates
-      a meal like "Chicken Tikka Masala" already implicitly knows it's
-      Indian, it's just not returned today. This isn't fixable from this
-      repo; it needs whoever manages the GoDaddy Airo AI Builder project
-      the backend runs on. Once it exists, a real (non-guessed) cuisine
-      filter becomes possible on the Recipes screen.
 
 ---
 
