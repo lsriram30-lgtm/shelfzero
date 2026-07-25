@@ -45,5 +45,12 @@ export function useShoppingList() {
     setItems((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
-  return { items, loading, error, refresh, addItem, toggleChecked, removeItem };
+  const clearChecked = useCallback(async () => {
+    const checkedIds = items.filter((i) => i.checked).map((i) => i.id);
+    if (checkedIds.length === 0) return;
+    await Promise.all(checkedIds.map((id) => shoppingListApi.remove(id)));
+    setItems((prev) => prev.filter((i) => !i.checked));
+  }, [items]);
+
+  return { items, loading, error, refresh, addItem, toggleChecked, removeItem, clearChecked };
 }

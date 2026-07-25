@@ -34,6 +34,7 @@ export function HouseholdHubScreen() {
     addItem,
     toggleChecked,
     removeItem,
+    clearChecked,
   } = useShoppingList();
   const { totalItemsDonated } = useDonations();
 
@@ -79,6 +80,31 @@ export function HouseholdHubScreen() {
   };
 
   const pendingInvites = invites.filter((invite) => invite.status === "pending");
+  const checkedCount = shoppingItems.filter((item) => item.checked).length;
+
+  const handleClearChecked = () => {
+    Alert.alert(
+      "Clear checked items",
+      `Remove ${checkedCount} checked item${checkedCount === 1 ? "" : "s"} from your shopping list?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await clearChecked();
+            } catch (err) {
+              Alert.alert(
+                "Couldn't clear items",
+                err instanceof Error ? err.message : "Something went wrong. Please try again."
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <Screen>
@@ -135,7 +161,16 @@ export function HouseholdHubScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Shopping list</Text>
+          <View style={styles.cardHeader}>
+            <Text style={[styles.cardTitle, { color: colors.text, marginBottom: 0 }]}>
+              Shopping list
+            </Text>
+            {checkedCount > 0 ? (
+              <Pressable onPress={handleClearChecked}>
+                <Text style={[styles.link, { color: colors.primary }]}>Clear checked</Text>
+              </Pressable>
+            ) : null}
+          </View>
           <View style={styles.shoppingInputRow}>
             <View style={styles.shoppingInput}>
               <TextField
