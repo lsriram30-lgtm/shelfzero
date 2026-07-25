@@ -167,6 +167,23 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it
+- [ ] Validate the expiry-date field when adding or editing a pantry item —
+      right now it's a raw text box with no format checking, so a malformed
+      date can quietly break the days-until-expiry math elsewhere in the app
+- [ ] Add a "clear checked items" bulk action to the Household Hub shopping
+      list — right now there's no way to clear things out once they're
+      checked off, they just sit there with a strikethrough
+- [ ] Add a search/filter box to the Pantry screen — right now there's no way
+      to filter the list by name, only scrolling through category groups
+- [ ] Save the generated meal plan so it doesn't disappear when you navigate
+      away — right now "Generate 7-day plan" produces a real plan but it's
+      never persisted
+- [ ] Add an "add ingredients to shopping list" action on a planned meal —
+      right now meals in the plan are just display-only, with no way to turn
+      one into shopping list items
+- [ ] Add a cuisine filter to the Recipes screen — right now onboarding
+      collects a cuisine preference, but it isn't used to filter or sort the
+      Recipes screen at all
 
 ---
 
