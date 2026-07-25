@@ -44,7 +44,14 @@ export function ProfileScreen() {
       <Header title="Profile" subtitle={profile?.name ?? "Your account"} />
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>About you</Text>
+          <View style={styles.cardHeaderRow}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>About you</Text>
+            <Button
+              label="Edit"
+              variant="outline"
+              onPress={() => navigation.navigate("EditProfile")}
+            />
+          </View>
           <Text style={[styles.detail, { color: colors.text }]}>
             {profile?.name ?? "—"} · {profile?.location ?? "—"}
           </Text>

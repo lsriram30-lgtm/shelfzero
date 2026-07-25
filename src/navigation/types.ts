@@ -26,6 +26,7 @@ export type AuthStackParamList = {
 export type HouseholdStackParamList = {
   HouseholdHub: undefined;
   Profile: undefined;
+  EditProfile: undefined;
   InviteFlow: undefined;
   Donate: undefined;
 };
