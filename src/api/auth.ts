@@ -49,10 +49,11 @@ async function authRequest(path: string, body: unknown): Promise<AuthResult> {
   const data = text ? JSON.parse(text) : undefined;
 
   if (!response.ok) {
+    const record = data && typeof data === "object" ? (data as Record<string, unknown>) : null;
     const rawMessage: string =
-      data && typeof data === "object" && "message" in data
-        ? String((data as { message: unknown }).message)
-        : "Something went wrong. Please try again.";
+      (typeof record?.message === "string" && record.message.trim()) ||
+      (typeof record?.error === "string" && record.error.trim()) ||
+      "Something went wrong. Please try again.";
     const isAccountExists = /already exist|already registered|already in use/i.test(rawMessage);
     const message = isAccountExists
       ? "An account with this email already exists."

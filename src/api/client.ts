@@ -21,6 +21,29 @@ export class ApiError extends Error {
 
 type RequestOptions = Omit<RequestInit, "body"> & { body?: unknown };
 
+// Plain-English fallback for when the backend doesn't send a usable message
+// of its own, so an error never just shows a bare status code.
+const DEFAULT_STATUS_MESSAGES: Record<number, string> = {
+  400: "That request wasn't valid. Please check your input and try again.",
+  401: "You're not signed in, or your session has expired. Please sign in again.",
+  403: "You don't have permission to do that.",
+  404: "That couldn't be found.",
+  429: "Too many requests right now. Please wait a moment and try again.",
+  500: "Something went wrong on our end. Please try again.",
+  502: "The server is temporarily unavailable. Please try again shortly.",
+  503: "The server is temporarily unavailable. Please try again shortly.",
+  504: "The server took too long to respond. Please try again.",
+};
+
+export function extractErrorMessage(data: unknown, status: number): string {
+  if (data && typeof data === "object") {
+    const record = data as Record<string, unknown>;
+    if (typeof record.message === "string" && record.message.trim()) return record.message;
+    if (typeof record.error === "string" && record.error.trim()) return record.error;
+  }
+  return DEFAULT_STATUS_MESSAGES[status] ?? `Something went wrong (error ${status}). Please try again.`;
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { body, headers, ...rest } = options;
   const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
@@ -46,11 +69,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     if (response.status === 401 && token) {
       await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
     }
-    const message: string =
-      data && typeof data === "object" && "message" in data
-        ? String((data as { message: unknown }).message)
-        : `Request failed with status ${response.status}`;
-    throw new ApiError(message, response.status, data);
+    throw new ApiError(extractErrorMessage(data, response.status), response.status, data);
   }
 
   return data as T;
