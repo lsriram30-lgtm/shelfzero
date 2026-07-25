@@ -61,7 +61,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       notification toggles; the first three already persisted, the notification
       toggles were the only ones resetting on reload, so those now persist locally
       the same way (AsyncStorage).
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) (quick fix) Refine what
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Refine what
       the Dashboard shows when the pantry is empty (branch:
       `feature/dashboard-empty-state`) — merged into `master`. Replaced the
       misleading "100% Pantry health" ring with a proper empty-state prompt to
@@ -79,7 +79,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       friendlier error messages, a fix for fields getting stuck under the phone's
       autofill suggestions, and email-format validation) and a "create new account
       anyway" option when an email's already taken.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) (quick fix) Set up
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Set up
       GitHub Actions to automatically check the code on every push or Pull
       Request, so TypeScript type errors get caught before merging (branch:
       `feature/ci-actions`) — merged into `master`. Installs dependencies and
