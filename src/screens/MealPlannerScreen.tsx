@@ -8,7 +8,9 @@ import { mealPlanApi } from "../api/mealPlan";
 import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill } from "../components";
 import { spacing, typography } from "../theme";
 import { MealPlanDay } from "../types";
-import { buildMealPlanPreferences, hasPantryChanged } from "./mealPlannerLogic";
+import { buildMealPlanPreferences, hasEnoughPantryItems, hasPantryChanged } from "./mealPlannerLogic";
+
+const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
 
 const CACHE_KEY = "shelfzero.mealPlan";
 
@@ -41,8 +43,13 @@ export function MealPlannerScreen() {
 
   const currentPantryNames = pantryItems.map((item) => item.name);
   const isStale = days.length > 0 && hasPantryChanged(currentPantryNames, cachedPantryNames);
+  const hasEnoughItems = hasEnoughPantryItems(pantryItems.length);
 
   const handleGenerate = async () => {
+    if (!hasEnoughItems) {
+      setError(NOT_ENOUGH_ITEMS_MESSAGE);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -104,6 +111,8 @@ export function MealPlannerScreen() {
 
         {error ? (
           <ErrorState message={error} onRetry={handleGenerate} />
+        ) : days.length === 0 && !loading && !hasEnoughItems ? (
+          <EmptyState title="Not enough pantry items" message={NOT_ENOUGH_ITEMS_MESSAGE} />
         ) : days.length === 0 && !loading ? (
           <EmptyState
             title="No plan yet"

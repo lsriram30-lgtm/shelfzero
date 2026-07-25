@@ -1,4 +1,9 @@
-import { buildMealPlanPreferences, hasPantryChanged } from "./mealPlannerLogic";
+import {
+  buildMealPlanPreferences,
+  hasEnoughPantryItems,
+  hasPantryChanged,
+  MIN_PANTRY_ITEMS_FOR_PLAN,
+} from "./mealPlannerLogic";
 import { OnboardingProfile } from "../types";
 
 function profile(overrides: Partial<OnboardingProfile>): OnboardingProfile {
@@ -70,5 +75,23 @@ describe("hasPantryChanged", () => {
 
   it("returns false for two empty lists", () => {
     expect(hasPantryChanged([], [])).toBe(false);
+  });
+});
+
+describe("hasEnoughPantryItems", () => {
+  it("returns false for an empty pantry", () => {
+    expect(hasEnoughPantryItems(0)).toBe(false);
+  });
+
+  it("returns false when below the minimum", () => {
+    expect(hasEnoughPantryItems(MIN_PANTRY_ITEMS_FOR_PLAN - 1)).toBe(false);
+  });
+
+  it("returns true at exactly the minimum", () => {
+    expect(hasEnoughPantryItems(MIN_PANTRY_ITEMS_FOR_PLAN)).toBe(true);
+  });
+
+  it("returns true above the minimum", () => {
+    expect(hasEnoughPantryItems(MIN_PANTRY_ITEMS_FOR_PLAN + 5)).toBe(true);
   });
 });

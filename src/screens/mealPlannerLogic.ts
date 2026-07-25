@@ -1,5 +1,14 @@
 import { OnboardingProfile } from "../types";
 
+// The backend doesn't document a minimum pantry size for generating a
+// 7-day plan, so this is a client-side heuristic to catch the obvious
+// case (an empty or near-empty pantry) before wasting a request on it.
+export const MIN_PANTRY_ITEMS_FOR_PLAN = 3;
+
+export function hasEnoughPantryItems(itemCount: number): boolean {
+  return itemCount >= MIN_PANTRY_ITEMS_FOR_PLAN;
+}
+
 export function buildMealPlanPreferences(
   profile: OnboardingProfile | null
 ): Record<string, string[]> | undefined {
