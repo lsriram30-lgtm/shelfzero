@@ -61,6 +61,12 @@ export function MealPlannerScreen() {
     }
   };
 
+  const handleKeepPlan = () => {
+    setCachedPantryNames(currentPantryNames);
+    const toCache: CachedMealPlan = { days, pantryItemNames: currentPantryNames };
+    AsyncStorage.setItem(CACHE_KEY, JSON.stringify(toCache)).catch(() => {});
+  };
+
   return (
     <Screen>
       <Header title="Meal planner" subtitle="A 7-day plan built from your pantry" />
@@ -73,12 +79,28 @@ export function MealPlannerScreen() {
         />
 
         {isStale && !loading ? (
-          <View style={styles.staleBanner}>
-            <Pill
-              label="Your pantry has changed since this plan was made — regenerate for updated suggestions"
-              tone="warning"
-            />
-          </View>
+          <Card style={styles.staleBanner}>
+            <View style={styles.staleHeader}>
+              <Pill label="Pantry changed" tone="warning" />
+            </View>
+            <Text style={[styles.staleText, { color: colors.text }]}>
+              Your pantry has changed since this plan was generated, so some suggestions may no
+              longer match what you have on hand.
+            </Text>
+            <View style={styles.staleActions}>
+              <Button
+                label="Regenerate now"
+                onPress={handleGenerate}
+                style={styles.staleButton}
+              />
+              <Button
+                label="Leave as is"
+                variant="outline"
+                onPress={handleKeepPlan}
+                style={styles.staleButton}
+              />
+            </View>
+          </Card>
         ) : null}
 
         {error ? (
@@ -121,6 +143,20 @@ const styles = StyleSheet.create({
   },
   staleBanner: {
     marginBottom: spacing.lg,
+  },
+  staleHeader: {
+    marginBottom: spacing.sm,
+  },
+  staleText: {
+    ...typography.body,
+    marginBottom: spacing.md,
+  },
+  staleActions: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  staleButton: {
+    flex: 1,
   },
   error: {
     ...typography.body,
