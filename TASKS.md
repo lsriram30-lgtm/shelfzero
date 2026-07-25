@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 10 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 11 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
 
 ### Currently assigned
@@ -181,6 +181,17 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       the grid; favorited recipes without a meal type (they don't come from
       the meal-plan response) simply won't match a specific filter. Added
       7 tests, bringing the suite to 58 total.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Let profile
+      info be edited after onboarding (branch: `feature/edit-profile`) —
+      merged into `master`. Name, location, household size, and
+      cuisine/dietary prefs were read-only; the only way to change any of
+      it was "Reset app (testing)," which wipes everything and signs you
+      out. Added an EditProfile screen off Profile's "About you" card,
+      reusing the same building blocks as onboarding (GroupedPillGrid,
+      PillGrid, CustomOptionField, toggleValue) without the wizard chrome.
+      No backend involved — the onboarding profile is AsyncStorage-only.
+      Added 5 tests for `toggleValue`, which had none; suite is now 63
+      total.
 
 ### Not yet assigned
 
@@ -235,10 +246,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       shopping list every time it's used up. Default should stay on for
       everything else; a global Settings toggle to flip that default could
       come later if needed.
-- [ ] Let profile info be edited after onboarding — name, location,
-      household size, and cuisine/dietary prefs are all read-only on the
-      Profile screen today. The only way to change any of it is "Reset app
-      (testing)," which wipes everything and signs you out.
 - [ ] Add an edit step to the Scan review flow — after scanning, results
       show as read-only cards with no way to fix a misread name, wrong
       category, or missing expiry before adding them to the pantry.
