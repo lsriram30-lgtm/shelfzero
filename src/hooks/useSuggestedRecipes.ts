@@ -29,6 +29,7 @@ export function useSuggestedRecipes() {
             id: `${day.day}-${meal.label}-${meal.title}`.toLowerCase().replace(/\s+/g, "-"),
             title: meal.title,
             ingredients: meal.description ? [meal.description] : undefined,
+            mealType: meal.label || undefined,
           });
         });
       });

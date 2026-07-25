@@ -69,6 +69,7 @@ export interface Recipe {
   servings?: number;
   ingredients?: string[];
   steps?: string[];
+  mealType?: string;
 }
 
 export interface MealPlanRequest {

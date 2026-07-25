@@ -6,10 +6,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useSuggestedRecipes } from "../../hooks/useSuggestedRecipes";
 import { favoritesApi } from "../../api/favorites";
-import { Screen, Header, Card, EmptyState, ErrorState } from "../../components";
+import { Screen, Header, Card, EmptyState, ErrorState, Pill } from "../../components";
 import { spacing, typography } from "../../theme";
 import { RecipesStackParamList } from "../../navigation/types";
 import { Recipe } from "../../types";
+import { filterByMealType, uniqueMealTypes } from "./recipesLogic";
 
 type RecipesNavigationProp = NativeStackNavigationProp<RecipesStackParamList, "Recipes">;
 
@@ -45,6 +46,7 @@ export function RecipesScreen() {
   const { recipes, loading, error, generate } = useSuggestedRecipes();
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
+  const [mealTypeFilter, setMealTypeFilter] = useState<string | null>(null);
 
   const loadFavorites = async () => {
     setFavoritesLoading(true);
@@ -74,12 +76,31 @@ export function RecipesScreen() {
     ...favorites,
     ...recipes.filter((r) => !favoriteIds.has(r.id)),
   ];
+  const mealTypes = uniqueMealTypes(combined);
+  const filtered = filterByMealType(combined, mealTypeFilter);
 
   return (
     <Screen>
       <Header title="Recipes" subtitle="Suggested from what's in your pantry" />
+      {mealTypes.length > 0 ? (
+        <View style={styles.filterRow}>
+          <Pill
+            label="All"
+            selected={mealTypeFilter === null}
+            onPress={() => setMealTypeFilter(null)}
+          />
+          {mealTypes.map((mealType) => (
+            <Pill
+              key={mealType}
+              label={mealType}
+              selected={mealTypeFilter === mealType}
+              onPress={() => setMealTypeFilter(mealType)}
+            />
+          ))}
+        </View>
+      ) : null}
       <FlatList
-        data={combined}
+        data={filtered}
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={styles.grid}
@@ -103,6 +124,11 @@ export function RecipesScreen() {
                   loadFavorites();
                 }}
               />
+            ) : combined.length > 0 ? (
+              <EmptyState
+                title="No matching recipes"
+                message={`No ${mealTypeFilter} recipes right now — try a different filter.`}
+              />
             ) : (
               <EmptyState
                 title="No recipes yet"
@@ -123,6 +149,13 @@ export function RecipesScreen() {
 }
 
 const styles = StyleSheet.create({
+  filterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
   grid: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxxl,
