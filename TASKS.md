@@ -277,6 +277,14 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       separate from the readiness gaps noted elsewhere in this list (the
       testing-UI cleanup above, the real app icon, and account deletion,
       which Apple's guidelines require for any app with sign-up).
+- [ ] Add in-app account deletion — there's currently no way to delete
+      your account or data from within the app. Apple's App Store Review
+      Guideline 5.1.1(v) requires this for any app with account creation,
+      making it a real submission blocker, not just a nice-to-have.
+- [ ] Write and host a privacy policy, then link it in the app — required
+      by both Apple and Google at submission for any app collecting
+      personal data (this one collects location, dietary/allergy info,
+      and camera access), not optional.
 
 ---
 
