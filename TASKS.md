@@ -235,6 +235,30 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       shopping list every time it's used up. Default should stay on for
       everything else; a global Settings toggle to flip that default could
       come later if needed.
+- [ ] Let profile info be edited after onboarding — name, location,
+      household size, and cuisine/dietary prefs are all read-only on the
+      Profile screen today. The only way to change any of it is "Reset app
+      (testing)," which wipes everything and signs you out.
+- [ ] Add an edit step to the Scan review flow — after scanning, results
+      show as read-only cards with no way to fix a misread name, wrong
+      category, or missing expiry before adding them to the pantry.
+- [ ] Make the category bars on Pantry Stats tappable, jumping to that
+      category on the Pantry screen (which already has search/filter) —
+      right now the two screens don't talk to each other.
+- [ ] Let a single day in the meal plan be regenerated instead of only
+      the whole 7-day plan at once.
+- [ ] Add a "send test notification" button to the Notifications settings,
+      so you can confirm notifications actually work on your device
+      without waiting for a real expiry or invite event.
+- [ ] Extract three duplicated UI patterns into shared components: the
+      confirm-dialog pattern (Cancel + destructive confirm), the "card
+      title + action link" header row, and switch-toggle rows — all
+      currently hand-rolled separately in HouseholdHubScreen and
+      ProfileScreen. Pure refactor, no behavior change.
+- [ ] **Before shipping to real users:** remove or hide testing-only
+      features — the "Reset app (testing)" button on Profile (wipes
+      everything and signs out) and the "send test notification" button
+      above should never reach production users.
 
 ---
 
