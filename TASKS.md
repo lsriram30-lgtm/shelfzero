@@ -301,14 +301,14 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       by both Apple and Google at submission for any app collecting
       personal data (this one collects location, dietary/allergy info,
       and camera access), not optional.
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Figure out the
-      `429` on `/api/meal-plan` — testing in Expo Go and a direct check
-      from outside the app both got `{"error":"AI service is busy. Please
-      wait a moment and try again."}`, even unauthenticated, so it's not
-      account- or pantry-specific. Likely a rate limit or usage quota on
-      whatever AI service the backend calls to generate plans. Needs
-      checking in the Airo AI Builder dashboard directly (usage/billing
-      page) — not something visible or fixable from this repo.
+- [ ] Figure out the `429` on `/api/meal-plan` — testing in Expo Go and a
+      direct check from outside the app both got `{"error":"AI service is
+      busy. Please wait a moment and try again."}`, even unauthenticated,
+      so it's not account- or pantry-specific. Likely a rate limit or
+      usage quota on whatever AI service the backend calls to generate
+      plans. Needs checking in the Airo AI Builder dashboard directly
+      (usage/billing page) — not something visible or fixable from this
+      repo.
 
 ---
 
