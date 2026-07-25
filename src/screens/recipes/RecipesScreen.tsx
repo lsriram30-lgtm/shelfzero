@@ -31,9 +31,9 @@ function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }
           {recipe.title}
         </Text>
         {typeof recipe.matchScore === "number" ? (
-          <Text style={[styles.matchScore, { color: colors.primary }]}>
-            {recipe.matchScore}% match
-          </Text>
+          <View style={styles.matchScoreWrapper}>
+            <Pill label={`${recipe.matchScore}% match`} tone="highlight" />
+          </View>
         ) : null}
       </Card>
     </Pressable>
@@ -180,8 +180,7 @@ const styles = StyleSheet.create({
   tileTitle: {
     ...typography.bodyMedium,
   },
-  matchScore: {
-    ...typography.caption,
+  matchScoreWrapper: {
     marginTop: spacing.xs,
   },
 });

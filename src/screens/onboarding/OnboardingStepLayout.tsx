@@ -37,7 +37,7 @@ export function OnboardingStepLayout({
             key={i}
             style={[
               styles.progressSegment,
-              { backgroundColor: i <= step ? colors.primary : colors.border },
+              { backgroundColor: i <= step ? colors.accent : colors.border },
             ]}
           />
         ))}
