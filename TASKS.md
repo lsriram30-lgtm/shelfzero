@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 13 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 14 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
 
 ### Currently assigned
@@ -117,6 +117,17 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       used it for the Dashboard's "USE IT UP" badge and cycled the Pantry
       Stats category bars through primary/Blush Beet/Peach Protein/secondary
       instead of one flat color.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Correct Peach
+      Protein's hex and use it/Blush Beet in a couple more places (branch:
+      `feature/palette-colors`) — merged into `master`. The coded value
+      (`#EFA36B`) didn't match the real design reference (`#EFD7CF`, a
+      much paler peach); updated light mode to the correct value and
+      derived a dark-mode variant (`#D7BDBA`) for contrast. Since the new
+      color is pale, it's no longer safe as plain text — swapped the
+      Recipes screen's match-score text for a `Pill` with `tone="highlight"`
+      instead (dark text over the tone color, same safe pattern used
+      elsewhere). Also gave the onboarding progress bar's active segments
+      Blush Beet instead of the primary color.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an offline/cached view
       that shows the last-known pantry state when the server can't be reached
       (branch: `feature/laya-app-improvements`) — merged into `master`. Pantry
