@@ -270,6 +270,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       features — the "Reset app (testing)" button on Profile (wipes
       everything and signs out) and the "send test notification" button
       above should never reach production users.
+- [ ] Research the best distribution method for community/beta testing of
+      the prototype — e.g. TestFlight for iOS, the Google Play internal
+      or closed testing track, or continuing with Expo Go — as a step
+      toward eventual App Store / Play Store submission. Related but
+      separate from the readiness gaps noted elsewhere in this list (the
+      testing-UI cleanup above, the real app icon, and account deletion,
+      which Apple's guidelines require for any app with sign-up).
 
 ---
 
