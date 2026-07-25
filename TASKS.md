@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 7 / 10 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 8 / 10 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 10 |
 
 ### Currently assigned
@@ -156,6 +156,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       blocked with an inline error unless they form a real calendar date
       (correctly rejects things like Feb 30). Added 17 tests for the new
       date-combination logic, bringing the test suite to 46 total.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a "clear
+      checked items" bulk action to the Household Hub shopping list (branch:
+      `feature/shopping-list-clear-checked`) — merged into `master`. There
+      was no bulk action at all; checked items just sat there with a
+      strikethrough. Added a "Clear checked" link to the shopping list card
+      header (shown only when something's checked), gated behind a confirm
+      dialog matching the existing cancel-invite pattern.
 
 ### Not yet assigned
 
@@ -177,9 +184,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it
-- [ ] Add a "clear checked items" bulk action to the Household Hub shopping
-      list — right now there's no way to clear things out once they're
-      checked off, they just sit there with a strikethrough
 - [ ] Add a search/filter box to the Pantry screen — right now there's no way
       to filter the list by name, only scrolling through category groups
 - [ ] Save the generated meal plan so it doesn't disappear when you navigate
