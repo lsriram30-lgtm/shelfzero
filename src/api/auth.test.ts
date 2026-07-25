@@ -34,14 +34,14 @@ describe("authApi", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(jsonResponse(500, { error: "Server is down for maintenance." }));
     await expect(authApi.signIn("jamie@example.com", "hunter2")).rejects.toMatchObject({
-      message: "Server is down for maintenance.",
+      message: "500 Error: Server is down for maintenance.",
     });
   });
 
   it("falls back to a generic message when there's no message or error field", async () => {
     jest.spyOn(global, "fetch").mockResolvedValue(jsonResponse(500, {}));
     await expect(authApi.signIn("jamie@example.com", "hunter2")).rejects.toMatchObject({
-      message: "Something went wrong. Please try again.",
+      message: "500 Error: Something went wrong. Please try again.",
     });
   });
 
@@ -55,7 +55,9 @@ describe("authApi", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(AuthError);
       expect((err as AuthError).isAccountExists).toBe(true);
-      expect((err as AuthError).message).toBe("An account with this email already exists.");
+      expect((err as AuthError).message).toBe(
+        "400 Error: An account with this email already exists."
+      );
     }
   });
 
@@ -64,7 +66,7 @@ describe("authApi", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(jsonResponse(400, { message: "[body.email] is required" }));
     await expect(authApi.signIn("", "hunter2")).rejects.toMatchObject({
-      message: "Please enter your email address.",
+      message: "400 Error: Please enter your email address.",
     });
   });
 
@@ -73,7 +75,7 @@ describe("authApi", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(jsonResponse(400, { message: "body.password too short" }));
     await expect(authApi.signIn("jamie@example.com", "a")).rejects.toMatchObject({
-      message: "Your password is too short.",
+      message: "400 Error: Your password is too short.",
     });
   });
 
@@ -82,7 +84,7 @@ describe("authApi", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(jsonResponse(400, { message: "Totally unrelated error" }));
     await expect(authApi.signIn("jamie@example.com", "hunter2")).rejects.toMatchObject({
-      message: "Totally unrelated error",
+      message: "400 Error: Totally unrelated error",
     });
   });
 });

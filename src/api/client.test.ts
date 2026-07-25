@@ -35,7 +35,7 @@ describe("apiClient", () => {
   it("throws an ApiError using the server's message on failure", async () => {
     jest.spyOn(global, "fetch").mockResolvedValue(jsonResponse(400, { message: "Bad request" }));
     await expect(apiClient.get("/api/pantry")).rejects.toMatchObject({
-      message: "Bad request",
+      message: "400 Error: Bad request",
       status: 400,
     });
   });
@@ -43,7 +43,7 @@ describe("apiClient", () => {
   it("falls back to a plain-English message when the server sends no message", async () => {
     jest.spyOn(global, "fetch").mockResolvedValue(jsonResponse(500, {}));
     await expect(apiClient.get("/api/pantry")).rejects.toMatchObject({
-      message: "Something went wrong on our end. Please try again.",
+      message: "500 Error: Something went wrong on our end. Please try again.",
       status: 500,
     });
   });
@@ -53,7 +53,7 @@ describe("apiClient", () => {
       jsonResponse(429, { error: "AI service is busy. Please wait a moment and try again." })
     );
     await expect(apiClient.get("/api/meal-plan")).rejects.toMatchObject({
-      message: "AI service is busy. Please wait a moment and try again.",
+      message: "429 Error: AI service is busy. Please wait a moment and try again.",
       status: 429,
     });
   });
@@ -87,39 +87,43 @@ describe("apiClient", () => {
 });
 
 describe("extractErrorMessage", () => {
+  it("prefixes the status code, formatted as 'N Error: ...'", () => {
+    expect(extractErrorMessage({ message: "Bad request" }, 400)).toBe("400 Error: Bad request");
+  });
+
   it("prefers a `message` field over an `error` field", () => {
     expect(extractErrorMessage({ message: "From message", error: "From error" }, 400)).toBe(
-      "From message"
+      "400 Error: From message"
     );
   });
 
   it("uses an `error` field when there's no `message` field", () => {
     expect(extractErrorMessage({ error: "AI service is busy." }, 429)).toBe(
-      "AI service is busy."
+      "429 Error: AI service is busy."
     );
   });
 
   it("ignores a blank message/error and falls back to the status default", () => {
     expect(extractErrorMessage({ message: "   " }, 429)).toBe(
-      "Too many requests right now. Please wait a moment and try again."
+      "429 Error: Too many requests right now. Please wait a moment and try again."
     );
   });
 
   it("returns a plain-English default for a known status with no body", () => {
     expect(extractErrorMessage(undefined, 401)).toBe(
-      "You're not signed in, or your session has expired. Please sign in again."
+      "401 Error: You're not signed in, or your session has expired. Please sign in again."
     );
   });
 
   it("returns a generic but readable message for an unmapped status", () => {
     expect(extractErrorMessage(undefined, 418)).toBe(
-      "Something went wrong (error 418). Please try again."
+      "418 Error: Something went wrong. Please try again."
     );
   });
 
   it("ignores non-string message/error fields", () => {
     expect(extractErrorMessage({ message: 42 }, 500)).toBe(
-      "Something went wrong on our end. Please try again."
+      "500 Error: Something went wrong on our end. Please try again."
     );
   });
 });

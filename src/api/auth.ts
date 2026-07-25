@@ -55,10 +55,13 @@ async function authRequest(path: string, body: unknown): Promise<AuthResult> {
       (typeof record?.error === "string" && record.error.trim()) ||
       "Something went wrong. Please try again.";
     const isAccountExists = /already exist|already registered|already in use/i.test(rawMessage);
-    const message = isAccountExists
+    const detail = isAccountExists
       ? "An account with this email already exists."
       : humanizeMessage(rawMessage);
-    throw new AuthError(message, isAccountExists);
+    // Coding-phase convention (see client.ts's extractErrorMessage): prefix
+    // the status code so what's on-screen is easy to correlate with the
+    // network call. Revisit before real users see this.
+    throw new AuthError(`${response.status} Error: ${detail}`, isAccountExists);
   }
 
   return data as AuthResult;

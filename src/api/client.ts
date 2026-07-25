@@ -35,13 +35,22 @@ const DEFAULT_STATUS_MESSAGES: Record<number, string> = {
   504: "The server took too long to respond. Please try again.",
 };
 
-export function extractErrorMessage(data: unknown, status: number): string {
+function resolveErrorDetail(data: unknown, status: number): string {
   if (data && typeof data === "object") {
     const record = data as Record<string, unknown>;
     if (typeof record.message === "string" && record.message.trim()) return record.message;
     if (typeof record.error === "string" && record.error.trim()) return record.error;
   }
-  return DEFAULT_STATUS_MESSAGES[status] ?? `Something went wrong (error ${status}). Please try again.`;
+  return DEFAULT_STATUS_MESSAGES[status] ?? "Something went wrong. Please try again.";
+}
+
+// While the app is still in the coding/testing phase, prefix every error
+// with its status code (e.g. "429 Error: ...") so it's easy to correlate
+// what's shown on-screen with what actually happened over the network.
+// Worth revisiting before real users see this — a plain message without
+// the code may read cleaner for production.
+export function extractErrorMessage(data: unknown, status: number): string {
+  return `${status} Error: ${resolveErrorDetail(data, status)}`;
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
