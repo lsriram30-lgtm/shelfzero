@@ -172,13 +172,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       expiry-date views filter through it, with separate messaging for a
       genuinely empty pantry vs. "no items match this search." Added 5
       tests, bringing the suite to 51 total.
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Have the
-      meal-plan generator tag each meal with its cuisine (e.g. "Italian,"
-      "Thai") in the `/api/meal-plan` response — a backend change, the same
-      way it already returns `title` and `description`. Whatever generates
-      a meal like "Pad Thai" already implicitly knows its cuisine — it's
-      just not returned today. Once it exists, a real (non-guessed) cuisine
-      filter becomes possible on the Recipes screen.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
       breakfast/lunch/dinner filter to the Recipes screen (branch:
       `feature/recipes-mealtype-filter`) — merged into `master`. Unlike
@@ -217,10 +210,16 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       one into shopping list items
 - [ ] Add a cuisine filter to the Recipes screen — right now onboarding
       collects a cuisine preference, but it isn't used to filter or sort the
-      Recipes screen at all. Blocked on the backend cuisine-tagging task
-      (see "Currently assigned"): recipes have no cuisine field today, and
-      guessing one from title keywords would misclassify anything with a
-      generic name, so this is on hold until that data actually exists.
+      Recipes screen at all. Blocked on the "tag each meal with its cuisine"
+      backend task below: recipes have no cuisine field today, and guessing
+      one from title keywords would misclassify anything with a generic
+      name, so this is on hold until that data actually exists.
+- [ ] Have the meal-plan generator tag each meal with its cuisine (e.g.
+      "Italian," "Thai") in the `/api/meal-plan` response — a backend
+      change, the same way it already returns `title` and `description`.
+      Whatever generates a meal like "Pad Thai" already implicitly knows
+      its cuisine — it's just not returned today. Once it exists, a real
+      (non-guessed) cuisine filter becomes possible on the Recipes screen.
 - [ ] Add a "select all" / bulk-check option to the shopping list — pairs
       with the "clear checked" action, but right now items can only be
       checked off one at a time
