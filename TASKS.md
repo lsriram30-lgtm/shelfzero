@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 16 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 17 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
 
 ### Currently assigned
@@ -238,14 +238,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       message building into `buildExpiringSoonBriefing()` in
       `dashboardLogic.ts` so singular vs. plural wording is covered by
       tests. Added 3 tests, bringing the suite to 95 total.
-- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Draft a
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Draft a
       privacy policy and link it from Profile (branch:
       `feature/privacy-policy-link`) — merged into `master`. Wrote a
       privacy policy grounded in what the app actually collects and does,
       and added a "Privacy Policy" link on the Profile screen that opens
-      it. It's currently hosted as a Claude Artifact, which is private by
-      default — a real user tapping the link wouldn't actually be able to
-      see it right now.
+      it. It's hosted as a Claude Artifact; the Artifact was shared
+      publicly, and real users can now actually view it.
 
 ### Not yet assigned
 
@@ -367,7 +366,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       check right before actually publishing since the app will keep
       changing between now and then, and host it at a real, permanent
       URL once the web domain exists, updating `PRIVACY_POLICY_URL` to
-      point there.
+      point there. One more reason this matters: the shared Claude
+      Artifact shows a "Content is user-generated and unverified" banner,
+      which undercuts credibility for what's supposed to be the app's
+      official, binding policy — fine for testing, not for an actual
+      submission. GitHub Pages was tried and isn't available on the
+      current plan (repo is private); would need either a public repo, a
+      paid GitHub plan, or a different static host.
 - [ ] Refine the "Add item" pantry form's questions/options — e.g. the
       Unit picker (`ct`, `lb`, `oz`, `g`, `kg`, `L`, `mL`) has no "Other"
       option, unlike Category which does, so anything measured
