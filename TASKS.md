@@ -341,6 +341,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       your account or data from within the app. Apple's App Store Review
       Guideline 5.1.1(v) requires this for any app with account creation,
       making it a real submission blocker, not just a nice-to-have.
+      Checked: no `DELETE /api/me` or `/api/account` route exists on the
+      backend today (both 404, not 401 — the routes aren't there at all),
+      so this is backend-blocked. A client-side-only "delete" that just
+      clears local storage would be actively misleading since the
+      server would still have everything, so not building a workaround.
 - [ ] Write and host a privacy policy, then link it in the app — required
       by both Apple and Google at submission for any app collecting
       personal data (this one collects location, dietary/allergy info,
