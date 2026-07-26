@@ -291,6 +291,19 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Make the category bars on Pantry Stats tappable, jumping to that
       category on the Pantry screen (which already has search/filter) —
       right now the two screens don't talk to each other.
+- [ ] Explain the "Health score" (Dashboard and Pantry Stats) — it's just
+      a bare percentage ring with no explanation of what it measures (%
+      of items not expiring within 3 days) or what to do about it. Add an
+      explanation, and when it's below some "good" threshold, actionable
+      guidance (e.g. which items are dragging it down and what to do with
+      them) instead of just a number.
+- [ ] Fix or relabel "Waste savings" on Pantry Stats — the number
+      (`(items.length - expiredCount) * 3.5`) is a flat, made-up $3.50
+      per non-expired item with no connection to real prices, but the
+      caption underneath ("Estimated value of food kept out of the trash
+      this month") presents it as a real calculation. Either back it with
+      actual cost data or reword the caption so it doesn't overclaim
+      accuracy it doesn't have.
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
 - [ ] Add a "send test notification" button to the Notifications settings,
