@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
@@ -9,6 +9,7 @@ import { useInvites } from "../../hooks/useInvites";
 import { Screen, Header, Card, Button, Pill } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
+import { PRIVACY_POLICY_URL } from "../../utils/privacyPolicy";
 
 type ProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "Profile">;
 
@@ -100,6 +101,12 @@ export function ProfileScreen() {
           </View>
         </Card>
 
+        <Button
+          label="Privacy Policy"
+          variant="ghost"
+          onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
+          style={styles.signOutButton}
+        />
         <Button label="Sign out" variant="neutral" onPress={signOut} style={styles.signOutButton} />
         <Button
           label="Reset app (testing)"
