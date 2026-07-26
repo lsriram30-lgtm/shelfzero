@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 17 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 16 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
 
 ### Currently assigned
@@ -200,48 +200,25 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       on mount, same pattern as the pantry offline cache. No backend
       involved.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Send meal-plan
-      preferences and flag when a cached plan is stale (branch:
-      `feature/mealplan-prefs-and-staleness`) — merged into `master`. Two
-      related fixes: (1) `mealPlanApi.generate()` only ever sent pantry
-      item names — `cuisinePrefs`/`dietaryPrefs`/`allergies` from
-      onboarding are now sent too via the request's previously-unused
-      `preferences` field, though whether the backend's generator
-      actually honors them is unverified; (2) the persisted plan (see the
-      task above) never accounted for the pantry changing after it was
-      generated, so a warning banner with "Regenerate now" / "Leave as
-      is" actions now appears when the current pantry no longer matches
-      what the plan was built from. Added 10 tests, bringing the suite to
-      73 total. Note: testing in Expo Go hit a `429` on
-      `/api/meal-plan` ("AI service is busy"), so the actual generate
-      flow itself is still unverified end to end — see the follow-up task
-      below.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Show a specific
-      message when the pantry has too few items to plan from, and show
-      plain-English error messages app-wide instead of bare status codes
-      (branch: `feature/mealplan-min-items`) — merged into `master`. Two
-      related fixes from the same 429 investigation: (1) generating with
-      an empty/near-empty pantry either wasted a request or surfaced a
-      generic error — added a client-side heuristic (3-item minimum) that
-      shows "To generate a 7-day meal plan, add more items to your
-      pantry" before hitting the network at all; (2) discovered
-      `client.ts` only ever checked for a `message` field on error
-      responses, silently discarding the backend's actual `error`-keyed
-      explanation (the root cause of the 429 showing as a bare status
-      code) — added `extractErrorMessage()` (used by every `apiClient`
-      call) with plain-English defaults per HTTP status, and applied the
-      same fix to `auth.ts`'s separate request path. Added 4 tests for
-      the pantry-size check (bringing the suite to 77 total at that
-      point) plus 14 more for the error-message fix — 7 for the client
-      change and 7 for `auth.ts`, which had none before this — bringing
-      the suite to 91 total.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Prefix error
-      messages with the status code during the coding phase (branch:
-      `feature/error-code-prefix`) — merged into `master`. Every error
-      now reads `"429 Error: AI service is busy..."` instead of just the
-      plain text alone, so what's on screen is easy to correlate with
-      what actually happened on the network while the app is still being
-      tested — flagged with a code comment as worth revisiting before
-      real users see it. Added 1 test, bringing the suite to 92 total.
+      preferences and flag stale plans (branch:
+      `feature/mealplan-prefs-and-staleness`) — merged into `master`.
+      Meal-plan requests now include your cuisine/dietary/allergy
+      preferences (previously only pantry items were sent); unverified
+      whether the backend honors them. Also warns when the pantry items
+      have changed since the cached plan was made, with "Regenerate now"
+      and "Leave as is" actions. 10 tests added, suite at 73. Note:
+      generating currently hits a `429`.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      pantry-size check and app-wide plain-English errors (branches:
+      `feature/mealplan-min-items`, `feature/error-code-prefix`) — merged
+      into `master`. Blocks generating with too few pantry items (clear
+      message instead of a wasted request), and fixes error messages
+      across the app to show real text instead of a bare status code —
+      `client.ts` was only checking for a `message` field, missing the
+      backend's `error`-keyed messages entirely. Errors also now show
+      their status code up front (e.g. "429 Error: ..."), easier to
+      correlate with what happened over the network while testing —
+      worth revisiting before shipping. 19 tests added, suite at 92.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Correct Peach
       Protein's hex and use it/Blush Beet in a couple more places (branch:
       `feature/palette-colors`) — merged into `master`. The coded value
