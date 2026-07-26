@@ -1,4 +1,4 @@
-import { computeHealth, soonToExpire } from "./dashboardLogic";
+import { buildExpiringSoonBriefing, computeHealth, soonToExpire } from "./dashboardLogic";
 import { PantryItem } from "../types";
 
 function item(overrides: Partial<PantryItem>): PantryItem {
@@ -72,5 +72,25 @@ describe("soonToExpire", () => {
     const soon2 = item({ id: "soonest", expiresAt: "2026-01-11T00:00:00.000Z" });
     const far = item({ id: "far", expiresAt: "2026-02-01T00:00:00.000Z" });
     expect(soonToExpire([soon1, far, soon2]).map((i) => i.id)).toEqual(["soonest", "later"]);
+  });
+});
+
+describe("buildExpiringSoonBriefing", () => {
+  it("uses singular wording for exactly one item", () => {
+    expect(buildExpiringSoonBriefing(1)).toBe(
+      "1 item expiring soon — use it up before it goes to waste."
+    );
+  });
+
+  it("uses plural wording for more than one item", () => {
+    expect(buildExpiringSoonBriefing(3)).toBe(
+      "3 items expiring soon — use them up before they go to waste."
+    );
+  });
+
+  it("shows the all-clear message when nothing is expiring", () => {
+    expect(buildExpiringSoonBriefing(0)).toBe(
+      "Your pantry is in great shape today. Nothing is close to expiring."
+    );
   });
 });

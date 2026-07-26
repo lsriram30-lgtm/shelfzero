@@ -10,7 +10,7 @@ import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState, Pil
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { syncExpiryReminders } from "../notifications/expiryNotifications";
-import { computeHealth, soonToExpire } from "./dashboardLogic";
+import { buildExpiringSoonBriefing, computeHealth, soonToExpire } from "./dashboardLogic";
 
 type DashboardNavigationProp = BottomTabNavigationProp<MainTabParamList, "Dashboard">;
 
@@ -29,10 +29,7 @@ export function DashboardScreen() {
   }, [items, notifyExpiry]);
 
   const greeting = profile?.name ? `Hi ${profile.name.split(" ")[0]}` : "Welcome back";
-  const briefing =
-    expiringSoon.length > 0
-      ? `${expiringSoon.length} item${expiringSoon.length === 1 ? "" : "s"} expiring soon — use them up before they go to waste.`
-      : "Your pantry is in great shape today. Nothing is close to expiring.";
+  const briefing = buildExpiringSoonBriefing(expiringSoon.length);
 
   const recommendedMeal = expiringSoon[0];
 
