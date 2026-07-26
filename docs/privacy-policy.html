@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ShelfZero Privacy Policy</title>
+<style>
+  :root {
+    --bg: #FFFAF2;
+    --surface: #FFFFFF;
+    --text: #3F3A35;
+    --text-muted: #8A8478;
+    --primary: #818263;
+    --accent: #DDBAAE;
+    --border: #DCD4C1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #22201C;
+      --surface: #2C2A25;
+      --text: #FFFAF2;
+      --text-muted: #B3ADA0;
+      --primary: #C2C395;
+      --accent: #DDBAAE;
+      --border: #3F3A35;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  header.doc-head {
+    margin-bottom: 40px;
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 20px;
+  }
+
+  .wordmark .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  h1 {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 10px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .meta {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .lede {
+    margin-top: 24px;
+    padding: 20px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .lede p { margin: 0 0 10px; }
+  .lede p:last-child { margin-bottom: 0; }
+  .lede strong { color: var(--primary); }
+
+  nav.toc {
+    margin: 32px 0 48px;
+    padding: 18px 22px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 0 14px 14px 0;
+  }
+
+  nav.toc .toc-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  nav.toc ol {
+    columns: 2;
+    column-gap: 24px;
+    margin: 0;
+    padding: 0 0 0 1.1em;
+    font-size: 14px;
+  }
+
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+  nav.toc a { color: var(--text); text-decoration: none; }
+  nav.toc a:hover { color: var(--primary); text-decoration: underline; }
+
+  section {
+    margin-bottom: 40px;
+    padding-left: 20px;
+    border-left: 3px solid var(--border);
+    scroll-margin-top: 24px;
+  }
+
+  section h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+
+  section .section-eyebrow {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+
+  section p { margin: 0 0 14px; max-width: 65ch; }
+  section p:last-child { margin-bottom: 0; }
+
+  section ul {
+    margin: 0 0 14px;
+    padding-left: 1.2em;
+    max-width: 65ch;
+  }
+  section ul:last-child { margin-bottom: 0; }
+  section li { margin-bottom: 8px; }
+  section li:last-child { margin-bottom: 0; }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 16px;
+    font-size: 14px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  .data-table th, .data-table td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .data-table th {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--text);
+  }
+
+  .badge.muted {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .placeholder {
+    background: var(--accent);
+    color: var(--text);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .fine {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  a { color: var(--primary); }
+
+  footer.doc-foot {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 560px) {
+    .page { padding: 40px 18px 72px; }
+    h1 { font-size: 28px; }
+    nav.toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-head">
+    <span class="wordmark"><span class="dot"></span>ShelfZero</span>
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated: <span class="placeholder">[fill in launch date]</span> &middot; Applies to the ShelfZero mobile app (iOS and Android)</p>
+    <div class="lede">
+      <p><strong>In short:</strong> ShelfZero stores what you type in to track your pantry, shopping list, and household &mdash; your name, location, dietary needs, and the food you tell it about. We don't run ads, we don't use analytics or tracking SDKs, and we don't sell data to anyone. Everything below explains exactly what's collected and why.</p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <span class="toc-label">On this page</span>
+    <ol>
+      <li><a href="#who-we-are">Who we are</a></li>
+      <li><a href="#what-we-collect">Information we collect</a></li>
+      <li><a href="#camera">Camera &amp; scanning</a></li>
+      <li><a href="#how-we-use">How we use it</a></li>
+      <li><a href="#where-stored">Where it's stored</a></li>
+      <li><a href="#sharing">Sharing with others</a></li>
+      <li><a href="#your-choices">Your choices</a></li>
+      <li><a href="#children">Children's privacy</a></li>
+      <li><a href="#changes">Changes to this policy</a></li>
+      <li><a href="#contact">Contact us</a></li>
+    </ol>
+  </nav>
+
+  <section id="who-we-are">
+    <span class="section-eyebrow">01</span>
+    <h2>Who we are</h2>
+    <p>ShelfZero is a household pantry, meal-planning, and shopping-list app built to help you track what food you have and use it before it goes to waste. This policy covers the ShelfZero mobile app and the backend service it talks to.</p>
+  </section>
+
+  <section id="what-we-collect">
+    <span class="section-eyebrow">02</span>
+    <h2>Information we collect</h2>
+    <p>We only collect what the app needs to actually function. Here's everything, in one place:</p>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>Category</th><th>What's included</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Account</td><td>Your email address and password, used to sign in.</td></tr>
+          <tr><td>Profile</td><td>Name, location (city/state you type in &mdash; we never access your device's precise location), household size, cuisine preferences, dietary preferences, allergies, and goals, all collected during setup.</td></tr>
+          <tr><td>Pantry &amp; shopping data</td><td>The food items you add &mdash; names, quantities, units, categories, and expiry dates &mdash; plus your shopping list.</td></tr>
+          <tr><td>Household &amp; invites</td><td>Names and roles of people in your household, and the email or phone number you enter when inviting someone to join.</td></tr>
+          <tr><td>Meal plans</td><td>Meal suggestions generated from your current pantry contents and your stated preferences.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">We don't use any analytics, advertising, or tracking SDKs in this app &mdash; there's nothing in ShelfZero collecting behavioral data about how you use it beyond what's listed above.</p>
+  </section>
+
+  <section id="camera">
+    <span class="section-eyebrow">03</span>
+    <h2>Camera &amp; scanning</h2>
+    <p>ShelfZero asks for camera access so you can scan receipts and barcodes to add pantry items automatically. When you take a photo to scan, it's sent to our backend to identify items and pull them into your pantry &mdash; the camera is never accessed in the background, and photos are only captured when you actively use the Scan screen.</p>
+  </section>
+
+  <section id="how-we-use">
+    <span class="section-eyebrow">04</span>
+    <h2>How we use it</h2>
+    <ul>
+      <li>To run the core features: your pantry list, shopping list, meal plans, and household sharing.</li>
+      <li>To personalize meal suggestions using your pantry contents and preferences.</li>
+      <li>To send you local reminders on your own device &mdash; like an item expiring soon, or someone accepting your invite &mdash; if you've turned notifications on.</li>
+      <li>To let household members you've invited see and edit shared pantry and shopping-list data.</li>
+    </ul>
+  </section>
+
+  <section id="where-stored">
+    <span class="section-eyebrow">05</span>
+    <h2>Where it's stored</h2>
+    <p>Pantry items, shopping lists, household membership, and invites are stored on our backend server so they can sync across your household's devices. Your onboarding profile, app appearance setting, and donation history are currently stored only on your own device, not on our servers. Notification reminders are scheduled locally on your device &mdash; we don't operate a push-notification server, so nothing about your expiry reminders is sent anywhere.</p>
+  </section>
+
+  <section id="sharing">
+    <span class="section-eyebrow">06</span>
+    <h2>Sharing with others</h2>
+    <p>We don't sell your information, and we don't share it with third parties for advertising or marketing. The only "sharing" that happens is the sharing you set up yourself:</p>
+    <ul>
+      <li>Anyone you invite into your household can see and edit the pantry and shopping list you share with them.</li>
+      <li>The contact info (email or phone) you enter to invite someone is used only to deliver that invite.</li>
+    </ul>
+  </section>
+
+  <section id="your-choices">
+    <span class="section-eyebrow">07</span>
+    <h2>Your choices</h2>
+    <ul>
+      <li>You can edit your name, location, household size, and dietary/cuisine preferences any time from your Profile.</li>
+      <li>You can turn notification reminders on or off from the Household screen.</li>
+      <li>You can remove a household member, or sign out, at any time.</li>
+      <li>Full in-app account and data deletion is on our roadmap and not yet available. Until then, you can request that your account and data be deleted by contacting us at the address below.</li>
+    </ul>
+  </section>
+
+  <section id="children">
+    <span class="section-eyebrow">08</span>
+    <h2>Children's privacy</h2>
+    <p>ShelfZero is meant for adults managing a household and isn't directed at children. We don't knowingly collect information from children under 13.</p>
+  </section>
+
+  <section id="changes">
+    <span class="section-eyebrow">09</span>
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes in a meaningful way, we'll update the date at the top of this page. Continuing to use ShelfZero after a change means you accept the update.</p>
+  </section>
+
+  <section id="contact">
+    <span class="section-eyebrow">10</span>
+    <h2>Contact us</h2>
+    <p>Questions about this policy, or want your data deleted? Reach us at <span class="placeholder">[replace with a real contact email before publishing]</span>.</p>
+  </section>
+
+  <footer class="doc-foot">
+    <span class="badge muted">Draft</span>
+    &nbsp;This is a working draft grounded in what the ShelfZero app currently does &mdash; replace the bracketed placeholders (launch date, contact email) before this goes live, and keep it in sync if features change.
+  </footer>
+
+</div>
+</body>
+</html>
