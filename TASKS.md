@@ -238,6 +238,14 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       message building into `buildExpiringSoonBriefing()` in
       `dashboardLogic.ts` so singular vs. plural wording is covered by
       tests. Added 3 tests, bringing the suite to 95 total.
+- [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Draft a
+      privacy policy and link it from Profile (branch:
+      `feature/privacy-policy-link`) — merged into `master`, not fully
+      done yet. Wrote a privacy policy grounded in what the app actually
+      collects and does, and added a "Privacy Policy" link on the Profile
+      screen that opens it. It's currently hosted as a Claude Artifact,
+      which is private by default — a real user tapping the link
+      wouldn't actually be able to see it right now.
 
 ### Not yet assigned
 
@@ -346,10 +354,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       so this is backend-blocked. A client-side-only "delete" that just
       clears local storage would be actively misleading since the
       server would still have everything, so not building a workaround.
-- [ ] Write and host a privacy policy, then link it in the app — required
-      by both Apple and Google at submission for any app collecting
-      personal data (this one collects location, dietary/allergy info,
-      and camera access), not optional.
 - [ ] Figure out the `429` on `/api/meal-plan` — testing in Expo Go and a
       direct check from outside the app both got `{"error":"AI service is
       busy. Please wait a moment and try again."}`, even unauthenticated,
@@ -358,6 +362,12 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       plans. Needs checking in the Airo AI Builder dashboard directly
       (usage/billing page) — not something visible or fixable from this
       repo.
+- [ ] Finish the privacy policy — fill in the two placeholders left in
+      the draft (launch date, contact email), give it a final accuracy
+      check right before actually publishing since the app will keep
+      changing between now and then, and host it at a real, permanent
+      URL once the web domain exists, updating `PRIVACY_POLICY_URL` to
+      point there.
 - [ ] Refine the "Add item" pantry form's questions/options — e.g. the
       Unit picker (`ct`, `lb`, `oz`, `g`, `kg`, `L`, `mL`) has no "Other"
       option, unlike Category which does, so anything measured
