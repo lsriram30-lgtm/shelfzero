@@ -240,12 +240,12 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       tests. Added 3 tests, bringing the suite to 95 total.
 - [ ] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Draft a
       privacy policy and link it from Profile (branch:
-      `feature/privacy-policy-link`) — merged into `master`, not fully
-      done yet. Wrote a privacy policy grounded in what the app actually
-      collects and does, and added a "Privacy Policy" link on the Profile
-      screen that opens it. It's currently hosted as a Claude Artifact,
-      which is private by default — a real user tapping the link
-      wouldn't actually be able to see it right now.
+      `feature/privacy-policy-link`) — merged into `master`. Wrote a
+      privacy policy grounded in what the app actually collects and does,
+      and added a "Privacy Policy" link on the Profile screen that opens
+      it. It's currently hosted as a Claude Artifact, which is private by
+      default — a real user tapping the link wouldn't actually be able to
+      see it right now.
 
 ### Not yet assigned
 
