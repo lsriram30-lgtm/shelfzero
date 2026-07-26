@@ -211,13 +211,18 @@ export function PantryScreen() {
           <ErrorState onRetry={refresh} />
         ) : items.length === 0 && !loading ? (
           <EmptyState
+            icon="basket-outline"
             title="Your pantry is empty"
             message="Add items manually or scan a receipt to get started."
             actionLabel="Add an item"
             onAction={() => navigation.navigate("AddPantryItem")}
           />
         ) : categories.length === 0 && !loading ? (
-          <EmptyState title="No matching items" message={`Nothing matches "${query.trim()}".`} />
+          <EmptyState
+            icon="search-outline"
+            title="No matching items"
+            message={`Nothing matches "${query.trim()}".`}
+          />
         ) : sortMode === "expiry" ? (
           <Card style={styles.groupCard}>
             {byExpiry.map((item, index) => (

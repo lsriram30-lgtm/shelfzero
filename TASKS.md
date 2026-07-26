@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 17 / 20 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 10 / 20 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 13 / 20 |
 
 ### Currently assigned
 
@@ -245,10 +245,28 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       and added a "Privacy Policy" link on the Profile screen that opens
       it. It's hosted as a Claude Artifact; the Artifact was shared
       publicly, and real users can now actually view it.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Improve the receipt scanning
+      feature so it reads receipts more reliably (branch:
+      `feature/laya-app-improvements-2`) — merged into `master`. Bumped
+      capture quality (0.5 → 0.85), turned on continuous autofocus (was off
+      by default — likely a big source of blurry, hard-to-OCR photos), and
+      added a flashlight toggle for dim rooms. Reviewed scan items are also
+      no longer read-only: a pencil icon opens the existing Add/Edit item
+      screen prefilled with the scanned data so a bad OCR read can be
+      corrected, and a trash icon drops it entirely.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add icons to the
+      empty-state component so it's visually consistent with the
+      error-state component from an earlier task (branch:
+      `feature/laya-app-improvements-2`) — merged into `master`.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add accessibility
+      labels to icon-only buttons (branch: `feature/laya-app-improvements-2`)
+      — merged into `master`. The password show/hide toggle and several
+      icon-only buttons (profile, copy invite link, cancel invite, remove
+      shopping item, scan torch/edit/remove) had no `accessibilityLabel`,
+      so a screen reader just announced "button".
 
 ### Not yet assigned
 
-- [ ] Improve the receipt scanning feature so it reads receipts more reliably
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
@@ -262,7 +280,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
-      but there's no way to recover an account if someone forgets their password)
+      but there's no way to recover an account if someone forgets their password).
+      Investigated by Laya: the backend has a `POST /api/auth/request-password-reset`
+      route, but it responds `"Reset password isn't enabled"` — it's turned off
+      server-side, so there's no frontend workaround. Needs the backend team to
+      enable it (and configure outbound email) before this is buildable.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it

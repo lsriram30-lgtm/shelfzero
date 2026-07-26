@@ -112,7 +112,11 @@ export function HouseholdHubScreen() {
         title="Household"
         subtitle="Members, shopping, and sharing"
         right={
-          <Pressable onPress={() => navigation.navigate("Profile")}>
+          <Pressable
+            onPress={() => navigation.navigate("Profile")}
+            accessibilityRole="button"
+            accessibilityLabel="Profile"
+          >
             <Ionicons name="person-circle-outline" size={28} color={colors.text} />
           </Pressable>
         }
@@ -148,10 +152,18 @@ export function HouseholdHubScreen() {
                   </Text>
                 </View>
                 <View style={styles.inviteActions}>
-                  <Pressable onPress={() => handleCopyLink(invite.token)}>
+                  <Pressable
+                    onPress={() => handleCopyLink(invite.token)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Copy invite link for ${invite.name}`}
+                  >
                     <Ionicons name="link-outline" size={18} color={colors.primary} />
                   </Pressable>
-                  <Pressable onPress={() => handleCancelInvite(invite.id, invite.name)}>
+                  <Pressable
+                    onPress={() => handleCancelInvite(invite.id, invite.name)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Cancel invite for ${invite.name}`}
+                  >
                     <Ionicons name="close-circle-outline" size={18} color={colors.danger} />
                   </Pressable>
                 </View>
@@ -199,6 +211,8 @@ export function HouseholdHubScreen() {
                 <Pressable
                   style={styles.shoppingCheck}
                   onPress={() => toggleChecked(item.id, !item.checked)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: item.checked }}
                 >
                   <Ionicons
                     name={item.checked ? "checkbox" : "square-outline"}
@@ -217,7 +231,11 @@ export function HouseholdHubScreen() {
                     {item.name} {item.quantity > 1 ? `(${item.quantity})` : ""}
                   </Text>
                 </Pressable>
-                <Pressable onPress={() => removeItem(item.id)}>
+                <Pressable
+                  onPress={() => removeItem(item.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${item.name} from shopping list`}
+                >
                   <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
                 </Pressable>
               </View>

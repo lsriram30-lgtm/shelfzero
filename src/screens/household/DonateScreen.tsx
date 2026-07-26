@@ -111,6 +111,7 @@ export function DonateScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {candidates.length === 0 ? (
           <EmptyState
+            icon="heart-outline"
             title="Nothing to donate right now"
             message={`Items expiring within ${DONATION_WINDOW_DAYS} days will show up here.`}
           />

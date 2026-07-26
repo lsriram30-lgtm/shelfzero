@@ -1,20 +1,24 @@
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
 import { scanApi } from "../../api/scan";
 import { Screen, Header, Button, Pill, Card } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { NewPantryItem } from "../../types";
+import { PantryStackParamList } from "../../navigation/types";
 
 type ScanMode = "receipt" | "barcode";
 type ScanState = "idle" | "processing" | "review" | "error";
+type ScanNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Scan">;
 
 export function ScanScreen() {
   const { colors } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useNavigation<ScanNavigationProp>();
   const { addItem } = usePantry();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
@@ -24,6 +28,7 @@ export function ScanScreen() {
   const [reviewItems, setReviewItems] = useState<NewPantryItem[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
   const barcodeLocked = useRef(false);
 
   const reset = () => {
@@ -37,7 +42,7 @@ export function ScanScreen() {
     if (!cameraRef.current) return;
     setState("processing");
     try {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.5 });
+      const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.85 });
       const result = await scanApi.process({
         type: "receipt",
         imageBase64: photo?.base64 ?? undefined,
@@ -62,6 +67,23 @@ export function ScanScreen() {
       setErrorMessage(err instanceof Error ? err.message : "Couldn't identify that barcode.");
       setState("error");
     }
+  };
+
+  const handleRemoveReviewItem = (index: number) => {
+    setReviewItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditReviewItem = (index: number) => {
+    const item = reviewItems[index];
+    setReviewItems((prev) => prev.filter((_, i) => i !== index));
+    navigation.navigate("AddPantryItem", {
+      prefill: {
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity,
+        unit: item.unit,
+      },
+    });
   };
 
   const handleConfirm = async () => {
@@ -116,16 +138,26 @@ export function ScanScreen() {
             ref={cameraRef}
             style={styles.camera}
             facing="back"
+            autofocus="on"
+            enableTorch={torchOn}
             barcodeScannerSettings={
               mode === "barcode" ? { barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e", "code128"] } : undefined
             }
             onBarcodeScanned={mode === "barcode" ? handleBarcodeScanned : undefined}
           />
-          <View style={styles.frameOverlay} pointerEvents="none">
-            <View style={[styles.frame, { borderColor: colors.surface }]} />
-            <Text style={[styles.overlayHint, { color: colors.surface }]}>
+          <View style={styles.frameOverlay} pointerEvents="box-none">
+            <View style={[styles.frame, { borderColor: colors.surface }]} pointerEvents="none" />
+            <Text style={[styles.overlayHint, { color: colors.surface }]} pointerEvents="none">
               {mode === "receipt" ? "Fit the receipt in frame" : "Center the barcode in frame"}
             </Text>
+            <Pressable
+              style={[styles.torchButton, { backgroundColor: colors.overlay }]}
+              onPress={() => setTorchOn((prev) => !prev)}
+              accessibilityRole="button"
+              accessibilityLabel={torchOn ? "Turn off flashlight" : "Turn on flashlight"}
+            >
+              <Ionicons name={torchOn ? "flash" : "flash-off"} size={20} color={colors.surface} />
+            </Pressable>
           </View>
           {mode === "receipt" ? (
             <View style={styles.captureRow}>
@@ -150,12 +182,37 @@ export function ScanScreen() {
             </Text>
           ) : (
             <ScrollView contentContainerStyle={styles.reviewList}>
+              <Text style={[styles.reviewHint, { color: colors.textMuted }]}>
+                Double-check these before adding — tap the pencil to fix anything the scan got wrong.
+              </Text>
               {reviewItems.map((item, index) => (
                 <Card key={`${item.name}-${index}`} style={styles.reviewCard}>
-                  <Text style={[styles.reviewTitle, { color: colors.text }]}>{item.name}</Text>
-                  <Text style={[styles.reviewMeta, { color: colors.textMuted }]}>
-                    {item.quantity} {item.unit} · {item.category}
-                  </Text>
+                  <View style={styles.reviewCardRow}>
+                    <View style={styles.reviewCardInfo}>
+                      <Text style={[styles.reviewTitle, { color: colors.text }]}>{item.name}</Text>
+                      <Text style={[styles.reviewMeta, { color: colors.textMuted }]}>
+                        {item.quantity} {item.unit} · {item.category}
+                      </Text>
+                    </View>
+                    <View style={styles.reviewCardActions}>
+                      <Pressable
+                        onPress={() => handleEditReviewItem(index)}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Edit ${item.name}`}
+                      >
+                        <Ionicons name="pencil-outline" size={18} color={colors.primary} />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleRemoveReviewItem(index)}
+                        hitSlop={8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Remove ${item.name} from scan results`}
+                      >
+                        <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                      </Pressable>
+                    </View>
+                  </View>
                 </Card>
               ))}
             </ScrollView>
@@ -218,6 +275,13 @@ const styles = StyleSheet.create({
     ...typography.caption,
     marginTop: spacing.md,
   },
+  torchButton: {
+    position: "absolute",
+    top: spacing.md,
+    right: spacing.md,
+    borderRadius: radius.pill,
+    padding: spacing.sm,
+  },
   captureRow: {
     position: "absolute",
     bottom: spacing.xl,
@@ -246,8 +310,24 @@ const styles = StyleSheet.create({
   reviewList: {
     paddingBottom: spacing.sm,
   },
+  reviewHint: {
+    ...typography.caption,
+    marginBottom: spacing.md,
+  },
   reviewCard: {
     marginBottom: spacing.sm,
+  },
+  reviewCardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  reviewCardInfo: {
+    flexShrink: 1,
+  },
+  reviewCardActions: {
+    flexDirection: "row",
+    gap: spacing.md,
   },
   reviewTitle: {
     ...typography.bodyMedium,

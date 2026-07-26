@@ -112,9 +112,14 @@ export function MealPlannerScreen() {
         {error ? (
           <ErrorState message={error} onRetry={handleGenerate} />
         ) : days.length === 0 && !loading && !hasEnoughItems ? (
-          <EmptyState title="Not enough pantry items" message={NOT_ENOUGH_ITEMS_MESSAGE} />
+          <EmptyState
+            icon="basket-outline"
+            title="Not enough pantry items"
+            message={NOT_ENOUGH_ITEMS_MESSAGE}
+          />
         ) : days.length === 0 && !loading ? (
           <EmptyState
+            icon="calendar-outline"
             title="No plan yet"
             message="Generate a plan and we'll suggest meals based on what's in your pantry."
           />

@@ -54,6 +54,7 @@ export function DashboardScreen() {
         ) : items.length === 0 && !loading ? (
           <Card style={styles.ringCard}>
             <EmptyState
+              icon="basket-outline"
               title="Your pantry is empty"
               message="Add your first item to start tracking freshness and to see your pantry health."
               actionLabel="Add item"

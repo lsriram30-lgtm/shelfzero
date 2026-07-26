@@ -126,11 +126,13 @@ export function RecipesScreen() {
               />
             ) : combined.length > 0 ? (
               <EmptyState
+                icon="restaurant-outline"
                 title="No matching recipes"
                 message={`No ${mealTypeFilter} recipes right now — try a different filter.`}
               />
             ) : (
               <EmptyState
+                icon="restaurant-outline"
                 title="No recipes yet"
                 message="Add a few pantry items and pull to refresh to get suggestions."
               />

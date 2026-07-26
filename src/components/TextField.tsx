@@ -41,6 +41,8 @@ export function TextField({ label, error, style, secureTextEntry, ...rest }: Tex
             style={styles.eyeButton}
             onPress={() => setHidden((current) => !current)}
             hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={hidden ? "Show password" : "Hide password"}
           >
             <Ionicons
               name={hidden ? "eye-outline" : "eye-off-outline"}
