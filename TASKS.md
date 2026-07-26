@@ -379,6 +379,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       differently (a bunch, a loaf, a dozen, a jar, a box) can't be
       entered accurately. Worth a broader look at the other fields too
       while in there.
+- [ ] Fix the brief flash of default/misleading stats before real pantry
+      data loads — on Dashboard and Pantry Stats, `computeHealth([])`
+      returns 100 (meant for a genuinely empty pantry), but both screens
+      briefly render with `items` still `[]` while the fetch is in
+      flight, so every user sees a perfect "100% Pantry health" ring (and
+      Pantry Stats also flashes "$0 waste savings") for a moment
+      regardless of their actual data. Needs a real loading state that's
+      visually distinct from both "empty" and "has data," not just
+      computing summary stats from a placeholder empty array.
 
 ---
 
