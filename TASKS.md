@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 17 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 18 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 13 / 20 |
 
 ### Currently assigned
@@ -264,6 +264,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       icon-only buttons (profile, copy invite link, cancel invite, remove
       shopping item, scan torch/edit/remove) had no `accessibilityLabel`,
       so a screen reader just announced "button".
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make the
+      category bars on Pantry Stats tappable, jumping to that category on
+      the Pantry screen (branch: `feature/pantry-stats-tappable-categories`)
+      — merged into `master`. The two screens didn't talk to each other
+      before; tapping a bar now navigates to Pantry, switches to category
+      sort, clears any active search, collapses every other category, and
+      scrolls the tapped one into view.
 
 ### Not yet assigned
 
@@ -329,9 +336,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add an edit step to the Scan review flow — after scanning, results
       show as read-only cards with no way to fix a misread name, wrong
       category, or missing expiry before adding them to the pantry.
-- [ ] Make the category bars on Pantry Stats tappable, jumping to that
-      category on the Pantry screen (which already has search/filter) —
-      right now the two screens don't talk to each other.
 - [ ] Explain the "Health score" (Dashboard and Pantry Stats) — it's just
       a bare percentage ring with no explanation of what it measures (%
       of items not expiring within 3 days) or what to do about it. Add an
