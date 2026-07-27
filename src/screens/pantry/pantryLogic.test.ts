@@ -1,4 +1,10 @@
-import { daysUntil, filterByName, groupByCategory, sortByExpiry } from "./pantryLogic";
+import {
+  daysUntil,
+  filterByName,
+  groupByCategory,
+  sortByExpiry,
+  withAutoAddOptOut,
+} from "./pantryLogic";
 import { PantryItem } from "../../types";
 
 function item(overrides: Partial<PantryItem>): PantryItem {
@@ -119,5 +125,23 @@ describe("filterByName", () => {
 
   it("returns an empty array when nothing matches", () => {
     expect(filterByName(items, "banana")).toEqual([]);
+  });
+});
+
+describe("withAutoAddOptOut", () => {
+  it("adds an id when opting out", () => {
+    expect(withAutoAddOptOut([], "a", true)).toEqual(["a"]);
+  });
+
+  it("removes an id when opting back in", () => {
+    expect(withAutoAddOptOut(["a", "b"], "a", false)).toEqual(["b"]);
+  });
+
+  it("does not duplicate an id already opted out", () => {
+    expect(withAutoAddOptOut(["a"], "a", true)).toEqual(["a"]);
+  });
+
+  it("is a no-op removing an id that isn't present", () => {
+    expect(withAutoAddOptOut(["a"], "b", false)).toEqual(["a"]);
   });
 });

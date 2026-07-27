@@ -29,3 +29,10 @@ export function filterByName(items: PantryItem[], query: string): PantryItem[] {
   if (!trimmed) return items;
   return items.filter((item) => item.name.toLowerCase().includes(trimmed));
 }
+
+export function withAutoAddOptOut(ids: string[], itemId: string, optedOut: boolean): string[] {
+  const next = new Set(ids);
+  if (optedOut) next.add(itemId);
+  else next.delete(itemId);
+  return Array.from(next);
+}

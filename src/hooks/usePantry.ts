@@ -2,8 +2,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { pantryApi, shoppingListApi } from "../api";
 import { NewPantryItem, PantryItem, UpdatePantryItem } from "../types";
+import { withAutoAddOptOut } from "../screens/pantry/pantryLogic";
 
 const CACHE_KEY = "shelfzero.pantryCache";
+const AUTO_ADD_OPT_OUT_KEY = "shelfzero.autoAddOptOutIds";
+
+async function loadAutoAddOptOutIds(): Promise<string[]> {
+  try {
+    const raw = await AsyncStorage.getItem(AUTO_ADD_OPT_OUT_KEY);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 export function usePantry() {
   const [items, setItems] = useState<PantryItem[]>([]);
@@ -57,10 +68,13 @@ export function usePantry() {
 
     const ranOut = updated.quantity <= 0 && (!previous || previous.quantity > 0);
     if (ranOut) {
-      try {
-        await shoppingListApi.create({ name: updated.name, qty: 1 });
-      } catch {
-        // Best-effort: don't block the pantry update if the shopping list add fails.
+      const optOutIds = await loadAutoAddOptOutIds();
+      if (!optOutIds.includes(id)) {
+        try {
+          await shoppingListApi.create({ name: updated.name, qty: 1 });
+        } catch {
+          // Best-effort: don't block the pantry update if the shopping list add fails.
+        }
       }
     }
 
@@ -72,5 +86,27 @@ export function usePantry() {
     setItems((prev) => prev.filter((existing) => existing.id !== id));
   }, []);
 
-  return { items, loading, error, isOffline, refresh, addItem, updateItem, removeItem };
+  const isAutoAddOptedOut = useCallback(async (id: string) => {
+    const ids = await loadAutoAddOptOutIds();
+    return ids.includes(id);
+  }, []);
+
+  const setAutoAddOptOut = useCallback(async (id: string, optedOut: boolean) => {
+    const ids = await loadAutoAddOptOutIds();
+    const next = withAutoAddOptOut(ids, id, optedOut);
+    await AsyncStorage.setItem(AUTO_ADD_OPT_OUT_KEY, JSON.stringify(next)).catch(() => {});
+  }, []);
+
+  return {
+    items,
+    loading,
+    error,
+    isOffline,
+    refresh,
+    addItem,
+    updateItem,
+    removeItem,
+    isAutoAddOptedOut,
+    setAutoAddOptOut,
+  };
 }
