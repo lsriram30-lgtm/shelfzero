@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
@@ -31,7 +31,7 @@ export function AddPantryItemScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<AddRouteProp>();
-  const { addItem, updateItem, removeItem } = usePantry();
+  const { addItem, updateItem, removeItem, isAutoAddOptedOut, setAutoAddOptOut } = usePantry();
 
   const prefill = route.params?.prefill;
   const editingItem = route.params?.item;
@@ -45,8 +45,20 @@ export function AddPantryItemScreen() {
     fromIsoDate(editingItem?.expiresAt)
   );
   const [notes, setNotes] = useState(editingItem?.notes ?? "");
+  const [autoAddEnabled, setAutoAddEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!editingItem) return;
+    let cancelled = false;
+    isAutoAddOptedOut(editingItem.id).then((optedOut) => {
+      if (!cancelled) setAutoAddEnabled(!optedOut);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [editingItem?.id, isAutoAddOptedOut]);
 
   const parsedQuantity = Number(quantity);
   const minQuantity = isEditing ? 0 : 1;
@@ -87,9 +99,13 @@ export function AddPantryItemScreen() {
         notes: notes.trim() ? notes.trim() : null,
       };
       if (editingItem) {
+        await setAutoAddOptOut(editingItem.id, !autoAddEnabled);
         await updateItem(editingItem.id, payload);
       } else {
-        await addItem(payload);
+        const created = await addItem(payload);
+        if (!autoAddEnabled) {
+          await setAutoAddOptOut(created.id, true);
+        }
       }
       navigation.goBack();
     } catch (err) {
@@ -171,6 +187,18 @@ export function AddPantryItemScreen() {
             automatically.
           </Text>
         ) : null}
+
+        <View style={styles.switchRow}>
+          <View style={styles.switchTextWrap}>
+            <Text style={[styles.switchLabel, { color: colors.text }]}>
+              Auto-add to shopping list when it runs out
+            </Text>
+            <Text style={[styles.switchHint, { color: colors.textMuted }]}>
+              Turn off for one-time buys you don't want to restock automatically.
+            </Text>
+          </View>
+          <Switch value={autoAddEnabled} onValueChange={setAutoAddEnabled} />
+        </View>
 
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Unit</Text>
         <View style={styles.pillRow}>
@@ -279,6 +307,23 @@ const styles = StyleSheet.create({
     ...typography.caption,
     marginTop: -spacing.sm,
     marginBottom: spacing.lg,
+  },
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  switchTextWrap: {
+    flex: 1,
+  },
+  switchLabel: {
+    ...typography.bodyMedium,
+  },
+  switchHint: {
+    ...typography.caption,
+    marginTop: 2,
   },
   dateRow: {
     flexDirection: "row",
