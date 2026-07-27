@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 18 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 19 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 13 / 20 |
 
 ### Currently assigned
@@ -271,6 +271,15 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       before; tapping a bar now navigates to Pantry, switches to category
       sort, clears any active search, collapses every other category, and
       scrolls the tapped one into view.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Let individual
+      pantry items opt out of the "auto-add to shopping list on zero stock"
+      behavior (branch: `feature/pantry-auto-add-opt-out`) — merged into
+      `master`. Added an "Auto-add to shopping list when it runs out"
+      switch (default on) to the Add/Edit item form, for one-time buys
+      (a gift basket item, a specialty ingredient) that shouldn't keep
+      landing back on the list. No backend field for this, so the
+      preference is stored locally per item ID; `usePantry`'s zero-quantity
+      auto-add now checks it first. 4 tests added, suite at 99.
 
 ### Not yet assigned
 
@@ -327,12 +336,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       today it's only ever called with `{ checked }`
 - [ ] Show a brief "N items cleared — Undo" toast after clearing checked
       shopping list items, instead of just silently removing them
-- [ ] Let individual pantry items opt out of the "auto-add to shopping
-      list on zero stock" behavior — a one-time buy like a specialty
-      ingredient or a gift basket item shouldn't keep landing back on the
-      shopping list every time it's used up. Default should stay on for
-      everything else; a global Settings toggle to flip that default could
-      come later if needed.
 - [ ] Add an edit step to the Scan review flow — after scanning, results
       show as read-only cards with no way to fix a misread name, wrong
       category, or missing expiry before adding them to the pantry.
