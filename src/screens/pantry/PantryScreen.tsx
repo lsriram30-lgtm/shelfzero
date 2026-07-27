@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
@@ -12,6 +12,7 @@ import { PantryItem } from "../../types";
 import { groupByCategory, sortByExpiry, daysUntil, filterByName } from "./pantryLogic";
 
 type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
+type PantryRouteProp = RouteProp<PantryStackParamList, "Pantry">;
 type SortMode = "category" | "expiry";
 
 function ExpiryTag({ expiresAt }: { expiresAt: string | null }) {
@@ -94,10 +95,14 @@ function CategoryGroup({
 export function PantryScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<PantryNavigationProp>();
+  const route = useRoute<PantryRouteProp>();
   const { items, loading, error, isOffline, refresh } = usePantry();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("category");
   const [query, setQuery] = useState("");
+  const scrollRef = useRef<ScrollView>(null);
+  const categoryOffsets = useRef<Record<string, number>>({});
+  const [pendingScrollCategory, setPendingScrollCategory] = useState<string | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -109,6 +114,27 @@ export function PantryScreen() {
   const grouped = useMemo(() => groupByCategory(filteredItems), [filteredItems]);
   const categories = useMemo(() => Object.keys(grouped).sort(), [grouped]);
   const byExpiry = useMemo(() => sortByExpiry(filteredItems), [filteredItems]);
+
+  const targetCategory = route.params?.category;
+  useEffect(() => {
+    if (!targetCategory) return;
+    setSortMode("category");
+    setQuery("");
+    setPendingScrollCategory(targetCategory);
+  }, [targetCategory]);
+
+  useEffect(() => {
+    if (!targetCategory || categories.length === 0) return;
+    setCollapsed(new Set(categories.filter((category) => category !== targetCategory)));
+  }, [targetCategory, categories]);
+
+  const handleGroupLayout = (category: string, y: number) => {
+    categoryOffsets.current[category] = y;
+    if (pendingScrollCategory === category) {
+      scrollRef.current?.scrollTo({ y: Math.max(0, y - spacing.md), animated: true });
+      setPendingScrollCategory(null);
+    }
+  };
 
   const expiringSoon = useMemo(
     () => items.filter((item) => {
@@ -204,6 +230,7 @@ export function PantryScreen() {
       ) : null}
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
       >
@@ -236,14 +263,18 @@ export function PantryScreen() {
           </Card>
         ) : (
           categories.map((category) => (
-            <CategoryGroup
+            <View
               key={category}
-              category={category}
-              items={grouped[category]}
-              expanded={!collapsed.has(category)}
-              onToggle={() => toggleCategory(category)}
-              onSelectItem={(item) => navigation.navigate("AddPantryItem", { item })}
-            />
+              onLayout={(e) => handleGroupLayout(category, e.nativeEvent.layout.y)}
+            >
+              <CategoryGroup
+                category={category}
+                items={grouped[category]}
+                expanded={!collapsed.has(category)}
+                onToggle={() => toggleCategory(category)}
+                onSelectItem={(item) => navigation.navigate("AddPantryItem", { item })}
+              />
+            </View>
           ))
         )}
       </ScrollView>

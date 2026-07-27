@@ -2,7 +2,7 @@ import { NavigatorScreenParams } from "@react-navigation/native";
 import { PantryItem, Recipe } from "../types";
 
 export type PantryStackParamList = {
-  Pantry: undefined;
+  Pantry: { category?: string } | undefined;
   PantryStats: undefined;
   AddPantryItem:
     | {

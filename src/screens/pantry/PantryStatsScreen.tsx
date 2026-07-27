@@ -1,10 +1,16 @@
 import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
 import { Screen, Header, Card, ProgressRing } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryItem } from "../../types";
+import { PantryStackParamList } from "../../navigation/types";
+
+type PantryStatsNavigationProp = NativeStackNavigationProp<PantryStackParamList, "PantryStats">;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -34,27 +40,36 @@ function CategoryBar({
   count,
   max,
   color,
+  onPress,
 }: {
   category: string;
   count: number;
   max: number;
   color: string;
+  onPress: () => void;
 }) {
   const { colors } = useTheme();
   const width = max === 0 ? 0 : (count / max) * 100;
   return (
-    <View style={styles.barRow}>
+    <Pressable
+      style={styles.barRow}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`View ${category} items in Pantry`}
+    >
       <Text style={[styles.barLabel, { color: colors.text }]}>{category}</Text>
       <View style={[styles.barTrack, { backgroundColor: colors.border }]}>
         <View style={[styles.barFill, { width: `${width}%`, backgroundColor: color }]} />
       </View>
       <Text style={[styles.barCount, { color: colors.textMuted }]}>{count}</Text>
-    </View>
+      <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+    </Pressable>
   );
 }
 
 export function PantryStatsScreen() {
   const { colors } = useTheme();
+  const navigation = useNavigation<PantryStatsNavigationProp>();
   const { items } = usePantry();
 
   const health = useMemo(() => computeHealth(items), [items]);
@@ -93,6 +108,7 @@ export function PantryStatsScreen() {
                 count={count}
                 max={maxCount}
                 color={barPalette[index % barPalette.length]}
+                onPress={() => navigation.navigate("Pantry", { category })}
               />
             ))
           )}
