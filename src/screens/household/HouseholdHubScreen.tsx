@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
@@ -9,10 +9,21 @@ import { useInvites } from "../../hooks/useInvites";
 import { useShoppingList } from "../../hooks/useShoppingList";
 import { useNotificationPreferences } from "../../context/NotificationPreferencesContext";
 import { useDonations } from "../../context/DonationContext";
-import { Screen, Header, Card, Button, TextField, ErrorState } from "../../components";
+import {
+  Screen,
+  Header,
+  Card,
+  Button,
+  TextField,
+  ErrorState,
+  CardHeader,
+  CardHeaderLink,
+  SwitchRow,
+} from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { inviteLink } from "../../utils/inviteLink";
+import { confirmDestructiveAction } from "../../utils/confirmDialog";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
 
@@ -60,50 +71,43 @@ export function HouseholdHubScreen() {
   };
 
   const handleCancelInvite = (id: string, name: string) => {
-    Alert.alert("Cancel invite", `Cancel the pending invite for ${name}?`, [
-      { text: "Keep it", style: "cancel" },
-      {
-        text: "Cancel invite",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await cancelInvite(id);
-          } catch (err) {
-            Alert.alert(
-              "Couldn't cancel invite",
-              err instanceof Error ? err.message : "Something went wrong. Please try again."
-            );
-          }
-        },
+    confirmDestructiveAction({
+      title: "Cancel invite",
+      message: `Cancel the pending invite for ${name}?`,
+      confirmLabel: "Cancel invite",
+      cancelLabel: "Keep it",
+      onConfirm: async () => {
+        try {
+          await cancelInvite(id);
+        } catch (err) {
+          Alert.alert(
+            "Couldn't cancel invite",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        }
       },
-    ]);
+    });
   };
 
   const pendingInvites = invites.filter((invite) => invite.status === "pending");
   const checkedCount = shoppingItems.filter((item) => item.checked).length;
 
   const handleClearChecked = () => {
-    Alert.alert(
-      "Clear checked items",
-      `Remove ${checkedCount} checked item${checkedCount === 1 ? "" : "s"} from your shopping list?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await clearChecked();
-            } catch (err) {
-              Alert.alert(
-                "Couldn't clear items",
-                err instanceof Error ? err.message : "Something went wrong. Please try again."
-              );
-            }
-          },
-        },
-      ]
-    );
+    confirmDestructiveAction({
+      title: "Clear checked items",
+      message: `Remove ${checkedCount} checked item${checkedCount === 1 ? "" : "s"} from your shopping list?`,
+      confirmLabel: "Clear",
+      onConfirm: async () => {
+        try {
+          await clearChecked();
+        } catch (err) {
+          Alert.alert(
+            "Couldn't clear items",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        }
+      },
+    });
   };
 
   return (
@@ -126,12 +130,12 @@ export function HouseholdHubScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
         <Card style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Members & invites</Text>
-            <Pressable onPress={() => navigation.navigate("InviteFlow")}>
-              <Text style={[styles.link, { color: colors.primary }]}>Invite</Text>
-            </Pressable>
-          </View>
+          <CardHeader
+            title="Members & invites"
+            action={
+              <CardHeaderLink label="Invite" onPress={() => navigation.navigate("InviteFlow")} />
+            }
+          />
           {invitesError && invites.length === 0 && !invitesLoading ? (
             <ErrorState
               title="Couldn't load invites"
@@ -173,16 +177,14 @@ export function HouseholdHubScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text, marginBottom: 0 }]}>
-              Shopping list
-            </Text>
-            {checkedCount > 0 ? (
-              <Pressable onPress={handleClearChecked}>
-                <Text style={[styles.link, { color: colors.primary }]}>Clear checked</Text>
-              </Pressable>
-            ) : null}
-          </View>
+          <CardHeader
+            title="Shopping list"
+            action={
+              checkedCount > 0 ? (
+                <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
+              ) : undefined
+            }
+          />
           <View style={styles.shoppingInputRow}>
             <View style={styles.shoppingInput}>
               <TextField
@@ -262,14 +264,18 @@ export function HouseholdHubScreen() {
 
         <Card style={styles.card}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>Notifications</Text>
-          <View style={styles.switchRow}>
-            <Text style={[styles.switchLabel, { color: colors.text }]}>Expiry reminders</Text>
-            <Switch value={notifyExpiry} onValueChange={setNotifyExpiry} />
-          </View>
-          <View style={styles.switchRow}>
-            <Text style={[styles.switchLabel, { color: colors.text }]}>Invite activity</Text>
-            <Switch value={notifyInvites} onValueChange={setNotifyInvites} />
-          </View>
+          <SwitchRow
+            label="Expiry reminders"
+            value={notifyExpiry}
+            onValueChange={setNotifyExpiry}
+            style={styles.switchRow}
+          />
+          <SwitchRow
+            label="Invite activity"
+            value={notifyInvites}
+            onValueChange={setNotifyInvites}
+            style={styles.switchRow}
+          />
         </Card>
       </ScrollView>
     </Screen>
@@ -283,18 +289,9 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   card: {},
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: spacing.md,
-  },
   cardTitle: {
     ...typography.h3,
     marginBottom: spacing.md,
-  },
-  link: {
-    ...typography.bodyMedium,
   },
   empty: {
     ...typography.body,
@@ -349,13 +346,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   switchRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingVertical: spacing.sm,
-  },
-  switchLabel: {
-    ...typography.body,
   },
   donateButton: {
     marginTop: spacing.md,

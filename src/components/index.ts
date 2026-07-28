@@ -7,3 +7,5 @@ export * from "./EmptyState";
 export * from "./ErrorState";
 export * from "./Screen";
 export * from "./ProgressRing";
+export * from "./CardHeader";
+export * from "./SwitchRow";

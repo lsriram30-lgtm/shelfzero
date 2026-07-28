@@ -1,15 +1,16 @@
 import React from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
 import { useInvites } from "../../hooks/useInvites";
-import { Screen, Header, Card, Button, Pill } from "../../components";
+import { Screen, Header, Card, Button, Pill, CardHeader } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { PRIVACY_POLICY_URL } from "../../utils/privacyPolicy";
+import { confirmDestructiveAction } from "../../utils/confirmDialog";
 
 type ProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "Profile">;
 
@@ -23,21 +24,16 @@ export function ProfileScreen() {
   const members = invites.filter((invite) => invite.status === "accepted");
 
   const handleResetForTesting = () => {
-    Alert.alert(
-      "Reset app for testing",
-      "This signs you out and clears the local questionnaire status, so the next app open starts from the very first screen again. Your account and data on the server aren't affected.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Reset",
-          style: "destructive",
-          onPress: async () => {
-            await resetOnboarding();
-            await signOut();
-          },
-        },
-      ]
-    );
+    confirmDestructiveAction({
+      title: "Reset app for testing",
+      message:
+        "This signs you out and clears the local questionnaire status, so the next app open starts from the very first screen again. Your account and data on the server aren't affected.",
+      confirmLabel: "Reset",
+      onConfirm: async () => {
+        await resetOnboarding();
+        await signOut();
+      },
+    });
   };
 
   return (
@@ -45,14 +41,16 @@ export function ProfileScreen() {
       <Header title="Profile" subtitle={profile?.name ?? "Your account"} />
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>About you</Text>
-            <Button
-              label="Edit"
-              variant="outline"
-              onPress={() => navigation.navigate("EditProfile")}
-            />
-          </View>
+          <CardHeader
+            title="About you"
+            action={
+              <Button
+                label="Edit"
+                variant="outline"
+                onPress={() => navigation.navigate("EditProfile")}
+              />
+            }
+          />
           <Text style={[styles.detail, { color: colors.text }]}>
             {profile?.name ?? "—"} · {profile?.location ?? "—"}
           </Text>
@@ -70,10 +68,12 @@ export function ProfileScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Household members</Text>
-            <Button label="Invite" variant="outline" onPress={() => navigation.navigate("InviteFlow")} />
-          </View>
+          <CardHeader
+            title="Household members"
+            action={
+              <Button label="Invite" variant="outline" onPress={() => navigation.navigate("InviteFlow")} />
+            }
+          />
           {members.length === 0 ? (
             <Text style={[styles.detailMuted, { color: colors.textMuted }]}>
               No members yet — invite someone to share your pantry.
@@ -126,12 +126,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   card: {},
-  cardHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: spacing.md,
-  },
   cardTitle: {
     ...typography.h3,
     marginBottom: spacing.md,
