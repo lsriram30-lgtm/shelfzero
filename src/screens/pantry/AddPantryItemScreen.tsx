@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
-import { Screen, Header, TextField, Button, Pill } from "../../components";
+import { Screen, Header, TextField, Button, Pill, SwitchRow } from "../../components";
 import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
@@ -188,17 +188,13 @@ export function AddPantryItemScreen() {
           </Text>
         ) : null}
 
-        <View style={styles.switchRow}>
-          <View style={styles.switchTextWrap}>
-            <Text style={[styles.switchLabel, { color: colors.text }]}>
-              Auto-add to shopping list when it runs out
-            </Text>
-            <Text style={[styles.switchHint, { color: colors.textMuted }]}>
-              Turn off for one-time buys you don't want to restock automatically.
-            </Text>
-          </View>
-          <Switch value={autoAddEnabled} onValueChange={setAutoAddEnabled} />
-        </View>
+        <SwitchRow
+          label="Auto-add to shopping list when it runs out"
+          hint="Turn off for one-time buys you don't want to restock automatically."
+          value={autoAddEnabled}
+          onValueChange={setAutoAddEnabled}
+          style={styles.switchRow}
+        />
 
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Unit</Text>
         <View style={styles.pillRow}>
@@ -309,21 +305,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   switchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: spacing.md,
     marginBottom: spacing.lg,
-  },
-  switchTextWrap: {
-    flex: 1,
-  },
-  switchLabel: {
-    ...typography.bodyMedium,
-  },
-  switchHint: {
-    ...typography.caption,
-    marginTop: 2,
   },
   dateRow: {
     flexDirection: "row",
