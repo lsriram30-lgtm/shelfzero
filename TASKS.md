@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 19 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 20 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 13 / 20 |
 
 ### Currently assigned
@@ -280,6 +280,19 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       landing back on the list. No backend field for this, so the
       preference is stored locally per item ID; `usePantry`'s zero-quantity
       auto-add now checks it first. 4 tests added, suite at 99.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Extract three
+      duplicated UI patterns into shared components (branch:
+      `feature/shared-ui-patterns`) — merged into `master`. The
+      confirm-dialog (Cancel + destructive confirm), card-title-with-
+      action-link header row, and switch-toggle row were each hand-rolled
+      separately in HouseholdHubScreen, ProfileScreen, and (for the switch
+      row) AddPantryItemScreen. Pulled into `confirmDestructiveAction()`
+      and two new components, `CardHeader`/`CardHeaderLink` and
+      `SwitchRow`. Pure refactor; the only visual side effect is the two
+      Household Hub notification switch labels now match the medium-weight
+      text already used on the pantry auto-add switch, and card titles in
+      a header row no longer carry a stray bottom margin that occasionally
+      nudged them off-center against their action.
 
 ### Not yet assigned
 
@@ -357,11 +370,6 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 - [ ] Add a "send test notification" button to the Notifications settings,
       so you can confirm notifications actually work on your device
       without waiting for a real expiry or invite event.
-- [ ] Extract three duplicated UI patterns into shared components: the
-      confirm-dialog pattern (Cancel + destructive confirm), the "card
-      title + action link" header row, and switch-toggle rows — all
-      currently hand-rolled separately in HouseholdHubScreen and
-      ProfileScreen. Pure refactor, no behavior change.
 - [ ] **Before shipping to real users:** remove or hide testing-only
       features — the "Reset app (testing)" button on Profile (wipes
       everything and signs out) and the "send test notification" button
