@@ -94,3 +94,22 @@ export async function notifyInviteAccepted(name: string, enabled: boolean): Prom
     trigger: null,
   });
 }
+
+export async function sendTestNotification(): Promise<{ ok: boolean; reason?: string }> {
+  const granted = await requestNotificationPermission();
+  if (!granted) {
+    return {
+      ok: false,
+      reason: "Notifications are turned off for ShelfZero in your phone's settings.",
+    };
+  }
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Test notification",
+      body: "If you can see this, ShelfZero notifications are working on this device.",
+      data: { category: "test" },
+    },
+    trigger: null,
+  });
+  return { ok: true };
+}

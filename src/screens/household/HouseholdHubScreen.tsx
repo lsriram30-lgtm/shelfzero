@@ -25,6 +25,7 @@ import { HouseholdStackParamList } from "../../navigation/types";
 import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { ShoppingListItem } from "../../types";
+import { sendTestNotification } from "../../notifications/expiryNotifications";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
 
@@ -61,6 +62,7 @@ export function HouseholdHubScreen() {
     useNotificationPreferences();
 
   const [newItem, setNewItem] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
   const [clearedItems, setClearedItems] = useState<ShoppingListItem[] | null>(null);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -148,6 +150,25 @@ export function HouseholdHubScreen() {
         "Couldn't update items",
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    setSendingTest(true);
+    try {
+      const result = await sendTestNotification();
+      if (result.ok) {
+        Alert.alert("Test notification sent", "Check your notification shade.");
+      } else {
+        Alert.alert("Couldn't send it", result.reason);
+      }
+    } catch (err) {
+      Alert.alert(
+        "Couldn't send it",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setSendingTest(false);
     }
   };
 
@@ -333,6 +354,13 @@ export function HouseholdHubScreen() {
             onValueChange={setNotifyInvites}
             style={styles.switchRow}
           />
+          <Button
+            label={sendingTest ? "Sending…" : "Send test notification"}
+            variant="outline"
+            onPress={handleSendTestNotification}
+            loading={sendingTest}
+            style={styles.testNotificationButton}
+          />
         </Card>
       </ScrollView>
     </Screen>
@@ -419,6 +447,10 @@ const styles = StyleSheet.create({
   },
   switchRow: {
     paddingVertical: spacing.sm,
+  },
+  testNotificationButton: {
+    marginTop: spacing.md,
+    alignSelf: "flex-start",
   },
   donateButton: {
     marginTop: spacing.md,
