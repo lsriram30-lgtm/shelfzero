@@ -46,11 +46,41 @@ export function useShoppingList() {
   }, []);
 
   const clearChecked = useCallback(async () => {
-    const checkedIds = items.filter((i) => i.checked).map((i) => i.id);
-    if (checkedIds.length === 0) return;
-    await Promise.all(checkedIds.map((id) => shoppingListApi.remove(id)));
+    const checkedItems = items.filter((i) => i.checked);
+    if (checkedItems.length === 0) return [];
+    await Promise.all(checkedItems.map((i) => shoppingListApi.remove(i.id)));
     setItems((prev) => prev.filter((i) => !i.checked));
+    return checkedItems;
   }, [items]);
 
-  return { items, loading, error, refresh, addItem, toggleChecked, removeItem, clearChecked };
+  const setAllChecked = useCallback(
+    async (checked: boolean) => {
+      const targetIds = new Set(
+        items.filter((i) => i.checked !== checked).map((i) => i.id)
+      );
+      if (targetIds.size === 0) return;
+      setItems((prev) => prev.map((i) => (targetIds.has(i.id) ? { ...i, checked } : i)));
+      try {
+        await Promise.all(
+          Array.from(targetIds).map((id) => shoppingListApi.setChecked(id, checked))
+        );
+      } catch (err) {
+        setItems((prev) => prev.map((i) => (targetIds.has(i.id) ? { ...i, checked: !checked } : i)));
+        throw err;
+      }
+    },
+    [items]
+  );
+
+  return {
+    items,
+    loading,
+    error,
+    refresh,
+    addItem,
+    toggleChecked,
+    removeItem,
+    clearChecked,
+    setAllChecked,
+  };
 }

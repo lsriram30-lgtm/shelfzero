@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -24,6 +24,7 @@ import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
+import { ShoppingListItem } from "../../types";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
 
@@ -46,6 +47,7 @@ export function HouseholdHubScreen() {
     toggleChecked,
     removeItem,
     clearChecked,
+    setAllChecked,
   } = useShoppingList();
   const { totalItemsDonated } = useDonations();
 
@@ -59,6 +61,14 @@ export function HouseholdHubScreen() {
     useNotificationPreferences();
 
   const [newItem, setNewItem] = useState("");
+  const [clearedItems, setClearedItems] = useState<ShoppingListItem[] | null>(null);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    };
+  }, []);
 
   const handleCopyLink = async (token: string) => {
     await Clipboard.setStringAsync(inviteLink(token));
@@ -91,6 +101,7 @@ export function HouseholdHubScreen() {
 
   const pendingInvites = invites.filter((invite) => invite.status === "pending");
   const checkedCount = shoppingItems.filter((item) => item.checked).length;
+  const allChecked = shoppingItems.length > 0 && checkedCount === shoppingItems.length;
 
   const handleClearChecked = () => {
     confirmDestructiveAction({
@@ -99,7 +110,11 @@ export function HouseholdHubScreen() {
       confirmLabel: "Clear",
       onConfirm: async () => {
         try {
-          await clearChecked();
+          const cleared = await clearChecked();
+          if (cleared.length === 0) return;
+          setClearedItems(cleared);
+          if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+          undoTimerRef.current = setTimeout(() => setClearedItems(null), 5000);
         } catch (err) {
           Alert.alert(
             "Couldn't clear items",
@@ -108,6 +123,32 @@ export function HouseholdHubScreen() {
         }
       },
     });
+  };
+
+  const handleUndoClear = async () => {
+    if (!clearedItems) return;
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    const toRestore = clearedItems;
+    setClearedItems(null);
+    try {
+      await Promise.all(toRestore.map((item) => addItem({ name: item.name, qty: item.quantity })));
+    } catch (err) {
+      Alert.alert(
+        "Couldn't restore items",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    }
+  };
+
+  const handleToggleSelectAll = async () => {
+    try {
+      await setAllChecked(!allChecked);
+    } catch (err) {
+      Alert.alert(
+        "Couldn't update items",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    }
   };
 
   return (
@@ -180,8 +221,16 @@ export function HouseholdHubScreen() {
           <CardHeader
             title="Shopping list"
             action={
-              checkedCount > 0 ? (
-                <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
+              shoppingItems.length > 0 ? (
+                <View style={styles.cardHeaderActions}>
+                  <CardHeaderLink
+                    label={allChecked ? "Deselect all" : "Select all"}
+                    onPress={handleToggleSelectAll}
+                  />
+                  {checkedCount > 0 ? (
+                    <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
+                  ) : null}
+                </View>
               ) : undefined
             }
           />
@@ -243,6 +292,14 @@ export function HouseholdHubScreen() {
               </View>
             ))
           )}
+          {clearedItems ? (
+            <View style={[styles.undoBanner, { borderColor: colors.border }]}>
+              <Text style={[styles.undoText, { color: colors.textMuted }]}>
+                {clearedItems.length} item{clearedItems.length === 1 ? "" : "s"} cleared
+              </Text>
+              <CardHeaderLink label="Undo" onPress={handleUndoClear} />
+            </View>
+          ) : null}
         </Card>
 
         <Card style={styles.card}>
@@ -317,6 +374,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.md,
   },
+  cardHeaderActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
   shoppingInputRow: {
     flexDirection: "row",
     gap: spacing.sm,
@@ -344,6 +405,17 @@ const styles = StyleSheet.create({
   shoppingLabel: {
     ...typography.body,
     flexShrink: 1,
+  },
+  undoBanner: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: spacing.sm,
+    marginTop: spacing.sm,
+    borderTopWidth: 1,
+  },
+  undoText: {
+    ...typography.caption,
   },
   switchRow: {
     paddingVertical: spacing.sm,
