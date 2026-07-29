@@ -39,7 +39,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 20 / 20 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 13 / 20 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 20 |
 
 **Note:** Laasya is out of office from 7/29 to 8/3.
 
@@ -295,6 +295,54 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       text already used on the pantry auto-add switch, and card titles in
       a header row no longer carry a stray bottom margin that occasionally
       nudged them off-center against their action.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix the brief flash
+      of default/misleading stats before real pantry data loads (branch:
+      `feature/laya-batch3`) — merged into `master`. Dashboard and Pantry
+      Stats each mount their own `usePantry()` instance, so `items` starts
+      at `[]` and `computeHealth([])` returns 100 — every visit briefly
+      showed a perfect "100% health" ring (and Pantry Stats flashed "$0
+      waste savings") regardless of real data. Added a real loading state,
+      distinct from both "empty" and "has data," to both screens.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Explain the "Health
+      score" with actionable guidance (branch: `feature/laya-batch3`) —
+      merged into `master`. Added a caption under the ring on both
+      Dashboard and Pantry Stats explaining it's the share of items not
+      expiring within 3 days; when it's below 70%, Pantry Stats also names
+      how many items are dragging it down and points at sorting by expiry
+      to find them.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix or relabel
+      "Waste savings" on Pantry Stats (branch: `feature/laya-batch3`) —
+      merged into `master`. Retitled it "Estimated waste savings" and
+      reworded the caption to say plainly that the $3.50/item figure is a
+      rough placeholder, not based on what you actually paid — no real
+      cost data exists to back it with, so honesty was the fix rather
+      than a fake calculation.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add a "select all" /
+      bulk-check option to the shopping list (branch:
+      `feature/laya-batch3`) — merged into `master`. Added `setAllChecked`
+      to `useShoppingList` and a "Select all" / "Deselect all" link next
+      to "Clear checked" in the Household Hub; items could previously only
+      be checked one at a time.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Show a brief "N
+      items cleared — Undo" toast after clearing checked shopping list
+      items (branch: `feature/laya-batch3`) — merged into `master`.
+      `clearChecked` now returns what it removed instead of discarding it;
+      the Household Hub holds onto that for 5 seconds behind an "Undo"
+      link that re-adds the items (as new entries, not exact prior
+      state/IDs).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add a "send test
+      notification" button to the Notifications settings (branch:
+      `feature/laya-batch3`) — merged into `master`. Requests permission
+      if needed and fires an immediate local notification, so you can
+      confirm notifications work on your device without waiting for a
+      real expiry or invite event.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an "Other"
+      option to the pantry form's Unit picker (branch:
+      `feature/laya-batch3`) — merged into `master`. Matches how Category
+      already handles it — one more fixed pill, no free-text entry. Didn't
+      do the broader look at other fields; kept that as its own item below
+      since it's a separate, bigger question (whether "Other" needs to
+      actually be free-text everywhere, not just present).
 
 ### Not yet assigned
 
@@ -342,36 +390,16 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       Whatever generates a meal like "Pad Thai" already implicitly knows
       its cuisine — it's just not returned today. Once it exists, a real
       (non-guessed) cuisine filter becomes possible on the Recipes screen.
-- [ ] Add a "select all" / bulk-check option to the shopping list — pairs
-      with the "clear checked" action, but right now items can only be
-      checked off one at a time
 - [ ] Add quantity +/- controls to shopping list items instead of just
       add/remove — worth double-checking first whether
       `PATCH /api/shopping-list/:id` accepts a `quantity` field, since
-      today it's only ever called with `{ checked }`
-- [ ] Show a brief "N items cleared — Undo" toast after clearing checked
-      shopping list items, instead of just silently removing them
-- [ ] Add an edit step to the Scan review flow — after scanning, results
-      show as read-only cards with no way to fix a misread name, wrong
-      category, or missing expiry before adding them to the pantry.
-- [ ] Explain the "Health score" (Dashboard and Pantry Stats) — it's just
-      a bare percentage ring with no explanation of what it measures (%
-      of items not expiring within 3 days) or what to do about it. Add an
-      explanation, and when it's below some "good" threshold, actionable
-      guidance (e.g. which items are dragging it down and what to do with
-      them) instead of just a number.
-- [ ] Fix or relabel "Waste savings" on Pantry Stats — the number
-      (`(items.length - expiredCount) * 3.5`) is a flat, made-up $3.50
-      per non-expired item with no connection to real prices, but the
-      caption underneath ("Estimated value of food kept out of the trash
-      this month") presents it as a real calculation. Either back it with
-      actual cost data or reword the caption so it doesn't overclaim
-      accuracy it doesn't have.
+      today it's only ever called with `{ checked }`. Laya checked: can't
+      verify without a real auth token (the endpoint 401s on an
+      unauthenticated probe, which doesn't tell you whether `quantity`
+      would be accepted) — needs testing from inside the app with a real
+      session, not a plain curl.
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
-- [ ] Add a "send test notification" button to the Notifications settings,
-      so you can confirm notifications actually work on your device
-      without waiting for a real expiry or invite event.
 - [ ] **Before shipping to real users:** remove or hide testing-only
       features — the "Reset app (testing)" button on Profile (wipes
       everything and signs out) and the "send test notification" button
@@ -412,21 +440,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       submission. GitHub Pages was tried and isn't available on the
       current plan (repo is private); would need either a public repo, a
       paid GitHub plan, or a different static host.
-- [ ] Refine the "Add item" pantry form's questions/options — e.g. the
-      Unit picker (`ct`, `lb`, `oz`, `g`, `kg`, `L`, `mL`) has no "Other"
-      option, unlike Category which does, so anything measured
-      differently (a bunch, a loaf, a dozen, a jar, a box) can't be
-      entered accurately. Worth a broader look at the other fields too
-      while in there.
-- [ ] Fix the brief flash of default/misleading stats before real pantry
-      data loads — on Dashboard and Pantry Stats, `computeHealth([])`
-      returns 100 (meant for a genuinely empty pantry), but both screens
-      briefly render with `items` still `[]` while the fetch is in
-      flight, so every user sees a perfect "100% Pantry health" ring (and
-      Pantry Stats also flashes "$0 waste savings") for a moment
-      regardless of their actual data. Needs a real loading state that's
-      visually distinct from both "empty" and "has data," not just
-      computing summary stats from a placeholder empty array.
+- [ ] Take a broader look at the "Add item" pantry form's other fields
+      for the same kind of gap the Unit picker had (see the "Other"
+      option task below, now done) — e.g. whether Category's fixed list
+      needs a genuine free-text fallback rather than just a literal
+      "Other" pill.
 
 ---
 
