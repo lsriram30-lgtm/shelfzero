@@ -41,8 +41,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 20 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 13 / 20 |
 
-**Note:** Laasya is travelling and will not be able to work on the project
-from 7/29 to 8/3.
+**Note:** Laasya is out of office from 7/29 to 8/3.
 
 ### Currently assigned
 
