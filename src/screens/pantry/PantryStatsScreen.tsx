@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -70,12 +70,19 @@ function CategoryBar({
 export function PantryStatsScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<PantryStatsNavigationProp>();
-  const { items } = usePantry();
+  const { items, loading } = usePantry();
 
   const health = useMemo(() => computeHealth(items), [items]);
   const categoryCounts = useMemo(() => groupCounts(items), [items]);
   const maxCount = categoryCounts[0]?.count ?? 0;
   const barPalette = [colors.primary, colors.accent, colors.highlight, colors.secondary];
+
+  const draggingDownCount = useMemo(() => {
+    const now = Date.now();
+    return items.filter(
+      (item) => item.expiresAt && new Date(item.expiresAt).getTime() - now <= 3 * DAY_MS
+    ).length;
+  }, [items]);
 
   const expiredCount = useMemo(
     () =>
@@ -89,46 +96,66 @@ export function PantryStatsScreen() {
   return (
     <Screen>
       <Header title="Pantry stats" subtitle="How your pantry is trending" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Card style={styles.healthCard}>
-          <ProgressRing value={health} label="Health score" />
-        </Card>
-
-        <Card style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>By category</Text>
-          {categoryCounts.length === 0 ? (
-            <Text style={[styles.empty, { color: colors.textMuted }]}>
-              Add pantry items to see a breakdown.
+      {loading && items.length === 0 ? (
+        <View style={styles.loadingWrapper}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.content}>
+          <Card style={styles.healthCard}>
+            <ProgressRing value={health} label="Health score" />
+            <Text style={[styles.healthExplanation, { color: colors.textMuted }]}>
+              Share of items not expiring within the next 3 days
+              {health < 70 && draggingDownCount > 0
+                ? ` — ${draggingDownCount} item${draggingDownCount === 1 ? "" : "s"} close to ` +
+                  `expiring ${draggingDownCount === 1 ? "is" : "are"} dragging it down. Sort the ` +
+                  `pantry by expiry date to see which.`
+                : "."}
             </Text>
-          ) : (
-            categoryCounts.map(({ category, count }, index) => (
-              <CategoryBar
-                key={category}
-                category={category}
-                count={count}
-                max={maxCount}
-                color={barPalette[index % barPalette.length]}
-                onPress={() => navigation.navigate("Pantry", { category })}
-              />
-            ))
-          )}
-        </Card>
+          </Card>
 
-        <Card style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Waste savings</Text>
-          <Text style={[styles.savingsValue, { color: colors.success }]}>
-            ~${wasteSavingsEstimate.toFixed(0)}
-          </Text>
-          <Text style={[styles.savingsCaption, { color: colors.textMuted }]}>
-            Estimated value of food kept out of the trash this month.
-          </Text>
-        </Card>
-      </ScrollView>
+          <Card style={styles.card}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>By category</Text>
+            {categoryCounts.length === 0 ? (
+              <Text style={[styles.empty, { color: colors.textMuted }]}>
+                Add pantry items to see a breakdown.
+              </Text>
+            ) : (
+              categoryCounts.map(({ category, count }, index) => (
+                <CategoryBar
+                  key={category}
+                  category={category}
+                  count={count}
+                  max={maxCount}
+                  color={barPalette[index % barPalette.length]}
+                  onPress={() => navigation.navigate("Pantry", { category })}
+                />
+              ))
+            )}
+          </Card>
+
+          <Card style={styles.card}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Estimated waste savings</Text>
+            <Text style={[styles.savingsValue, { color: colors.success }]}>
+              ~${wasteSavingsEstimate.toFixed(0)}
+            </Text>
+            <Text style={[styles.savingsCaption, { color: colors.textMuted }]}>
+              A rough estimate — assumes $3.50 saved per item that hasn't expired, not based on
+              what you actually paid.
+            </Text>
+          </Card>
+        </ScrollView>
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   content: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxxl,
@@ -136,6 +163,11 @@ const styles = StyleSheet.create({
   },
   healthCard: {
     alignItems: "center",
+    gap: spacing.sm,
+  },
+  healthExplanation: {
+    ...typography.caption,
+    textAlign: "center",
   },
   card: {},
   cardTitle: {

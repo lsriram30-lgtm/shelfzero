@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
@@ -47,11 +47,15 @@ export function DashboardScreen() {
           </View>
         ) : null}
 
-        {error && items.length === 0 && !loading ? (
+        {loading && items.length === 0 ? (
+          <Card style={styles.ringCard}>
+            <ActivityIndicator color={colors.primary} />
+          </Card>
+        ) : error && items.length === 0 ? (
           <Card style={styles.ringCard}>
             <ErrorState onRetry={refresh} />
           </Card>
-        ) : items.length === 0 && !loading ? (
+        ) : items.length === 0 ? (
           <Card style={styles.ringCard}>
             <EmptyState
               icon="basket-outline"
@@ -64,6 +68,9 @@ export function DashboardScreen() {
         ) : (
           <Card style={styles.ringCard}>
             <ProgressRing value={health} label="Pantry health" />
+            <Text style={[styles.healthExplanation, { color: colors.textMuted }]}>
+              Share of items not expiring within the next 3 days.
+            </Text>
             <Text style={[styles.briefing, { color: colors.text }]}>{briefing}</Text>
           </Card>
         )}
@@ -132,6 +139,10 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.xl,
     alignItems: "center",
     gap: spacing.lg,
+  },
+  healthExplanation: {
+    ...typography.caption,
+    textAlign: "center",
   },
   briefing: {
     ...typography.body,
