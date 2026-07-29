@@ -6,9 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "backgroundColor": "#FFFAF2"
-    },
+    "icon": "./assets/icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -22,7 +20,8 @@
     "android": {
       "package": "com.shelfzero.app",
       "adaptiveIcon": {
-        "backgroundColor": "#FFFAF2"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#818263"
       },
       "permissions": [
         "CAMERA"
@@ -48,7 +47,16 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#818263"
+        }
+      ]
     ]
   }
 }

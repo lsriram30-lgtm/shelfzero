@@ -255,7 +255,28 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       added a flashlight toggle for dim rooms. Reviewed scan items are also
       no longer read-only: a pencil icon opens the existing Add/Edit item
       screen prefilled with the scanned data so a bad OCR read can be
-      corrected, and a trash icon drops it entirely.
+      corrected, and a trash icon drops it entirely. **Correction, found
+      2026-07-29 while live-testing:** those were real improvements, but
+      scanning still doesn't work end-to-end, and it's not the "AI busy"
+      429 issue — it's worse. Confirmed live against the backend: `POST
+      /api/scan` rejects both the receipt payload (`imageBase64`, 400
+      `"Provide \"text\" (receipt string) or \"lines\" (array of
+      strings)"`) and the barcode payload (`code`, same rejection).
+      Sending the barcode number as `lines` *is* accepted (200) but
+      returns 0 items — this endpoint is a receipt-line text parser, not
+      a barcode lookup. So: receipt scanning needs on-device OCR (there
+      is none today — the app sends a raw photo, the backend wants
+      already-extracted text) to ever work at all, and barcode scanning
+      isn't really supported by this backend regardless of payload shape.
+      Real fix is a new task: add an OCR step (e.g.
+      `expo-text-recognition`/ML Kit or similar) before calling
+      `/api/scan`, then adjust the response mapping too (actual shape is
+      `{success, itemCount, items:[{id, rawText, name, quantity: string,
+      category, expiresAt, confidence, selected}]}` — no `unit` field,
+      and `quantity` is a string, neither of which match `NewPantryItem`
+      today). Deliberately not attempting that OCR integration in this
+      session — it's a real new dependency and needs its own careful
+      pass, not a bolt-on.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add icons to the
       empty-state component so it's visually consistent with the
       error-state component from an earlier task (branch:
@@ -343,6 +364,23 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       do the broader look at other fields; kept that as its own item below
       since it's a separate, bigger question (whether "Other" needs to
       actually be free-text everywhere, not just present).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add a real app icon
+      and splash screen image (branch: `feature/laya-app-icon`) — merged
+      into `master`. There's no image-generation tool available, so this
+      is a simple original mark built as SVG and rasterized to the sizes
+      Expo needs (`scripts/generate-icons.js`, run via `npm run
+      generate-icons`; needs the new `sharp` devDependency) — a basket
+      with a sprout, in the app's own palette (Savory Sage background,
+      Coconut Cream basket, Blush Beet leaf), not a placeholder. Wired
+      into `app.json`: `icon`, `android.adaptiveIcon` (had to change its
+      backgroundColor from Coconut Cream to Savory Sage — the basket
+      glyph is cream-colored, so it was invisible against a cream
+      background), and a proper `expo-splash-screen` plugin config
+      (replacing the old bare `splash: {backgroundColor}` key, which is
+      the legacy/deprecated way to configure it as of this SDK).
+      **Important:** none of this is visible in Expo Go — icon/splash
+      only take effect in an actual native build (`expo prebuild` / EAS
+      Build), so it can't be checked by scanning the dev-server QR code.
 
 ### Not yet assigned
 
@@ -350,7 +388,13 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
       since the backend doesn't have a proper recipe search yet
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
-- [ ] Add a real app icon and splash screen image (using a placeholder right now)
+- [ ] Add on-device OCR to receipt scanning — see the correction note on
+      the "Improve receipt scanning" task above. Without this, no photo
+      scan can ever succeed against the current backend; it needs an
+      actual text-recognition step (e.g. ML Kit) before calling
+      `/api/scan`, plus fixing the response mapping (`quantity` comes
+      back as a string, there's no `unit` field, neither matches
+      `NewPantryItem` today).
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
 - [ ] Add a way to remove a household member, or leave a household yourself —
