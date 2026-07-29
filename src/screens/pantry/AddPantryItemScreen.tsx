@@ -9,7 +9,7 @@ import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
-const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL"];
+const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
 const EXPIRY_SHORTCUTS: { label: string; days: number }[] = [
   { label: "3 days", days: 3 },
   { label: "1 week", days: 7 },
