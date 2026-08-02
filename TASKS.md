@@ -490,6 +490,33 @@ from 7/29 to 8/3.
       option task below, now done) — e.g. whether Category's fixed list
       needs a genuine free-text fallback rather than just a literal
       "Other" pill.
+- [ ] Auto-suggest a category from the item name when adding a pantry
+      item, the way Notes' grocery list does — e.g. typing "milk"
+      pre-selects Dairy. A client-side keyword dictionary (name → category)
+      is enough, no backend needed; Category's already an editable pill
+      row right below the name field, so "fix it if it's wrong" is
+      already the existing UI, this would just change the starting pick.
+- [ ] Add a "share shopping list" action using the native share sheet
+      (plain text is enough) — there's currently no way to get the list
+      out of the app, e.g. to text it to whoever's actually at the store.
+- [ ] Confirm before deleting a pantry item that's referenced in the
+      current cached meal plan — right now deleting it silently leaves
+      the plan pointing at an item you no longer have.
+- [ ] Add "quick add" staple chips (Milk, Eggs, Bread, etc.) to the Add
+      Item form that prefill name/category/unit, to speed up the most
+      common adds.
+- [ ] Do a systematic accessibility contrast audit of the pastel palette
+      (Blush Beet, Peach Protein) across every screen — the Recipes
+      match-score fix earlier patched one instance of pale-color-as-text,
+      but that was reactive; worth checking the rest proactively instead
+      of one spot at a time.
+- [ ] Add bulk delete to the shopping list, pairing with the select-all
+      Laya added — right now select-all only feeds "Clear checked," there's
+      no way to remove multiple items at once regardless of checked state.
+- [ ] Give the Recipes screen distinct empty-state messaging when a
+      cuisine/meal-type filter combination matches nothing, the same way
+      Pantry's search already distinguishes "genuinely empty" from
+      "nothing matches this search."
 
 ---
 
