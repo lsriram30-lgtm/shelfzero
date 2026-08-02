@@ -445,26 +445,28 @@ from 7/29 to 8/3.
       session, not a plain curl.
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
-- [ ] **Before shipping to real users:** remove or hide testing-only
+- [ ] **Needed for TestFlight:** remove or hide testing-only
       features — the "Reset app (testing)" button on Profile (wipes
       everything and signs out) and the "send test notification" button
       above should never reach production users.
-- [ ] Research the best distribution method for community/beta testing of
-      the prototype — e.g. TestFlight for iOS, the Google Play internal
-      or closed testing track, or continuing with Expo Go — as a step
-      toward eventual App Store / Play Store submission. Related but
-      separate from the readiness gaps noted elsewhere in this list (the
-      testing-UI cleanup above, the real app icon, and account deletion,
-      which Apple's guidelines require for any app with sign-up).
-- [ ] Add in-app account deletion — there's currently no way to delete
-      your account or data from within the app. Apple's App Store Review
-      Guideline 5.1.1(v) requires this for any app with account creation,
-      making it a real submission blocker, not just a nice-to-have.
-      Checked: no `DELETE /api/me` or `/api/account` route exists on the
-      backend today (both 404, not 401 — the routes aren't there at all),
-      so this is backend-blocked. A client-side-only "delete" that just
-      clears local storage would be actively misleading since the
-      server would still have everything, so not building a workaround.
+- [ ] **Needed for TestFlight:** research the best distribution method for
+      community/beta testing of the prototype — e.g. TestFlight for iOS,
+      the Google Play internal or closed testing track, or continuing
+      with Expo Go — as a step toward eventual App Store / Play Store
+      submission. Related but separate from the readiness gaps noted
+      elsewhere in this list (the testing-UI cleanup above, the real app
+      icon, and account deletion, which Apple's guidelines require for
+      any app with sign-up).
+- [ ] **Needed for TestFlight:** add in-app account deletion — there's
+      currently no way to delete your account or data from within the
+      app. Apple's App Store Review Guideline 5.1.1(v) requires this for
+      any app with account creation, making it a real submission blocker,
+      not just a nice-to-have. Checked: no `DELETE /api/me` or
+      `/api/account` route exists on the backend today (both 404, not
+      401 — the routes aren't there at all), so this is backend-blocked.
+      A client-side-only "delete" that just clears local storage would be
+      actively misleading since the server would still have everything,
+      so not building a workaround.
 - [ ] Figure out the `429` on `/api/meal-plan` — testing in Expo Go and a
       direct check from outside the app both got `{"error":"AI service is
       busy. Please wait a moment and try again."}`, even unauthenticated,
