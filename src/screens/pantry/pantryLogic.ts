@@ -36,3 +36,49 @@ export function withAutoAddOptOut(ids: string[], itemId: string, optedOut: boole
   else next.delete(itemId);
   return Array.from(next);
 }
+
+const CATEGORY_KEYWORDS: { category: string; keywords: string[] }[] = [
+  // Checked before Dairy so "ice cream" doesn't match on "cream".
+  { category: "Frozen", keywords: ["frozen", "ice cream", "popsicle"] },
+  {
+    category: "Produce",
+    keywords: [
+      "apple", "banana", "orange", "lettuce", "spinach", "kale", "tomato",
+      "potato", "onion", "carrot", "pepper", "cucumber", "broccoli",
+      "avocado", "lemon", "lime", "grape", "berry", "watermelon",
+      "cantaloupe", "garlic", "mushroom", "celery", "corn",
+    ],
+  },
+  { category: "Meat", keywords: ["chicken", "beef", "pork", "turkey", "bacon", "sausage", "fish", "salmon", "shrimp", "steak"] },
+  { category: "Bakery", keywords: ["bread", "bagel", "muffin", "croissant", "tortilla", "baguette", "cake"] },
+  { category: "Beverages", keywords: ["juice", "soda", "coffee", "tea", "wine", "beer", "water"] },
+  { category: "Dairy", keywords: ["milk", "cheese", "yogurt", "butter", "cream", "egg"] },
+  {
+    category: "Pantry",
+    keywords: [
+      "rice", "pasta", "flour", "sugar", "salt", "oil", "beans", "cereal",
+      "sauce", "soup", "spice", "honey", "cracker", "peanut butter",
+    ],
+  },
+];
+
+export function suggestCategory(name: string): string | null {
+  const trimmed = name.trim().toLowerCase();
+  if (!trimmed) return null;
+  const words = trimmed.split(/\s+/);
+
+  // Multi-word keywords (e.g. "peanut butter", "ice cream") take priority
+  // over single-word matches, since they'd otherwise lose to a category
+  // whose single-word keyword happens to be one of their words (e.g. "butter").
+  for (const { category, keywords } of CATEGORY_KEYWORDS) {
+    if (keywords.some((keyword) => keyword.includes(" ") && trimmed.includes(keyword))) {
+      return category;
+    }
+  }
+  for (const { category, keywords } of CATEGORY_KEYWORDS) {
+    if (keywords.some((keyword) => !keyword.includes(" ") && words.includes(keyword))) {
+      return category;
+    }
+  }
+  return null;
+}

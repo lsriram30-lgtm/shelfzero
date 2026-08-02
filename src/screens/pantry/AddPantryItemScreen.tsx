@@ -7,6 +7,7 @@ import { Screen, Header, TextField, Button, Pill, SwitchRow } from "../../compon
 import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
+import { suggestCategory } from "./pantryLogic";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
@@ -39,6 +40,7 @@ export function AddPantryItemScreen() {
 
   const [name, setName] = useState(editingItem?.name ?? prefill?.name ?? "");
   const [category, setCategory] = useState(editingItem?.category ?? prefill?.category ?? CATEGORIES[0]);
+  const [categoryTouched, setCategoryTouched] = useState(!!editingItem || !!prefill?.category);
   const [quantity, setQuantity] = useState(String(editingItem?.quantity ?? prefill?.quantity ?? 1));
   const [unit, setUnit] = useState(editingItem?.unit ?? prefill?.unit ?? UNITS[0]);
   const [expiryParts, setExpiryParts] = useState<DateParts>(() =>
@@ -76,6 +78,19 @@ export function AddPantryItemScreen() {
     !Number.isNaN(parsedQuantity) &&
     parsedQuantity >= minQuantity &&
     (expiryEmpty || !!isoExpiry);
+
+  const handleNameChange = (text: string) => {
+    setName(text);
+    if (!isEditing && !categoryTouched) {
+      const suggested = suggestCategory(text);
+      if (suggested) setCategory(suggested);
+    }
+  };
+
+  const handleCategorySelect = (option: string) => {
+    setCategory(option);
+    setCategoryTouched(true);
+  };
 
   const setExpiryField = (field: keyof DateParts, maxLength: number) => (text: string) => {
     setExpiryParts((prev) => ({ ...prev, [field]: onlyDigits(text, maxLength) }));
@@ -154,7 +169,7 @@ export function AddPantryItemScreen() {
           label="Name"
           placeholder="e.g. Whole milk"
           value={name}
-          onChangeText={setName}
+          onChangeText={handleNameChange}
           autoFocus
         />
 
@@ -165,7 +180,7 @@ export function AddPantryItemScreen() {
               key={option}
               label={option}
               selected={category === option}
-              onPress={() => setCategory(option)}
+              onPress={() => handleCategorySelect(option)}
             />
           ))}
         </View>
