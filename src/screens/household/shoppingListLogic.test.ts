@@ -1,4 +1,4 @@
-import { toggleSelectAll, toggleSelection } from "./shoppingListLogic";
+import { formatShoppingListForShare, toggleSelectAll, toggleSelection } from "./shoppingListLogic";
 
 describe("toggleSelection", () => {
   it("adds an id that isn't selected", () => {
@@ -31,5 +31,37 @@ describe("toggleSelectAll", () => {
 
   it("returns an empty set when there are no ids", () => {
     expect(toggleSelectAll([], new Set())).toEqual(new Set());
+  });
+});
+
+describe("formatShoppingListForShare", () => {
+  it("says the list is empty when there are no items", () => {
+    expect(formatShoppingListForShare([])).toBe("Shopping list is empty.");
+  });
+
+  it("formats an unchecked item without a quantity suffix when qty is 1", () => {
+    expect(formatShoppingListForShare([{ name: "Milk", quantity: 1, checked: false }])).toBe(
+      "Shopping List:\n[ ] Milk"
+    );
+  });
+
+  it("adds a quantity suffix when qty is greater than 1", () => {
+    expect(formatShoppingListForShare([{ name: "Eggs", quantity: 12, checked: false }])).toBe(
+      "Shopping List:\n[ ] Eggs (12)"
+    );
+  });
+
+  it("marks checked items differently from unchecked ones", () => {
+    expect(formatShoppingListForShare([{ name: "Bread", quantity: 1, checked: true }])).toBe(
+      "Shopping List:\n[x] Bread"
+    );
+  });
+
+  it("joins multiple items on separate lines in order", () => {
+    const result = formatShoppingListForShare([
+      { name: "Milk", quantity: 1, checked: false },
+      { name: "Eggs", quantity: 12, checked: true },
+    ]);
+    expect(result).toBe("Shopping List:\n[ ] Milk\n[x] Eggs (12)");
   });
 });
