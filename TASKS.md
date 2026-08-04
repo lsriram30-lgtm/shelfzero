@@ -41,8 +41,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
 
-**Note:** the goal increases by around 10 each week. This isn't automatic;
-whoever updates this file should apply it, and it's fine to skip or adjust
+**Note:** the goal increases by 10 each week. This isn't automatic;
+whoever updates this file should apply it, and it's fine to adjust
 the pace if that week doesn't actually support it.
 
 ### Currently assigned
