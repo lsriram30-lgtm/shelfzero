@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 26 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 27 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -440,6 +440,19 @@ the pace if that week doesn't actually support it.
       feature-flag system was needed. Checked the privacy policy for
       any reference to either feature — there isn't one, so no policy
       change needed.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) **Needed for
+      TestFlight:** add EAS build profiles for TestFlight submission
+      (branch: `feature/eas-build-profiles`) — merged into `master`. No
+      `eas.json` existed, so there was no build profile guaranteed to
+      produce a real release build (`__DEV__` false) rather than a dev
+      client. Added the standard three profiles (development, preview,
+      production); only `development` sets `developmentClient: true`, so
+      `preview` and `production` both build a real release. Documented
+      in `README.md` which profile to use for an actual TestFlight
+      submission and why, plus that `eas login` / `eas init` still need
+      to be run once by whoever has an Expo account, since no EAS
+      project is linked yet. Added `build:preview` / `build:production`
+      npm scripts.
 
 ### Not yet assigned
 
@@ -516,14 +529,6 @@ the pace if that week doesn't actually support it.
       elsewhere in this list (the testing-UI cleanup above, the real app
       icon, and account deletion, which Apple's guidelines require for
       any app with sign-up).
-- [ ] **Needed for TestFlight:** set up an EAS build profile for the
-      actual TestFlight submission — there's no `eas.json` in this repo
-      yet, so no build profiles exist at all. The testing-only UI (Reset
-      app, send test notification) is gated behind `__DEV__`, but that
-      gate only actually hides them if the build itself is a real
-      production/release build — a dev-client build profile would leave
-      `__DEV__` true and the buttons visible. Needs a profile explicitly
-      configured for store distribution, not development.
 - [ ] **Needed for TestFlight:** add in-app account deletion — there's
       currently no way to delete your account or data from within the
       app. Apple's App Store Review Guideline 5.1.1(v) requires this for
