@@ -8,6 +8,7 @@ import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
 import { suggestCategory } from "./pantryLogic";
+import { getCachedMealPlan } from "../../utils/mealPlanCache";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
@@ -50,6 +51,7 @@ export function AddPantryItemScreen() {
   const [autoAddEnabled, setAutoAddEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isInCurrentPlan, setIsInCurrentPlan] = useState(false);
 
   useEffect(() => {
     if (!editingItem) return;
@@ -61,6 +63,19 @@ export function AddPantryItemScreen() {
       cancelled = true;
     };
   }, [editingItem?.id, isAutoAddOptedOut]);
+
+  useEffect(() => {
+    if (!editingItem) return;
+    let cancelled = false;
+    getCachedMealPlan().then((cached) => {
+      if (!cancelled && cached?.pantryItemNames.includes(editingItem.name)) {
+        setIsInCurrentPlan(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [editingItem?.name]);
 
   const parsedQuantity = Number(quantity);
   const minQuantity = isEditing ? 0 : 1;
@@ -135,7 +150,10 @@ export function AddPantryItemScreen() {
 
   const handleDelete = () => {
     if (!editingItem) return;
-    Alert.alert("Remove item", `Remove ${editingItem.name} from your pantry?`, [
+    const message = isInCurrentPlan
+      ? `Remove ${editingItem.name} from your pantry? It's part of your current meal plan, so you may want to regenerate the plan afterward.`
+      : `Remove ${editingItem.name} from your pantry?`;
+    Alert.alert("Remove item", message, [
       { text: "Cancel", style: "cancel" },
       {
         text: "Remove",
