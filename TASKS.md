@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 24 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 25 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -421,6 +421,15 @@ the pace if that week doesn't actually support it.
       inlined in MealPlannerScreen) into a shared
       `src/utils/mealPlanCache.ts` so both screens read from the same
       source instead of duplicating the AsyncStorage key and shape.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add quick-add
+      staple chips to the Add Item form (branch:
+      `feature/quick-add-staples`) — merged into `master`. A "Quick add"
+      row of Milk/Eggs/Bread/Butter/Rice/Bananas/Chicken Breast chips
+      prefills name, category, and unit (and quantity for the couple
+      where the default of 1 doesn't make sense, e.g. a dozen eggs).
+      Only shows for a brand-new item with an empty name field — hidden
+      while editing, from a scan prefill, or once you've started
+      typing/picked a chip.
 
 ### Not yet assigned
 
@@ -531,9 +540,6 @@ the pace if that week doesn't actually support it.
       option task below, now done) — e.g. whether Category's fixed list
       needs a genuine free-text fallback rather than just a literal
       "Other" pill.
-- [ ] Add "quick add" staple chips (Milk, Eggs, Bread, etc.) to the Add
-      Item form that prefill name/category/unit, to speed up the most
-      common adds.
 - [ ] Do a systematic accessibility contrast audit of the pastel palette
       (Blush Beet, Peach Protein) across every screen — the Recipes
       match-score fix earlier patched one instance of pale-color-as-text,
