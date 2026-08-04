@@ -13,11 +13,21 @@ export function CardHeader({ title, action }: { title: string; action?: ReactNod
   );
 }
 
-export function CardHeaderLink({ label, onPress }: { label: string; onPress: () => void }) {
+export function CardHeaderLink({
+  label,
+  onPress,
+  tone = "default",
+}: {
+  label: string;
+  onPress: () => void;
+  tone?: "default" | "danger";
+}) {
   const { colors } = useTheme();
   return (
     <Pressable onPress={onPress}>
-      <Text style={[styles.link, { color: colors.primary }]}>{label}</Text>
+      <Text style={[styles.link, { color: tone === "danger" ? colors.danger : colors.primary }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }

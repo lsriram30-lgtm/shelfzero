@@ -26,6 +26,7 @@ import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { ShoppingListItem } from "../../types";
 import { sendTestNotification } from "../../notifications/expiryNotifications";
+import { toggleSelectAll, toggleSelection } from "./shoppingListLogic";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
 
@@ -48,6 +49,7 @@ export function HouseholdHubScreen() {
     toggleChecked,
     removeItem,
     clearChecked,
+    removeItems,
     setAllChecked,
   } = useShoppingList();
   const { totalItemsDonated } = useDonations();
@@ -65,6 +67,8 @@ export function HouseholdHubScreen() {
   const [sendingTest, setSendingTest] = useState(false);
   const [clearedItems, setClearedItems] = useState<ShoppingListItem[] | null>(null);
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     return () => {
@@ -151,6 +155,50 @@ export function HouseholdHubScreen() {
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     }
+  };
+
+  const handleEnterSelectionMode = () => {
+    setSelectedIds(new Set());
+    setSelectionMode(true);
+  };
+
+  const handleExitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const handleToggleItemSelected = (id: string) => {
+    setSelectedIds((prev) => toggleSelection(prev, id));
+  };
+
+  const handleToggleSelectAllForDeletion = () => {
+    setSelectedIds((prev) => toggleSelectAll(shoppingItems.map((item) => item.id), prev));
+  };
+
+  const handleDeleteSelected = () => {
+    const count = selectedIds.size;
+    if (count === 0) return;
+    confirmDestructiveAction({
+      title: "Delete items",
+      message: `Remove ${count} item${count === 1 ? "" : "s"} from your shopping list?`,
+      confirmLabel: "Delete",
+      onConfirm: async () => {
+        try {
+          const removed = await removeItems(Array.from(selectedIds));
+          if (removed.length > 0) {
+            setClearedItems(removed);
+            if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+            undoTimerRef.current = setTimeout(() => setClearedItems(null), 5000);
+          }
+          handleExitSelectionMode();
+        } catch (err) {
+          Alert.alert(
+            "Couldn't delete items",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        }
+      },
+    });
   };
 
   const handleSendTestNotification = async () => {
@@ -243,18 +291,53 @@ export function HouseholdHubScreen() {
             title="Shopping list"
             action={
               shoppingItems.length > 0 ? (
-                <View style={styles.cardHeaderActions}>
-                  <CardHeaderLink
-                    label={allChecked ? "Deselect all" : "Select all"}
-                    onPress={handleToggleSelectAll}
-                  />
-                  {checkedCount > 0 ? (
-                    <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
-                  ) : null}
-                </View>
+                selectionMode ? (
+                  <CardHeaderLink label="Cancel" onPress={handleExitSelectionMode} />
+                ) : (
+                  <View style={styles.cardHeaderActions}>
+                    <CardHeaderLink
+                      label={allChecked ? "Deselect all" : "Select all"}
+                      onPress={handleToggleSelectAll}
+                    />
+                    {checkedCount > 0 ? (
+                      <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
+                    ) : null}
+                    <Pressable
+                      onPress={handleEnterSelectionMode}
+                      accessibilityRole="button"
+                      accessibilityLabel="Select items to delete"
+                    >
+                      <Ionicons name="checkbox-outline" size={18} color={colors.primary} />
+                    </Pressable>
+                  </View>
+                )
               ) : undefined
             }
           />
+          {selectionMode ? (
+            <View style={[styles.selectionToolbar, { borderColor: colors.border }]}>
+              <Text style={[styles.selectionCount, { color: colors.textMuted }]}>
+                {selectedIds.size} selected
+              </Text>
+              <View style={styles.cardHeaderActions}>
+                <CardHeaderLink
+                  label={
+                    selectedIds.size === shoppingItems.length && shoppingItems.length > 0
+                      ? "Select none"
+                      : "Select all"
+                  }
+                  onPress={handleToggleSelectAllForDeletion}
+                />
+                {selectedIds.size > 0 ? (
+                  <CardHeaderLink
+                    label={`Delete (${selectedIds.size})`}
+                    tone="danger"
+                    onPress={handleDeleteSelected}
+                  />
+                ) : null}
+              </View>
+            </View>
+          ) : null}
           <View style={styles.shoppingInputRow}>
             <View style={styles.shoppingInput}>
               <TextField
@@ -278,40 +361,57 @@ export function HouseholdHubScreen() {
               Your shopping list is empty.
             </Text>
           ) : (
-            shoppingItems.map((item) => (
-              <View key={item.id} style={[styles.shoppingRow, { borderColor: colors.border }]}>
-                <Pressable
-                  style={styles.shoppingCheck}
-                  onPress={() => toggleChecked(item.id, !item.checked)}
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: item.checked }}
-                >
-                  <Ionicons
-                    name={item.checked ? "checkbox" : "square-outline"}
-                    size={20}
-                    color={item.checked ? colors.primary : colors.textMuted}
-                  />
-                  <Text
-                    style={[
-                      styles.shoppingLabel,
-                      {
-                        color: item.checked ? colors.textMuted : colors.text,
-                        textDecorationLine: item.checked ? "line-through" : "none",
-                      },
-                    ]}
+            shoppingItems.map((item) => {
+              const selected = selectedIds.has(item.id);
+              return (
+                <View key={item.id} style={[styles.shoppingRow, { borderColor: colors.border }]}>
+                  <Pressable
+                    style={styles.shoppingCheck}
+                    onPress={() =>
+                      selectionMode
+                        ? handleToggleItemSelected(item.id)
+                        : toggleChecked(item.id, !item.checked)
+                    }
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: selectionMode ? selected : item.checked }}
                   >
-                    {item.name} {item.quantity > 1 ? `(${item.quantity})` : ""}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => removeItem(item.id)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove ${item.name} from shopping list`}
-                >
-                  <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
-                </Pressable>
-              </View>
-            ))
+                    <Ionicons
+                      name={(selectionMode ? selected : item.checked) ? "checkbox" : "square-outline"}
+                      size={20}
+                      color={
+                        selectionMode
+                          ? selected
+                            ? colors.danger
+                            : colors.textMuted
+                          : item.checked
+                            ? colors.primary
+                            : colors.textMuted
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.shoppingLabel,
+                        {
+                          color: item.checked ? colors.textMuted : colors.text,
+                          textDecorationLine: item.checked ? "line-through" : "none",
+                        },
+                      ]}
+                    >
+                      {item.name} {item.quantity > 1 ? `(${item.quantity})` : ""}
+                    </Text>
+                  </Pressable>
+                  {!selectionMode ? (
+                    <Pressable
+                      onPress={() => removeItem(item.id)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Remove ${item.name} from shopping list`}
+                    >
+                      <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+                    </Pressable>
+                  ) : null}
+                </View>
+              );
+            })
           )}
           {clearedItems ? (
             <View style={[styles.undoBanner, { borderColor: colors.border }]}>
@@ -404,7 +504,19 @@ const styles = StyleSheet.create({
   },
   cardHeaderActions: {
     flexDirection: "row",
+    alignItems: "center",
     gap: spacing.md,
+  },
+  selectionToolbar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: spacing.md,
+    marginBottom: spacing.sm,
+    borderBottomWidth: 1,
+  },
+  selectionCount: {
+    ...typography.caption,
   },
   shoppingInputRow: {
     flexDirection: "row",
