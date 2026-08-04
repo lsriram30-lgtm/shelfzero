@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 23 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 24 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -410,6 +410,17 @@ the pace if that week doesn't actually support it.
       React Native's built-in `Share` API, no new dependency) that
       formats items as plain text, checked items marked differently from
       unchecked ones. 5 tests added, suite at 118.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Warn before
+      deleting a pantry item referenced in the current meal plan (branch:
+      `feature/pantry-delete-plan-warning`) — merged into `master`.
+      Deleting an item silently left the cached plan pointing at
+      something you no longer have. The delete confirm on the Edit Item
+      screen now checks the cached plan's pantry item names and adds a
+      note when the item being removed is part of it, suggesting a
+      regenerate. Also pulled the meal-plan cache read/write (previously
+      inlined in MealPlannerScreen) into a shared
+      `src/utils/mealPlanCache.ts` so both screens read from the same
+      source instead of duplicating the AsyncStorage key and shape.
 
 ### Not yet assigned
 
@@ -520,9 +531,6 @@ the pace if that week doesn't actually support it.
       option task below, now done) — e.g. whether Category's fixed list
       needs a genuine free-text fallback rather than just a literal
       "Other" pill.
-- [ ] Confirm before deleting a pantry item that's referenced in the
-      current cached meal plan — right now deleting it silently leaves
-      the plan pointing at an item you no longer have.
 - [ ] Add "quick add" staple chips (Milk, Eggs, Bread, etc.) to the Add
       Item form that prefill name/category/unit, to speed up the most
       common adds.
