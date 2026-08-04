@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
@@ -26,7 +26,7 @@ import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { ShoppingListItem } from "../../types";
 import { sendTestNotification } from "../../notifications/expiryNotifications";
-import { toggleSelectAll, toggleSelection } from "./shoppingListLogic";
+import { formatShoppingListForShare, toggleSelectAll, toggleSelection } from "./shoppingListLogic";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
 
@@ -141,6 +141,17 @@ export function HouseholdHubScreen() {
     } catch (err) {
       Alert.alert(
         "Couldn't restore items",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    }
+  };
+
+  const handleShareList = async () => {
+    try {
+      await Share.share({ message: formatShoppingListForShare(shoppingItems) });
+    } catch (err) {
+      Alert.alert(
+        "Couldn't share the list",
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     }
@@ -302,6 +313,13 @@ export function HouseholdHubScreen() {
                     {checkedCount > 0 ? (
                       <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
                     ) : null}
+                    <Pressable
+                      onPress={handleShareList}
+                      accessibilityRole="button"
+                      accessibilityLabel="Share shopping list"
+                    >
+                      <Ionicons name="share-outline" size={18} color={colors.primary} />
+                    </Pressable>
                     <Pressable
                       onPress={handleEnterSelectionMode}
                       accessibilityRole="button"
