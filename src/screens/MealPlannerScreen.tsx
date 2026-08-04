@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
 import { useOnboarding } from "../context/OnboardingContext";
@@ -9,15 +8,9 @@ import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill } from "../c
 import { spacing, typography } from "../theme";
 import { MealPlanDay } from "../types";
 import { buildMealPlanPreferences, hasEnoughPantryItems, hasPantryChanged } from "./mealPlannerLogic";
+import { CachedMealPlan, getCachedMealPlan, setCachedMealPlan } from "../utils/mealPlanCache";
 
 const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
-
-const CACHE_KEY = "shelfzero.mealPlan";
-
-interface CachedMealPlan {
-  days: MealPlanDay[];
-  pantryItemNames: string[];
-}
 
 export function MealPlannerScreen() {
   const { colors } = useTheme();
@@ -29,16 +22,11 @@ export function MealPlannerScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(CACHE_KEY)
-      .then((cached) => {
-        if (!cached) return;
-        const parsed = JSON.parse(cached) as CachedMealPlan;
-        setDays(parsed.days);
-        setCachedPantryNames(parsed.pantryItemNames);
-      })
-      .catch(() => {
-        // No usable cache — the screen just starts from the empty state.
-      });
+    getCachedMealPlan().then((cached) => {
+      if (!cached) return;
+      setDays(cached.days);
+      setCachedPantryNames(cached.pantryItemNames);
+    });
   }, []);
 
   const currentPantryNames = pantryItems.map((item) => item.name);
@@ -60,7 +48,7 @@ export function MealPlannerScreen() {
       setDays(plan.days);
       setCachedPantryNames(currentPantryNames);
       const toCache: CachedMealPlan = { days: plan.days, pantryItemNames: currentPantryNames };
-      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(toCache)).catch(() => {});
+      setCachedMealPlan(toCache);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't generate a meal plan.");
     } finally {
@@ -71,7 +59,7 @@ export function MealPlannerScreen() {
   const handleKeepPlan = () => {
     setCachedPantryNames(currentPantryNames);
     const toCache: CachedMealPlan = { days, pantryItemNames: currentPantryNames };
-    AsyncStorage.setItem(CACHE_KEY, JSON.stringify(toCache)).catch(() => {});
+    setCachedMealPlan(toCache);
   };
 
   return (
