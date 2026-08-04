@@ -43,7 +43,7 @@ the pace that week doesn't actually support it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 21 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 22 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 ### Currently assigned
@@ -393,6 +393,16 @@ the pace that week doesn't actually support it.
       existing item, a scan prefill that already set one, or manually
       tapping a category pill all leave the suggestion alone from then
       on. 7 tests added, suite at 106.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add bulk
+      delete to the shopping list (branch: `feature/shopping-list-bulk-delete`)
+      — merged into `master`. Pairs with the select-all Laya added, which
+      only ever fed "Clear checked" — there was no way to remove multiple
+      items regardless of checked state. Adds a separate selection mode
+      (checkbox icon in the Shopping list header), distinct from the
+      existing "picked up" checkbox: tap items to select them, "Select
+      all"/"Select none," then "Delete (N)" behind the usual destructive
+      confirm. Reuses the existing "N items cleared — Undo" banner for
+      the deleted items. 7 tests added, suite at 113.
 
 ### Not yet assigned
 
@@ -517,9 +527,6 @@ the pace that week doesn't actually support it.
       match-score fix earlier patched one instance of pale-color-as-text,
       but that was reactive; worth checking the rest proactively instead
       of one spot at a time.
-- [ ] Add bulk delete to the shopping list, pairing with the select-all
-      Laya added — right now select-all only feeds "Clear checked," there's
-      no way to remove multiple items at once regardless of checked state.
 - [ ] Give the Recipes screen distinct empty-state messaging when a
       cuisine/meal-type filter combination matches nothing, the same way
       Pantry's search already distinguishes "genuinely empty" from
