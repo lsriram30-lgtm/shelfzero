@@ -34,12 +34,12 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 ### This week's progress
 
-**Goal:** 20 tasks each (total) by end of day 8/1.
+**Goal:** 30 tasks each (total) by end of day 8/8.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 21 / 20 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 21 / 30 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Note:** Laasya is travelling and will not be able to work on the project
 from 7/29 to 8/3.
