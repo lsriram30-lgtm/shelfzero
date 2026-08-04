@@ -12,6 +12,15 @@ import { getCachedMealPlan } from "../../utils/mealPlanCache";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
+const STAPLES: { name: string; category: string; unit: string; quantity?: number }[] = [
+  { name: "Milk", category: "Dairy", unit: "L" },
+  { name: "Eggs", category: "Dairy", unit: "ct", quantity: 12 },
+  { name: "Bread", category: "Bakery", unit: "ct" },
+  { name: "Butter", category: "Dairy", unit: "ct" },
+  { name: "Rice", category: "Pantry", unit: "lb" },
+  { name: "Bananas", category: "Produce", unit: "ct", quantity: 6 },
+  { name: "Chicken Breast", category: "Meat", unit: "lb" },
+];
 const EXPIRY_SHORTCUTS: { label: string; days: number }[] = [
   { label: "3 days", days: 3 },
   { label: "1 week", days: 7 },
@@ -107,6 +116,14 @@ export function AddPantryItemScreen() {
     setCategoryTouched(true);
   };
 
+  const handleStapleSelect = (staple: (typeof STAPLES)[number]) => {
+    setName(staple.name);
+    setCategory(staple.category);
+    setCategoryTouched(true);
+    setUnit(staple.unit);
+    if (staple.quantity) setQuantity(String(staple.quantity));
+  };
+
   const setExpiryField = (field: keyof DateParts, maxLength: number) => (text: string) => {
     setExpiryParts((prev) => ({ ...prev, [field]: onlyDigits(text, maxLength) }));
   };
@@ -183,6 +200,21 @@ export function AddPantryItemScreen() {
         subtitle={isEditing ? "Update the details or remove it" : "Enter the details manually"}
       />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {!isEditing && !prefill && name.trim().length === 0 ? (
+          <>
+            <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Quick add</Text>
+            <View style={styles.pillRow}>
+              {STAPLES.map((staple) => (
+                <Pill
+                  key={staple.name}
+                  label={staple.name}
+                  onPress={() => handleStapleSelect(staple)}
+                />
+              ))}
+            </View>
+          </>
+        ) : null}
+
         <TextField
           label="Name"
           placeholder="e.g. Whole milk"
