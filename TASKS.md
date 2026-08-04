@@ -34,16 +34,16 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 ### This week's progress
 
+| | Completed |
+|---|---|
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 22 / 30 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
+
 **Goal:** 30 tasks each (total) by end of day 8/8.
 
 **Note:** the goal increases by around 10 each week. This isn't automatic;
 whoever updates this file should apply it, and it's fine to skip or adjust
 the pace if that week doesn't actually support it.
-
-| | Completed |
-|---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 22 / 30 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 ### Currently assigned
 
