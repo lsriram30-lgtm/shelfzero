@@ -404,11 +404,11 @@ the pace if that week doesn't actually support it.
       the deleted items. 7 tests added, suite at 113.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a share
       action to the shopping list (branch: `feature/share-shopping-list`)
-      — merged into `master`. There was no way to get the list out of the
-      app, e.g. to text it to whoever's actually at the store. Added a
-      share icon to the Shopping list header (native share sheet via
-      React Native's built-in `Share` API, no new dependency) formatting
-      items as plain text, checked items marked differently from
+      — merged into `master`. There is now a way to get the list out of
+      the app, e.g. to text it to whoever's actually at the store — a
+      share icon in the Shopping list header (native share sheet via
+      React Native's built-in `Share` API, no new dependency) that
+      formats items as plain text, checked items marked differently from
       unchecked ones. 5 tests added, suite at 118.
 
 ### Not yet assigned
