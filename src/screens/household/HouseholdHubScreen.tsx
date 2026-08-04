@@ -472,13 +472,15 @@ export function HouseholdHubScreen() {
             onValueChange={setNotifyInvites}
             style={styles.switchRow}
           />
-          <Button
-            label={sendingTest ? "Sending…" : "Send test notification"}
-            variant="outline"
-            onPress={handleSendTestNotification}
-            loading={sendingTest}
-            style={styles.testNotificationButton}
-          />
+          {__DEV__ ? (
+            <Button
+              label={sendingTest ? "Sending…" : "Send test notification"}
+              variant="outline"
+              onPress={handleSendTestNotification}
+              loading={sendingTest}
+              style={styles.testNotificationButton}
+            />
+          ) : null}
         </Card>
       </ScrollView>
     </Screen>

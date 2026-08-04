@@ -108,12 +108,14 @@ export function ProfileScreen() {
           style={styles.signOutButton}
         />
         <Button label="Sign out" variant="neutral" onPress={signOut} style={styles.signOutButton} />
-        <Button
-          label="Reset app (testing)"
-          variant="outline"
-          onPress={handleResetForTesting}
-          style={styles.signOutButton}
-        />
+        {__DEV__ ? (
+          <Button
+            label="Reset app (testing)"
+            variant="outline"
+            onPress={handleResetForTesting}
+            style={styles.signOutButton}
+          />
+        ) : null}
       </ScrollView>
     </Screen>
   );
