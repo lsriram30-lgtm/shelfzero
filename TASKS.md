@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 27 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 28 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -453,6 +453,25 @@ the pace if that week doesn't actually support it.
       to be run once by whoever has an Expo account, since no EAS
       project is linked yet. Added `build:preview` / `build:production`
       npm scripts.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Do a
+      systematic accessibility contrast audit of the pastel palette
+      (branch: `feature/contrast-audit`) — merged into `master`. Added
+      `src/theme/contrast.ts` (WCAG relative luminance / contrast ratio
+      math, 8 tests) and used it to find and fix three real bugs, not
+      just theoretical risk: Pill's badge variant always used the theme's
+      own text color as foreground, which flips light/dark by mode — but
+      highlight/accent/warning tones stay pale in *both* modes, so dark
+      mode put light text on a pale chip at ~1.7:1 (now picks whichever
+      text tone actually reads against the specific color, regardless of
+      theme mode); the Recipes favorite-star icon was ~1.8:1 in light
+      mode (switched accent → primary, now ~4.0:1); the onboarding
+      progress bar's active segments were ~1.2:1 against inactive ones in
+      light mode, barely showing progress (reverted accent → primary,
+      undoing part of an earlier deliberate "add more Blush Beet"
+      change, since the accessibility failure takes priority). Two more
+      findings surfaced but need a real design decision rather than a
+      color swap, so added as new backlog entries below instead of
+      rushing a fix. 8 tests added, suite at 126.
 
 ### Not yet assigned
 
@@ -564,11 +583,24 @@ the pace if that week doesn't actually support it.
       option task below, now done) — e.g. whether Category's fixed list
       needs a genuine free-text fallback rather than just a literal
       "Other" pill.
-- [ ] Do a systematic accessibility contrast audit of the pastel palette
-      (Blush Beet, Peach Protein) across every screen — the Recipes
-      match-score fix earlier patched one instance of pale-color-as-text,
-      but that was reactive; worth checking the rest proactively instead
-      of one spot at a time.
+- [ ] Redesign the Pantry Stats category bars' fill-vs-track contrast —
+      found during the accessibility contrast audit. All four
+      `barPalette` colors (primary, accent, highlight, secondary) fail
+      3:1 contrast against the track color (`colors.border`) in light
+      mode (1.07–2.68:1), meaning the filled portion of each bar is hard
+      to distinguish from the empty track. Needs a real track redesign
+      (a more neutral/contrasting track background), not a one-line
+      color swap like the other audit fixes — the track color itself is
+      too close in lightness to every fill color it's paired with.
+- [ ] Darken the core `primary` brand color (Savory Sage) for light
+      mode, or otherwise fix selected-pill text contrast — found during
+      the accessibility contrast audit. Selected pills render
+      `colors.surface` (white) text on a `colors.primary` background at
+      ~4.0:1 in light mode, just under the 4.5:1 AA threshold for normal
+      text. This affects every selected filter/category/toggle pill
+      app-wide, so it's a bigger design decision than the other audit
+      fixes, not a quick swap — darkening primary has knock-on effects
+      on buttons and every other place it's used.
 
 ---
 
