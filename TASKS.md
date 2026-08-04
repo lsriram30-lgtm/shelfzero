@@ -36,6 +36,11 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
 
+**Note:** the goal increases by 10 each week (deadline pushed a week
+too) — e.g. 8/9 → 40 by 8/15. This isn't automatic; whoever updates
+this file should apply it, and it's fine to skip or adjust a bump if
+the pace that week doesn't actually support it.
+
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 21 / 30 |
