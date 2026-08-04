@@ -53,6 +53,18 @@ export function useShoppingList() {
     return checkedItems;
   }, [items]);
 
+  const removeItems = useCallback(
+    async (ids: string[]) => {
+      const idSet = new Set(ids);
+      const targetItems = items.filter((i) => idSet.has(i.id));
+      if (targetItems.length === 0) return [];
+      await Promise.all(targetItems.map((i) => shoppingListApi.remove(i.id)));
+      setItems((prev) => prev.filter((i) => !idSet.has(i.id)));
+      return targetItems;
+    },
+    [items]
+  );
+
   const setAllChecked = useCallback(
     async (checked: boolean) => {
       const targetIds = new Set(
@@ -81,6 +93,7 @@ export function useShoppingList() {
     toggleChecked,
     removeItem,
     clearChecked,
+    removeItems,
     setAllChecked,
   };
 }
