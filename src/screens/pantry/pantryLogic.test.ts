@@ -3,6 +3,7 @@ import {
   filterByName,
   groupByCategory,
   sortByExpiry,
+  suggestCategory,
   withAutoAddOptOut,
 } from "./pantryLogic";
 import { PantryItem } from "../../types";
@@ -143,5 +144,38 @@ describe("withAutoAddOptOut", () => {
 
   it("is a no-op removing an id that isn't present", () => {
     expect(withAutoAddOptOut(["a"], "b", false)).toEqual(["a"]);
+  });
+});
+
+describe("suggestCategory", () => {
+  it("matches an exact keyword", () => {
+    expect(suggestCategory("milk")).toBe("Dairy");
+  });
+
+  it("matches a keyword with a modifier word around it", () => {
+    expect(suggestCategory("Whole Milk")).toBe("Dairy");
+    expect(suggestCategory("Almond Milk")).toBe("Dairy");
+  });
+
+  it("is case-insensitive", () => {
+    expect(suggestCategory("CHEDDAR CHEESE")).toBe("Dairy");
+  });
+
+  it("returns null for a blank or unrecognized name", () => {
+    expect(suggestCategory("")).toBeNull();
+    expect(suggestCategory("   ")).toBeNull();
+    expect(suggestCategory("xyzzy")).toBeNull();
+  });
+
+  it("matches a multi-word keyword", () => {
+    expect(suggestCategory("Peanut Butter")).toBe("Pantry");
+  });
+
+  it("prefers Frozen over Dairy for ice cream", () => {
+    expect(suggestCategory("Vanilla Ice Cream")).toBe("Frozen");
+  });
+
+  it("does not mistake watermelon for a beverage via the word 'water'", () => {
+    expect(suggestCategory("Watermelon")).toBe("Produce");
   });
 });
