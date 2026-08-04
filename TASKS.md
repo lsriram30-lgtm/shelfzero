@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 25 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 26 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -430,6 +430,16 @@ the pace if that week doesn't actually support it.
       Only shows for a brand-new item with an empty name field — hidden
       while editing, from a scan prefill, or once you've started
       typing/picked a chip.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) **Needed for
+      TestFlight:** hide testing-only UI from production builds (branch:
+      `feature/hide-testing-features`) — merged into `master`. The
+      "Reset app (testing)" button on Profile and "send test
+      notification" button on Notifications settings are now gated
+      behind `__DEV__`, React Native's built-in flag (true in Expo
+      Go/dev builds, false in a release build), so no separate
+      feature-flag system was needed. Checked the privacy policy for
+      any reference to either feature — there isn't one, so no policy
+      change needed.
 
 ### Not yet assigned
 
@@ -498,10 +508,6 @@ the pace if that week doesn't actually support it.
       session, not a plain curl.
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
-- [ ] **Needed for TestFlight:** remove or hide testing-only
-      features — the "Reset app (testing)" button on Profile (wipes
-      everything and signs out) and the "send test notification" button
-      above should never reach production users.
 - [ ] **Needed for TestFlight:** research the best distribution method for
       community/beta testing of the prototype — e.g. TestFlight for iOS,
       the Google Play internal or closed testing track, or continuing
