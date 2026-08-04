@@ -476,7 +476,12 @@ the pace if that week doesn't actually support it.
       Recipes screen at all. Blocked on the "tag each meal with its cuisine"
       backend task below: recipes have no cuisine field today, and guessing
       one from title keywords would misclassify anything with a generic
-      name, so this is on hold until that data actually exists.
+      name, so this is on hold until that data actually exists. When this
+      is built, also extend the empty-state logic to cover a cuisine
+      mismatch (not just meal-type) — right now `ListEmptyComponent` only
+      checks `mealTypeFilter` when deciding whether to show "No matching
+      recipes" vs. "No recipes yet," following the same precedent set when
+      the meal-type filter was added.
 - [ ] Have the meal-plan generator tag each meal with its cuisine (e.g.
       "Italian," "Thai") in the `/api/meal-plan` response — a backend
       change, the same way it already returns `title` and `description`.
@@ -545,10 +550,6 @@ the pace if that week doesn't actually support it.
       match-score fix earlier patched one instance of pale-color-as-text,
       but that was reactive; worth checking the rest proactively instead
       of one spot at a time.
-- [ ] Give the Recipes screen distinct empty-state messaging when a
-      cuisine/meal-type filter combination matches nothing, the same way
-      Pantry's search already distinguishes "genuinely empty" from
-      "nothing matches this search."
 
 ---
 
