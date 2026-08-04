@@ -516,6 +516,14 @@ the pace if that week doesn't actually support it.
       elsewhere in this list (the testing-UI cleanup above, the real app
       icon, and account deletion, which Apple's guidelines require for
       any app with sign-up).
+- [ ] **Needed for TestFlight:** set up an EAS build profile for the
+      actual TestFlight submission — there's no `eas.json` in this repo
+      yet, so no build profiles exist at all. The testing-only UI (Reset
+      app, send test notification) is gated behind `__DEV__`, but that
+      gate only actually hides them if the build itself is a real
+      production/release build — a dev-client build profile would leave
+      `__DEV__` true and the buttons visible. Needs a profile explicitly
+      configured for store distribution, not development.
 - [ ] **Needed for TestFlight:** add in-app account deletion — there's
       currently no way to delete your account or data from within the
       app. Apple's App Store Review Guideline 5.1.1(v) requires this for
