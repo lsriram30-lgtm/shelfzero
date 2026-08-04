@@ -38,7 +38,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 20 / 20 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 21 / 20 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 20 |
 
 **Note:** Laasya is travelling and will not be able to work on the project
@@ -382,6 +382,15 @@ from 7/29 to 8/3.
       **Important:** none of this is visible in Expo Go — icon/splash
       only take effect in an actual native build (`expo prebuild` / EAS
       Build), so it can't be checked by scanning the dev-server QR code.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Auto-suggest a
+      category from the item name when adding a pantry item (branch:
+      `feature/auto-suggest-category`) — merged into `master`. Typing
+      "milk" now pre-selects Dairy, the way Notes' grocery list does, via
+      a client-side keyword dictionary (no backend field for this). Only
+      applies to new items with an untouched category — editing an
+      existing item, a scan prefill that already set one, or manually
+      tapping a category pill all leave the suggestion alone from then
+      on. 7 tests added, suite at 106.
 
 ### Not yet assigned
 
@@ -492,12 +501,6 @@ from 7/29 to 8/3.
       option task below, now done) — e.g. whether Category's fixed list
       needs a genuine free-text fallback rather than just a literal
       "Other" pill.
-- [ ] Auto-suggest a category from the item name when adding a pantry
-      item, the way Notes' grocery list does — e.g. typing "milk"
-      pre-selects Dairy. A client-side keyword dictionary (name → category)
-      is enough, no backend needed; Category's already an editable pill
-      row right below the name field, so "fix it if it's wrong" is
-      already the existing UI, this would just change the starting pick.
 - [ ] Add a "share shopping list" action using the native share sheet
       (plain text is enough) — there's currently no way to get the list
       out of the app, e.g. to text it to whoever's actually at the store.
