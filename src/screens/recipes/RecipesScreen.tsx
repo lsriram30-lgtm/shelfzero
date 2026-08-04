@@ -23,7 +23,7 @@ function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }
           <Ionicons
             name="star"
             size={16}
-            color={colors.accent}
+            color={colors.primary}
             style={styles.favoriteIcon}
           />
         ) : null}

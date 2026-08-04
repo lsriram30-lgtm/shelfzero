@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { radius, spacing, typography } from "../theme";
+import { radius, readableTextColor, spacing, typography } from "../theme";
 
 interface PillProps {
   label: string;
@@ -47,7 +47,7 @@ export function Pill({ label, selected, onPress, tone = "default" }: PillProps) 
           styles.label,
           {
             backgroundColor: toneColor,
-            color: colors.text,
+            color: readableTextColor(toneColor),
           },
         ]}
       >
