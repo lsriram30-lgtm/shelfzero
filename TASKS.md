@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 22 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 23 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -402,6 +402,14 @@ the pace if that week doesn't actually support it.
       all"/"Select none," then "Delete (N)" behind the usual destructive
       confirm. Reuses the existing "N items cleared — Undo" banner for
       the deleted items. 7 tests added, suite at 113.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a share
+      action to the shopping list (branch: `feature/share-shopping-list`)
+      — merged into `master`. There was no way to get the list out of the
+      app, e.g. to text it to whoever's actually at the store. Added a
+      share icon to the Shopping list header (native share sheet via
+      React Native's built-in `Share` API, no new dependency) formatting
+      items as plain text, checked items marked differently from
+      unchecked ones. 5 tests added, suite at 118.
 
 ### Not yet assigned
 
@@ -512,9 +520,6 @@ the pace if that week doesn't actually support it.
       option task below, now done) — e.g. whether Category's fixed list
       needs a genuine free-text fallback rather than just a literal
       "Other" pill.
-- [ ] Add a "share shopping list" action using the native share sheet
-      (plain text is enough) — there's currently no way to get the list
-      out of the app, e.g. to text it to whoever's actually at the store.
 - [ ] Confirm before deleting a pantry item that's referenced in the
       current cached meal plan — right now deleting it silently leaves
       the plan pointing at an item you no longer have.
