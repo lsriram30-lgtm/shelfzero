@@ -83,6 +83,32 @@ Every backend endpoint from the reference doc has a typed wrapper in `src/api/`:
 the Join screen, which calls `POST /api/invites/accept`. Update the `prefixes`
 list in `src/navigation/linking.ts` once you have a real production domain.
 
+## Building for TestFlight / production
+
+`eas.json` defines three build profiles:
+
+| Profile | Use for | `__DEV__` |
+|---|---|---|
+| `development` | A dev client for local testing (`developmentClient: true`) | `true` |
+| `preview` | Internal/ad-hoc testing builds, not through the App Store | `false` |
+| `production` | The real App Store / TestFlight submission | `false` |
+
+**Always use `production` for an actual TestFlight build.** Testing-only UI
+(the "Reset app" button on Profile, "send test notification" on
+Notifications) is gated behind `__DEV__` in the code — that gate only holds
+if the build itself is a real release build. A `development`-profile build
+would leave those visible.
+
+```bash
+npm run build:preview      # internal testing build
+npm run build:production   # TestFlight / App Store build
+```
+
+**Before the first build:** no Expo/EAS project is linked yet — `app.json`
+has no `extra.eas.projectId`. Whoever has (or creates) an Expo account needs
+to run `eas login` then `eas init` once to link this repo to a real EAS
+project; that writes the project ID into `app.json` automatically.
+
 ## Design tokens
 
 Colors, spacing, radii, and shadows are centralized in `src/theme/` and match

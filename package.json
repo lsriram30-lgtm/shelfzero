@@ -10,7 +10,9 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "build:preview": "npx eas-cli build --profile preview",
+    "build:production": "npx eas-cli build --profile production"
   },
   "jest": {
     "preset": "jest-expo"
