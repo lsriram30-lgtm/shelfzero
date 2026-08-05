@@ -26,7 +26,7 @@ export interface ShoppingListItem {
   id: string;
   name: string;
   checked: boolean;
-  quantity: number;
+  qty: number;
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
