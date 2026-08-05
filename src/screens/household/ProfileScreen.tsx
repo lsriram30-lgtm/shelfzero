@@ -32,8 +32,12 @@ export function ProfileScreen() {
         "This signs you out and clears the local questionnaire status, so the next app open starts from the very first screen again. Your account and data on the server aren't affected.",
       confirmLabel: "Reset",
       onConfirm: async () => {
-        await resetOnboarding();
+        // Sign out first: OnboardingScreen reads isSignedIn once at mount to
+        // decide which step to start on, so clearing the profile first (and
+        // letting RootNavigator swap it in while isSignedIn is still
+        // momentarily true) locks in the wrong starting step.
         await signOut();
+        await resetOnboarding();
       },
     });
   };
@@ -48,8 +52,11 @@ export function ProfileScreen() {
         setDeletingAccount(true);
         try {
           await householdApi.deleteAccount();
-          await resetOnboarding();
+          // Same ordering fix as "Reset app": sign out before clearing the
+          // profile, so OnboardingScreen's mount-time isSignedIn check sees
+          // the correct value and starts at the actual first step.
           await signOut();
+          await resetOnboarding();
         } catch (err) {
           Alert.alert(
             "Couldn't delete account",
