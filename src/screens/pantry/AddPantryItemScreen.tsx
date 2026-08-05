@@ -3,23 +3,24 @@ import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
+import { useOnboarding } from "../../context/OnboardingContext";
 import { Screen, Header, TextField, Button, Pill, SwitchRow } from "../../components";
 import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
-import { suggestCategory } from "./pantryLogic";
+import { filterByDietaryPrefs, filterCategoriesByDietaryPrefs, suggestCategory } from "./pantryLogic";
 import { getCachedMealPlan } from "../../utils/mealPlanCache";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
-const STAPLES: { name: string; category: string; unit: string; quantity?: number }[] = [
-  { name: "Milk", category: "Dairy", unit: "L" },
-  { name: "Eggs", category: "Dairy", unit: "ct", quantity: 12 },
+const STAPLES: { name: string; category: string; unit: string; quantity?: number; dietTags?: string[] }[] = [
+  { name: "Milk", category: "Dairy", unit: "L", dietTags: ["dairy"] },
+  { name: "Eggs", category: "Dairy", unit: "ct", quantity: 12, dietTags: ["egg"] },
   { name: "Bread", category: "Bakery", unit: "ct" },
-  { name: "Butter", category: "Dairy", unit: "ct" },
+  { name: "Butter", category: "Dairy", unit: "ct", dietTags: ["dairy"] },
   { name: "Rice", category: "Pantry", unit: "lb" },
   { name: "Bananas", category: "Produce", unit: "ct", quantity: 6 },
-  { name: "Chicken Breast", category: "Meat", unit: "lb" },
+  { name: "Chicken Breast", category: "Meat", unit: "lb", dietTags: ["meat"] },
 ];
 const EXPIRY_SHORTCUTS: { label: string; days: number }[] = [
   { label: "3 days", days: 3 },
@@ -43,10 +44,19 @@ export function AddPantryItemScreen() {
   const navigation = useNavigation();
   const route = useRoute<AddRouteProp>();
   const { addItem, updateItem, removeItem, isAutoAddOptedOut, setAutoAddOptOut } = usePantry();
+  const { profile } = useOnboarding();
 
   const prefill = route.params?.prefill;
   const editingItem = route.params?.item;
   const isEditing = !!editingItem;
+  const dietaryPrefs = profile?.dietaryPrefs ?? [];
+  // Only filter for a brand-new item — hiding a category or staple based on
+  // the current diet must never hide what an existing item is already set
+  // to, e.g. editing a meat item you added before going vegetarian.
+  const visibleCategories = isEditing
+    ? CATEGORIES
+    : filterCategoriesByDietaryPrefs(CATEGORIES, dietaryPrefs);
+  const visibleStaples = isEditing ? STAPLES : filterByDietaryPrefs(STAPLES, dietaryPrefs);
 
   const [name, setName] = useState(editingItem?.name ?? prefill?.name ?? "");
   const [category, setCategory] = useState(editingItem?.category ?? prefill?.category ?? CATEGORIES[0]);
@@ -107,7 +117,7 @@ export function AddPantryItemScreen() {
     setName(text);
     if (!isEditing && !categoryTouched) {
       const suggested = suggestCategory(text);
-      if (suggested) setCategory(suggested);
+      if (suggested && visibleCategories.includes(suggested)) setCategory(suggested);
     }
   };
 
@@ -200,11 +210,11 @@ export function AddPantryItemScreen() {
         subtitle={isEditing ? "Update the details or remove it" : "Enter the details manually"}
       />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        {!isEditing && !prefill && name.trim().length === 0 ? (
+        {!isEditing && !prefill && name.trim().length === 0 && visibleStaples.length > 0 ? (
           <>
             <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Quick add</Text>
             <View style={styles.pillRow}>
-              {STAPLES.map((staple) => (
+              {visibleStaples.map((staple) => (
                 <Pill
                   key={staple.name}
                   label={staple.name}
@@ -225,7 +235,7 @@ export function AddPantryItemScreen() {
 
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Category</Text>
         <View style={styles.pillRow}>
-          {CATEGORIES.map((option) => (
+          {visibleCategories.map((option) => (
             <Pill
               key={option}
               label={option}

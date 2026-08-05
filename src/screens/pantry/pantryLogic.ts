@@ -62,6 +62,40 @@ const CATEGORY_KEYWORDS: { category: string; keywords: string[] }[] = [
   },
 ];
 
+const DIET_EXCLUDED_TAGS: Record<string, string[]> = {
+  Vegetarian: ["meat"],
+  Vegan: ["meat", "dairy", "egg"],
+  Pescatarian: ["meat"],
+};
+
+function excludedTagsForPrefs(dietaryPrefs: string[]): Set<string> {
+  const excluded = new Set<string>();
+  for (const pref of dietaryPrefs) {
+    for (const tag of DIET_EXCLUDED_TAGS[pref] ?? []) {
+      excluded.add(tag);
+    }
+  }
+  return excluded;
+}
+
+export function filterByDietaryPrefs<T extends { dietTags?: string[] }>(
+  items: T[],
+  dietaryPrefs: string[]
+): T[] {
+  const excluded = excludedTagsForPrefs(dietaryPrefs);
+  if (excluded.size === 0) return items;
+  return items.filter((item) => !(item.dietTags ?? []).some((tag) => excluded.has(tag)));
+}
+
+export function filterCategoriesByDietaryPrefs(
+  categories: string[],
+  dietaryPrefs: string[]
+): string[] {
+  const excluded = excludedTagsForPrefs(dietaryPrefs);
+  if (!excluded.has("meat")) return categories;
+  return categories.filter((category) => category !== "Meat");
+}
+
 export function suggestCategory(name: string): string | null {
   const trimmed = name.trim().toLowerCase();
   if (!trimmed) return null;
