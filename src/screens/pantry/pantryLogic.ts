@@ -96,6 +96,36 @@ export function filterCategoriesByDietaryPrefs(
   return categories.filter((category) => category !== "Meat");
 }
 
+// Standard allergy options that map to a broader ingredient category, e.g.
+// a milk allergy should also hide butter, not just an item literally named
+// "Milk". Anything else (a standard option we don't have a tag for yet, or
+// a free-text custom allergy like "Bananas") falls back to matching the
+// staple's name directly.
+const ALLERGY_EXCLUDED_TAGS: Record<string, string[]> = {
+  Milk: ["dairy"],
+  Eggs: ["egg"],
+  Wheat: ["wheat"],
+};
+
+export function filterByAllergies<T extends { name: string; dietTags?: string[] }>(
+  items: T[],
+  allergies: string[]
+): T[] {
+  if (allergies.length === 0) return items;
+  const excludedTags = new Set<string>();
+  const excludedNames = new Set<string>();
+  for (const allergy of allergies) {
+    for (const tag of ALLERGY_EXCLUDED_TAGS[allergy] ?? []) {
+      excludedTags.add(tag);
+    }
+    excludedNames.add(allergy.trim().toLowerCase());
+  }
+  return items.filter((item) => {
+    if ((item.dietTags ?? []).some((tag) => excludedTags.has(tag))) return false;
+    return !excludedNames.has(item.name.trim().toLowerCase());
+  });
+}
+
 export function suggestCategory(name: string): string | null {
   const trimmed = name.trim().toLowerCase();
   if (!trimmed) return null;

@@ -8,7 +8,12 @@ import { Screen, Header, TextField, Button, Pill, SwitchRow } from "../../compon
 import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
-import { filterByDietaryPrefs, filterCategoriesByDietaryPrefs, suggestCategory } from "./pantryLogic";
+import {
+  filterByAllergies,
+  filterByDietaryPrefs,
+  filterCategoriesByDietaryPrefs,
+  suggestCategory,
+} from "./pantryLogic";
 import { getCachedMealPlan } from "../../utils/mealPlanCache";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
@@ -16,7 +21,7 @@ const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
 const STAPLES: { name: string; category: string; unit: string; quantity?: number; dietTags?: string[] }[] = [
   { name: "Milk", category: "Dairy", unit: "L", dietTags: ["dairy"] },
   { name: "Eggs", category: "Dairy", unit: "ct", quantity: 12, dietTags: ["egg"] },
-  { name: "Bread", category: "Bakery", unit: "ct" },
+  { name: "Bread", category: "Bakery", unit: "ct", dietTags: ["wheat"] },
   { name: "Butter", category: "Dairy", unit: "ct", dietTags: ["dairy"] },
   { name: "Rice", category: "Pantry", unit: "lb" },
   { name: "Bananas", category: "Produce", unit: "ct", quantity: 6 },
@@ -50,13 +55,16 @@ export function AddPantryItemScreen() {
   const editingItem = route.params?.item;
   const isEditing = !!editingItem;
   const dietaryPrefs = profile?.dietaryPrefs ?? [];
+  const allergies = profile?.allergies ?? [];
   // Only filter for a brand-new item — hiding a category or staple based on
-  // the current diet must never hide what an existing item is already set
-  // to, e.g. editing a meat item you added before going vegetarian.
+  // the current diet/allergies must never hide what an existing item is
+  // already set to, e.g. editing a meat item you added before going vegetarian.
   const visibleCategories = isEditing
     ? CATEGORIES
     : filterCategoriesByDietaryPrefs(CATEGORIES, dietaryPrefs);
-  const visibleStaples = isEditing ? STAPLES : filterByDietaryPrefs(STAPLES, dietaryPrefs);
+  const visibleStaples = isEditing
+    ? STAPLES
+    : filterByAllergies(filterByDietaryPrefs(STAPLES, dietaryPrefs), allergies);
 
   const [name, setName] = useState(editingItem?.name ?? prefill?.name ?? "");
   const [category, setCategory] = useState(editingItem?.category ?? prefill?.category ?? CATEGORIES[0]);
