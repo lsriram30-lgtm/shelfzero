@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 29 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 30 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -505,6 +505,21 @@ the pace if that week doesn't actually support it.
       Swapped the order in both handlers: sign out first, then clear
       the profile. Confirmed live in Expo Go on both flows — each now
       correctly lands on "Create your account."
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make the Add
+      Item form aware of dietary preferences and allergies (branch:
+      `feature/dietary-aware-add-item`) — merged into `master`. Found
+      while live-testing: the quick-add staple chips and Category picker
+      showed things like "Chicken Breast" and "Meat" regardless of the
+      onboarding profile's stated diet. Now, for a brand-new item only
+      (never when editing an existing one, so switching diets can't hide
+      what an item's already set to): Chicken Breast and the Meat
+      category are hidden for Vegetarian/Vegan/Pescatarian; Milk/Eggs/
+      Butter are also hidden for Vegan; and any staple matching an
+      onboarding allergy is hidden too — "Milk"/"Wheat" hide the matching
+      tagged staples (Milk+Butter, Bread), anything else (including a
+      free-text custom allergy like "Bananas") falls back to matching the
+      staple's name directly. Auto-suggest-category also won't suggest a
+      now-hidden category. 17 tests added, suite at 143.
 
 ### Not yet assigned
 
