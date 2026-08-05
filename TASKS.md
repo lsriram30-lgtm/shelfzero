@@ -601,6 +601,19 @@ the pace if that week doesn't actually support it.
       app-wide, so it's a bigger design decision than the other audit
       fixes, not a quick swap — darkening primary has knock-on effects
       on buttons and every other place it's used.
+- [ ] Scope onboarding-complete state to the signed-in account instead of
+      the device — found while testing account deletion. The onboarding
+      profile (name, cuisine/dietary prefs, etc.) lives only in
+      `AsyncStorage`, keyed generically, not per-account or fetched from
+      the backend. Once it's been filled in once on a device, `isComplete`
+      (`!!profile`) stays true for *any* subsequent sign-up or sign-in on
+      that same device, skipping the questionnaire entirely and showing
+      stale local data (e.g. an old test name) regardless of which real
+      account just authenticated. Fine for solo testing where you know to
+      hit "Reset app," but a real user switching accounts on a shared
+      device would hit this for real. Needs the profile keyed by user ID
+      (or fetched from the backend, once a profile endpoint exists)
+      instead of one global local flag.
 
 ---
 
