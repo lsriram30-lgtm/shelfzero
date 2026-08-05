@@ -456,91 +456,54 @@ the pace if that week doesn't actually support it.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Do a
       systematic accessibility contrast audit of the pastel palette
       (branch: `feature/contrast-audit`) — merged into `master`. Added
-      `src/theme/contrast.ts` (WCAG relative luminance / contrast ratio
-      math, 8 tests) and used it to find and fix three real bugs, not
-      just theoretical risk: Pill's badge variant always used the theme's
-      own text color as foreground, which flips light/dark by mode — but
-      highlight/accent/warning tones stay pale in *both* modes, so dark
-      mode put light text on a pale chip at ~1.7:1 (now picks whichever
-      text tone actually reads against the specific color, regardless of
-      theme mode); the Recipes favorite-star icon was ~1.8:1 in light
-      mode (switched accent → primary, now ~4.0:1); the onboarding
-      progress bar's active segments were ~1.2:1 against inactive ones in
-      light mode, barely showing progress (reverted accent → primary,
-      undoing part of an earlier deliberate "add more Blush Beet"
-      change, since the accessibility failure takes priority). Two more
-      findings surfaced but need a real design decision rather than a
-      color swap, so added as new backlog entries below instead of
-      rushing a fix. 8 tests added, suite at 126.
+      `src/theme/contrast.ts` (WCAG contrast math, 8 tests) and fixed
+      three real bugs: Pill's badge text picked the wrong tone in dark
+      mode (~1.7:1), since highlight/accent/warning colors stay pale in
+      both modes; the Recipes favorite-star icon was ~1.8:1 in light
+      mode (accent → primary, now ~4.0:1); the onboarding progress bar's
+      active segments were ~1.2:1 against inactive ones in light mode
+      (accent → primary). Two more findings need a real design decision,
+      not a quick fix — added as new backlog entries. 8 tests added,
+      suite at 126.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) **Needed for
       TestFlight:** add in-app account deletion (branch:
-      `feature/account-deletion`) — merged into `master`. Apple's App
-      Store Review Guideline 5.1.1(v) requires this for any app with
-      account creation. Added a "Delete account" button on Profile
-      behind the usual destructive confirm, wired to a new `DELETE
-      /api/me` endpoint (Airo added it, matching the existing `GET
-      /api/me` pattern) that deletes credentials/sessions/profile/
-      favorites, preserves shared household data when other members
-      remain, and only deletes the household/pantry/shopping-list/
-      invites if the departing user was its sole member; invites now
-      also track their creator so a departing member's pending invites
-      get cancelled even in a household that survives. On success, the
-      app clears local onboarding state and signs out, same as "Reset
-      app." Getting the backend actually working took three rounds of
-      testing directly against the live API: `/api/household/create`
-      silently rejected valid Bearer tokens (checking the session
-      cookie instead, breaking household creation for every new
-      signup, not just this feature), and `DELETE /api/me` 500'd on a
-      raw SQL failure deleting `user_profiles` — both confirmed fixed
-      by re-testing against the live backend after each round, not
-      just taking the description of a fix at face value. Also caught
-      and fixed (branch: `feature/onboarding-reset-order`): both
-      "Reset app" and "Delete account" cleared the local profile
-      before signing out, and `OnboardingScreen` reads `isSignedIn`
-      once at mount (`useState(firstStep)`) to decide whether to start
-      at the account/sign-up step or skip it — clearing the profile
-      first let `RootNavigator` swap in `OnboardingScreen` while
-      `isSignedIn` was still momentarily true, locking in step 1
-      (Name/Location) as the start instead of the real first question.
-      Swapped the order in both handlers: sign out first, then clear
-      the profile. Confirmed live in Expo Go on both flows — each now
-      correctly lands on "Create your account."
+      `feature/account-deletion`) — merged into `master`. Required by
+      Apple Guideline 5.1.1(v). Added "Delete account" on Profile behind
+      the usual confirm, wired to a new `DELETE /api/me` (Airo added it)
+      that removes credentials/sessions/profile/favorites, preserves
+      shared household data when other members remain, and only deletes
+      the household/pantry/shopping-list/invites if the user was its
+      sole member; invites now track their creator so pending ones get
+      cancelled too. Took three rounds of testing directly against the
+      live API to actually work: `/api/household/create` rejected valid
+      Bearer tokens (broke household creation for every signup), and
+      `DELETE /api/me` 500'd on a SQL failure — both confirmed fixed by
+      re-testing, not by trusting the description. Also fixed (branch:
+      `feature/onboarding-reset-order`): "Reset app"/"Delete account"
+      landed on the wrong onboarding step since both cleared the profile
+      before signing out; swapped the order.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make the Add
       Item form aware of dietary preferences and allergies (branch:
       `feature/dietary-aware-add-item`) — merged into `master`. Found
-      while live-testing: the quick-add staple chips and Category picker
-      showed things like "Chicken Breast" and "Meat" regardless of the
-      onboarding profile's stated diet. Now, for a brand-new item only
-      (never when editing an existing one, so switching diets can't hide
-      what an item's already set to): Chicken Breast and the Meat
-      category are hidden for Vegetarian/Vegan/Pescatarian; Milk/Eggs/
-      Butter are also hidden for Vegan; and any staple matching an
-      onboarding allergy is hidden too — "Milk"/"Wheat" hide the matching
-      tagged staples (Milk+Butter, Bread), anything else (including a
-      free-text custom allergy like "Bananas") falls back to matching the
-      staple's name directly. Auto-suggest-category also won't suggest a
-      now-hidden category. 17 tests added, suite at 143.
+      while live-testing: quick-add chips and the Category picker showed
+      things like "Chicken Breast"/"Meat" regardless of diet. Now, for
+      new items only: Chicken Breast + Meat category hidden for
+      Vegetarian/Vegan/Pescatarian; Milk/Eggs/Butter also hidden for
+      Vegan; staples matching an allergy (standard or free-text, e.g.
+      "Bananas") hidden too. Auto-suggest-category won't suggest a
+      hidden category either. 17 tests added, suite at 143.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add quantity
       +/- controls to shopping list items (branch:
-      `feature/shopping-list-quantity`) — merged into `master`. Wired up
-      to the now-working `PATCH /api/shopping-list/:id` backend fix.
-      Also found and fixed along the way: `ShoppingListItem.quantity` had
-      been misnamed against the real backend field (`qty`) since these
-      files were written, so `item.quantity` was silently `undefined` in
-      three places — the old inline `(N)` quantity suffix (never actually
-      showed), the Undo-restore flow after clearing checked items
-      (restored with `qty: undefined`), and the share-list formatter
-      (quantities never appeared in shared lists). Also fixed the
-      `create` endpoint's response type, which claimed to return the bare
-      item but the backend actually wraps it as `{ item: {...} }` —
-      newly-added items were rendering broken until the next refresh
-      silently corrected them. `qty` also comes back from the backend as
-      a JSON string, now coerced to a number once at the API boundary.
-      Split the Shopping list card's header into two rows (icons in the
-      header, Select all/Clear checked in a row below) after it got too
-      crowded from several tasks accumulating actions there. No new
-      tests beyond the renamed existing ones — the quantity handlers are
-      I/O/UI wiring, consistent with how `toggleChecked` was handled.
+      `feature/shopping-list-quantity`) — merged into `master`. Wired to
+      the now-working `PATCH /api/shopping-list/:id`. Also found and
+      fixed: `ShoppingListItem.quantity` was misnamed against the real
+      backend field (`qty`), so it was silently `undefined` in three
+      places — the old quantity display, the Undo-restore flow, and the
+      share-list formatter; the `create` response was actually
+      `{ item: {...} }`, not the bare item, so new items rendered broken
+      until the next refresh; `qty` comes back as a string, now coerced
+      to a number. Also split the crowded Shopping list header into two
+      rows.
 
 ### Not yet assigned
 
