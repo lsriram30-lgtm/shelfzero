@@ -1,6 +1,9 @@
 import {
   daysUntil,
+  filterByAllergies,
+  filterByDietaryPrefs,
   filterByName,
+  filterCategoriesByDietaryPrefs,
   groupByCategory,
   sortByExpiry,
   suggestCategory,
@@ -177,5 +180,120 @@ describe("suggestCategory", () => {
 
   it("does not mistake watermelon for a beverage via the word 'water'", () => {
     expect(suggestCategory("Watermelon")).toBe("Produce");
+  });
+});
+
+describe("filterByDietaryPrefs", () => {
+  const staples = [
+    { name: "Milk", dietTags: ["dairy"] },
+    { name: "Eggs", dietTags: ["egg"] },
+    { name: "Bread" },
+    { name: "Chicken Breast", dietTags: ["meat"] },
+  ];
+
+  it("returns everything unfiltered when there are no dietary prefs", () => {
+    expect(filterByDietaryPrefs(staples, [])).toEqual(staples);
+  });
+
+  it("excludes meat for vegetarians but keeps dairy and eggs", () => {
+    const result = filterByDietaryPrefs(staples, ["Vegetarian"]).map((s) => s.name);
+    expect(result).toEqual(["Milk", "Eggs", "Bread"]);
+  });
+
+  it("excludes meat, dairy, and eggs for vegans", () => {
+    const result = filterByDietaryPrefs(staples, ["Vegan"]).map((s) => s.name);
+    expect(result).toEqual(["Bread"]);
+  });
+
+  it("excludes meat for pescatarians", () => {
+    const result = filterByDietaryPrefs(staples, ["Pescatarian"]).map((s) => s.name);
+    expect(result).toEqual(["Milk", "Eggs", "Bread"]);
+  });
+
+  it("ignores unrecognized preferences like 'No restrictions'", () => {
+    expect(filterByDietaryPrefs(staples, ["No restrictions"])).toEqual(staples);
+  });
+
+  it("keeps items with no dietTags regardless of preference", () => {
+    const result = filterByDietaryPrefs(staples, ["Vegan"]);
+    expect(result.some((s) => s.name === "Bread")).toBe(true);
+  });
+});
+
+describe("filterCategoriesByDietaryPrefs", () => {
+  const categories = ["Produce", "Dairy", "Meat", "Pantry"];
+
+  it("returns everything unfiltered when there are no dietary prefs", () => {
+    expect(filterCategoriesByDietaryPrefs(categories, [])).toEqual(categories);
+  });
+
+  it("hides Meat for vegetarians", () => {
+    expect(filterCategoriesByDietaryPrefs(categories, ["Vegetarian"])).toEqual([
+      "Produce",
+      "Dairy",
+      "Pantry",
+    ]);
+  });
+
+  it("hides Meat for vegans", () => {
+    expect(filterCategoriesByDietaryPrefs(categories, ["Vegan"])).toEqual([
+      "Produce",
+      "Dairy",
+      "Pantry",
+    ]);
+  });
+
+  it("hides Meat for pescatarians", () => {
+    expect(filterCategoriesByDietaryPrefs(categories, ["Pescatarian"])).toEqual([
+      "Produce",
+      "Dairy",
+      "Pantry",
+    ]);
+  });
+
+  it("keeps Meat for preferences that don't exclude it", () => {
+    expect(filterCategoriesByDietaryPrefs(categories, ["Keto"])).toEqual(categories);
+  });
+});
+
+describe("filterByAllergies", () => {
+  const staples = [
+    { name: "Milk", dietTags: ["dairy"] },
+    { name: "Eggs", dietTags: ["egg"] },
+    { name: "Bread", dietTags: ["wheat"] },
+    { name: "Rice" },
+    { name: "Bananas" },
+  ];
+
+  it("returns everything unfiltered when there are no allergies", () => {
+    expect(filterByAllergies(staples, [])).toEqual(staples);
+  });
+
+  it("hides dairy items (not just the one literally named Milk) for a Milk allergy", () => {
+    const result = filterByAllergies(
+      [...staples, { name: "Butter", dietTags: ["dairy"] }],
+      ["Milk"]
+    ).map((s) => s.name);
+    expect(result).toEqual(["Eggs", "Bread", "Rice", "Bananas"]);
+  });
+
+  it("hides wheat items for a Wheat allergy", () => {
+    const result = filterByAllergies(staples, ["Wheat"]).map((s) => s.name);
+    expect(result).toEqual(["Milk", "Eggs", "Rice", "Bananas"]);
+  });
+
+  it("matches a free-text custom allergy by item name", () => {
+    const result = filterByAllergies(staples, ["Bananas"]).map((s) => s.name);
+    expect(result).toEqual(["Milk", "Eggs", "Bread", "Rice"]);
+  });
+
+  it("matches a free-text custom allergy case-insensitively", () => {
+    const result = filterByAllergies(staples, ["rice"]).map((s) => s.name);
+    expect(result).toEqual(["Milk", "Eggs", "Bread", "Bananas"]);
+  });
+
+  it("combines multiple allergies", () => {
+    const result = filterByAllergies(staples, ["Wheat", "Bananas"]).map((s) => s.name);
+    expect(result).toEqual(["Milk", "Eggs", "Rice"]);
   });
 });
