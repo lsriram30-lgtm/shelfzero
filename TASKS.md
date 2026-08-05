@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 30 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -520,6 +520,27 @@ the pace if that week doesn't actually support it.
       free-text custom allergy like "Bananas") falls back to matching the
       staple's name directly. Auto-suggest-category also won't suggest a
       now-hidden category. 17 tests added, suite at 143.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add quantity
+      +/- controls to shopping list items (branch:
+      `feature/shopping-list-quantity`) — merged into `master`. Wired up
+      to the now-working `PATCH /api/shopping-list/:id` backend fix.
+      Also found and fixed along the way: `ShoppingListItem.quantity` had
+      been misnamed against the real backend field (`qty`) since these
+      files were written, so `item.quantity` was silently `undefined` in
+      three places — the old inline `(N)` quantity suffix (never actually
+      showed), the Undo-restore flow after clearing checked items
+      (restored with `qty: undefined`), and the share-list formatter
+      (quantities never appeared in shared lists). Also fixed the
+      `create` endpoint's response type, which claimed to return the bare
+      item but the backend actually wraps it as `{ item: {...} }` —
+      newly-added items were rendering broken until the next refresh
+      silently corrected them. `qty` also comes back from the backend as
+      a JSON string, now coerced to a number once at the API boundary.
+      Split the Shopping list card's header into two rows (icons in the
+      header, Select all/Clear checked in a row below) after it got too
+      crowded from several tasks accumulating actions there. No new
+      tests beyond the renamed existing ones — the quantity handlers are
+      I/O/UI wiring, consistent with how `toggleChecked` was handled.
 
 ### Not yet assigned
 
@@ -578,14 +599,6 @@ the pace if that week doesn't actually support it.
       Whatever generates a meal like "Pad Thai" already implicitly knows
       its cuisine — it's just not returned today. Once it exists, a real
       (non-guessed) cuisine filter becomes possible on the Recipes screen.
-- [ ] Add quantity +/- controls to shopping list items instead of just
-      add/remove. No longer blocked: confirmed directly against the live
-      API (fresh account, real session) that `PATCH /api/shopping-list/:id`
-      now accepts both `quantity` and `qty` and writes to the existing
-      `qty` field — Airo needed two attempts to actually deploy this (the
-      first "fix" wasn't published), so worth re-verifying quickly before
-      building on it if it's been a while since 8/5. Ready to build:
-      client-side UI only, no further backend work needed.
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
 - [ ] **Needed for TestFlight:** research the best distribution method for
