@@ -8,4 +8,5 @@ export const householdApi = {
   me: () => apiClient.get<CurrentUser>("/api/me"),
   create: (name: string) =>
     apiClient.post<{ householdId: string }>("/api/household/create", { name }),
+  deleteAccount: () => apiClient.delete<{ ok: boolean }>("/api/me"),
 };

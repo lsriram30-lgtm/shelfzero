@@ -1,5 +1,5 @@
-import React from "react";
-import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
@@ -11,6 +11,7 @@ import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { PRIVACY_POLICY_URL } from "../../utils/privacyPolicy";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
+import { householdApi } from "../../api/household";
 
 type ProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "Profile">;
 
@@ -20,6 +21,7 @@ export function ProfileScreen() {
   const { profile, resetOnboarding } = useOnboarding();
   const { invites } = useInvites();
   const { signOut } = useAuth();
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const members = invites.filter((invite) => invite.status === "accepted");
 
@@ -32,6 +34,30 @@ export function ProfileScreen() {
       onConfirm: async () => {
         await resetOnboarding();
         await signOut();
+      },
+    });
+  };
+
+  const handleDeleteAccount = () => {
+    confirmDestructiveAction({
+      title: "Delete account",
+      message:
+        "This permanently deletes your account and your data. If you're the only member of your household, its pantry and shopping list are deleted too. This can't be undone.",
+      confirmLabel: "Delete account",
+      onConfirm: async () => {
+        setDeletingAccount(true);
+        try {
+          await householdApi.deleteAccount();
+          await resetOnboarding();
+          await signOut();
+        } catch (err) {
+          Alert.alert(
+            "Couldn't delete account",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        } finally {
+          setDeletingAccount(false);
+        }
       },
     });
   };
@@ -116,6 +142,14 @@ export function ProfileScreen() {
             style={styles.signOutButton}
           />
         ) : null}
+        <Button
+          label={deletingAccount ? "Deleting…" : "Delete account"}
+          variant="outline"
+          onPress={handleDeleteAccount}
+          disabled={deletingAccount}
+          loading={deletingAccount}
+          style={styles.signOutButton}
+        />
       </ScrollView>
     </Screen>
   );
