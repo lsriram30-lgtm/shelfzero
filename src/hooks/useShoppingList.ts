@@ -40,6 +40,22 @@ export function useShoppingList() {
     }
   }, []);
 
+  const updateQuantity = useCallback(
+    async (id: string, qty: number) => {
+      const previousQty = items.find((i) => i.id === id)?.qty;
+      setItems((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
+      try {
+        await shoppingListApi.setQuantity(id, qty);
+      } catch (err) {
+        setItems((prev) =>
+          prev.map((i) => (i.id === id && previousQty !== undefined ? { ...i, qty: previousQty } : i))
+        );
+        throw err;
+      }
+    },
+    [items]
+  );
+
   const removeItem = useCallback(async (id: string) => {
     await shoppingListApi.remove(id);
     setItems((prev) => prev.filter((i) => i.id !== id));
@@ -91,6 +107,7 @@ export function useShoppingList() {
     refresh,
     addItem,
     toggleChecked,
+    updateQuantity,
     removeItem,
     clearChecked,
     removeItems,

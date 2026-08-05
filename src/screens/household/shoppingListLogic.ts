@@ -11,12 +11,12 @@ export function toggleSelectAll(allIds: string[], selected: Set<string>): Set<st
 }
 
 export function formatShoppingListForShare(
-  items: { name: string; quantity: number; checked: boolean }[]
+  items: { name: string; qty: number; checked: boolean }[]
 ): string {
   if (items.length === 0) return "Shopping list is empty.";
   const lines = items.map((item) => {
     const prefix = item.checked ? "[x]" : "[ ]";
-    const qty = item.quantity > 1 ? ` (${item.quantity})` : "";
+    const qty = item.qty > 1 ? ` (${item.qty})` : "";
     return `${prefix} ${item.name}${qty}`;
   });
   return ["Shopping List:", ...lines].join("\n");

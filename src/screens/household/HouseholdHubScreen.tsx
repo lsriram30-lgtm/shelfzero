@@ -47,6 +47,7 @@ export function HouseholdHubScreen() {
     refresh: refreshShoppingList,
     addItem,
     toggleChecked,
+    updateQuantity,
     removeItem,
     clearChecked,
     removeItems,
@@ -137,10 +138,22 @@ export function HouseholdHubScreen() {
     const toRestore = clearedItems;
     setClearedItems(null);
     try {
-      await Promise.all(toRestore.map((item) => addItem({ name: item.name, qty: item.quantity })));
+      await Promise.all(toRestore.map((item) => addItem({ name: item.name, qty: item.qty })));
     } catch (err) {
       Alert.alert(
         "Couldn't restore items",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    }
+  };
+
+  const handleChangeQuantity = async (item: ShoppingListItem, nextQty: number) => {
+    if (nextQty < 1) return;
+    try {
+      await updateQuantity(item.id, nextQty);
+    } catch (err) {
+      Alert.alert(
+        "Couldn't update quantity",
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     }
@@ -306,13 +319,6 @@ export function HouseholdHubScreen() {
                   <CardHeaderLink label="Cancel" onPress={handleExitSelectionMode} />
                 ) : (
                   <View style={styles.cardHeaderActions}>
-                    <CardHeaderLink
-                      label={allChecked ? "Deselect all" : "Select all"}
-                      onPress={handleToggleSelectAll}
-                    />
-                    {checkedCount > 0 ? (
-                      <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
-                    ) : null}
                     <Pressable
                       onPress={handleShareList}
                       accessibilityRole="button"
@@ -332,6 +338,17 @@ export function HouseholdHubScreen() {
               ) : undefined
             }
           />
+          {!selectionMode && shoppingItems.length > 0 ? (
+            <View style={styles.shoppingToolbar}>
+              <CardHeaderLink
+                label={allChecked ? "Deselect all" : "Select all"}
+                onPress={handleToggleSelectAll}
+              />
+              {checkedCount > 0 ? (
+                <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
+              ) : null}
+            </View>
+          ) : null}
           {selectionMode ? (
             <View style={[styles.selectionToolbar, { borderColor: colors.border }]}>
               <Text style={[styles.selectionCount, { color: colors.textMuted }]}>
@@ -415,17 +432,41 @@ export function HouseholdHubScreen() {
                         },
                       ]}
                     >
-                      {item.name} {item.quantity > 1 ? `(${item.quantity})` : ""}
+                      {item.name}
                     </Text>
                   </Pressable>
                   {!selectionMode ? (
-                    <Pressable
-                      onPress={() => removeItem(item.id)}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Remove ${item.name} from shopping list`}
-                    >
-                      <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
-                    </Pressable>
+                    <View style={styles.shoppingActions}>
+                      <View style={styles.quantityStepper}>
+                        <Pressable
+                          onPress={() => handleChangeQuantity(item, item.qty - 1)}
+                          disabled={item.qty <= 1}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Decrease quantity of ${item.name}`}
+                        >
+                          <Ionicons
+                            name="remove-circle-outline"
+                            size={20}
+                            color={item.qty <= 1 ? colors.border : colors.primary}
+                          />
+                        </Pressable>
+                        <Text style={[styles.quantityValue, { color: colors.text }]}>{item.qty}</Text>
+                        <Pressable
+                          onPress={() => handleChangeQuantity(item, item.qty + 1)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Increase quantity of ${item.name}`}
+                        >
+                          <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+                        </Pressable>
+                      </View>
+                      <Pressable
+                        onPress={() => removeItem(item.id)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Remove ${item.name} from shopping list`}
+                      >
+                        <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+                      </Pressable>
+                    </View>
                   ) : null}
                 </View>
               );
@@ -527,6 +568,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
   },
+  shoppingToolbar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
   selectionToolbar: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -565,6 +612,21 @@ const styles = StyleSheet.create({
   shoppingLabel: {
     ...typography.body,
     flexShrink: 1,
+  },
+  shoppingActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  quantityStepper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  quantityValue: {
+    ...typography.bodyMedium,
+    minWidth: 18,
+    textAlign: "center",
   },
   undoBanner: {
     flexDirection: "row",
