@@ -564,13 +564,13 @@ the pace if that week doesn't actually support it.
       its cuisine — it's just not returned today. Once it exists, a real
       (non-guessed) cuisine filter becomes possible on the Recipes screen.
 - [ ] Add quantity +/- controls to shopping list items instead of just
-      add/remove — worth double-checking first whether
-      `PATCH /api/shopping-list/:id` accepts a `quantity` field, since
-      today it's only ever called with `{ checked }`. Laya checked: can't
-      verify without a real auth token (the endpoint 401s on an
-      unauthenticated probe, which doesn't tell you whether `quantity`
-      would be accepted) — needs testing from inside the app with a real
-      session, not a plain curl.
+      add/remove. No longer blocked: confirmed directly against the live
+      API (fresh account, real session) that `PATCH /api/shopping-list/:id`
+      now accepts both `quantity` and `qty` and writes to the existing
+      `qty` field — Airo needed two attempts to actually deploy this (the
+      first "fix" wasn't published), so worth re-verifying quickly before
+      building on it if it's been a while since 8/5. Ready to build:
+      client-side UI only, no further backend work needed.
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
 - [ ] **Needed for TestFlight:** research the best distribution method for
