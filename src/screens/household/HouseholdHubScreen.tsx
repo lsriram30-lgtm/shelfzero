@@ -319,13 +319,6 @@ export function HouseholdHubScreen() {
                   <CardHeaderLink label="Cancel" onPress={handleExitSelectionMode} />
                 ) : (
                   <View style={styles.cardHeaderActions}>
-                    <CardHeaderLink
-                      label={allChecked ? "Deselect all" : "Select all"}
-                      onPress={handleToggleSelectAll}
-                    />
-                    {checkedCount > 0 ? (
-                      <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
-                    ) : null}
                     <Pressable
                       onPress={handleShareList}
                       accessibilityRole="button"
@@ -345,6 +338,17 @@ export function HouseholdHubScreen() {
               ) : undefined
             }
           />
+          {!selectionMode && shoppingItems.length > 0 ? (
+            <View style={styles.shoppingToolbar}>
+              <CardHeaderLink
+                label={allChecked ? "Deselect all" : "Select all"}
+                onPress={handleToggleSelectAll}
+              />
+              {checkedCount > 0 ? (
+                <CardHeaderLink label="Clear checked" onPress={handleClearChecked} />
+              ) : null}
+            </View>
+          ) : null}
           {selectionMode ? (
             <View style={[styles.selectionToolbar, { borderColor: colors.border }]}>
               <Text style={[styles.selectionCount, { color: colors.textMuted }]}>
@@ -563,6 +567,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
+  },
+  shoppingToolbar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
   selectionToolbar: {
     flexDirection: "row",
