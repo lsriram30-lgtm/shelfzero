@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 30 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 29 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -493,20 +493,18 @@ the pace if that week doesn't actually support it.
       signup, not just this feature), and `DELETE /api/me` 500'd on a
       raw SQL failure deleting `user_profiles` — both confirmed fixed
       by re-testing against the live backend after each round, not
-      just taking the description of a fix at face value.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix "Reset
-      app" / "Delete account" landing on the wrong onboarding step
-      (branch: `feature/onboarding-reset-order`) — merged into
-      `master`. Found while testing account deletion: both cleared the
-      local profile before signing out. `OnboardingScreen` reads
-      `isSignedIn` once at mount (`useState(firstStep)`) to decide
-      whether to start at the account/sign-up step or skip it —
-      clearing the profile first let `RootNavigator` swap in
-      `OnboardingScreen` while `isSignedIn` was still momentarily true,
-      locking in step 1 (Name/Location) as the start instead of the
-      real first question. Swapped the order in both handlers: sign
-      out first, then clear the profile. Confirmed live in Expo Go on
-      both flows — each now correctly lands on "Create your account."
+      just taking the description of a fix at face value. Also caught
+      and fixed (branch: `feature/onboarding-reset-order`): both
+      "Reset app" and "Delete account" cleared the local profile
+      before signing out, and `OnboardingScreen` reads `isSignedIn`
+      once at mount (`useState(firstStep)`) to decide whether to start
+      at the account/sign-up step or skip it — clearing the profile
+      first let `RootNavigator` swap in `OnboardingScreen` while
+      `isSignedIn` was still momentarily true, locking in step 1
+      (Name/Location) as the start instead of the real first question.
+      Swapped the order in both handlers: sign out first, then clear
+      the profile. Confirmed live in Expo Go on both flows — each now
+      correctly lands on "Create your account."
 
 ### Not yet assigned
 
