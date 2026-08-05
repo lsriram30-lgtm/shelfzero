@@ -581,14 +581,16 @@ the pace if that week doesn't actually support it.
       elsewhere in this list (the testing-UI cleanup above, the real app
       icon, and account deletion, which Apple's guidelines require for
       any app with sign-up).
-- [ ] Figure out the `429` on `/api/meal-plan` — testing in Expo Go and a
-      direct check from outside the app both got `{"error":"AI service is
-      busy. Please wait a moment and try again."}`, even unauthenticated,
-      so it's not account- or pantry-specific. Likely a rate limit or
-      usage quota on whatever AI service the backend calls to generate
-      plans. Needs checking in the Airo AI Builder dashboard directly
-      (usage/billing page) — not something visible or fixable from this
-      repo.
+- [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
+      the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
+      429 (quota exhausted or rate limited — Airo can't distinguish
+      which, and can't inspect the OpenAI account's usage/billing) gets
+      converted to the same generic "AI service is busy" message.
+      Reproduces 100% of the time, not intermittently, so this is a real
+      cap being hit, not normal traffic-based throttling. Needs checking
+      the OpenAI account's usage/billing via GoDaddy's "Manage my plan"
+      (from the user menu) or GoDaddy Support — not something visible or
+      fixable from Airo or this repo.
 - [ ] Finish the privacy policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep
