@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 28 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 29 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
@@ -472,6 +472,28 @@ the pace if that week doesn't actually support it.
       findings surfaced but need a real design decision rather than a
       color swap, so added as new backlog entries below instead of
       rushing a fix. 8 tests added, suite at 126.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) **Needed for
+      TestFlight:** add in-app account deletion (branch:
+      `feature/account-deletion`) — merged into `master`. Apple's App
+      Store Review Guideline 5.1.1(v) requires this for any app with
+      account creation. Added a "Delete account" button on Profile
+      behind the usual destructive confirm, wired to a new `DELETE
+      /api/me` endpoint (Airo added it, matching the existing `GET
+      /api/me` pattern) that deletes credentials/sessions/profile/
+      favorites, preserves shared household data when other members
+      remain, and only deletes the household/pantry/shopping-list/
+      invites if the departing user was its sole member; invites now
+      also track their creator so a departing member's pending invites
+      get cancelled even in a household that survives. On success, the
+      app clears local onboarding state and signs out, same as "Reset
+      app." Getting the backend actually working took three rounds of
+      testing directly against the live API: `/api/household/create`
+      silently rejected valid Bearer tokens (checking the session
+      cookie instead, breaking household creation for every new
+      signup, not just this feature), and `DELETE /api/me` 500'd on a
+      raw SQL failure deleting `user_profiles` — both confirmed fixed
+      by re-testing against the live backend after each round, not
+      just taking the description of a fix at face value.
 
 ### Not yet assigned
 
@@ -548,16 +570,6 @@ the pace if that week doesn't actually support it.
       elsewhere in this list (the testing-UI cleanup above, the real app
       icon, and account deletion, which Apple's guidelines require for
       any app with sign-up).
-- [ ] **Needed for TestFlight:** add in-app account deletion — there's
-      currently no way to delete your account or data from within the
-      app. Apple's App Store Review Guideline 5.1.1(v) requires this for
-      any app with account creation, making it a real submission blocker,
-      not just a nice-to-have. Checked: no `DELETE /api/me` or
-      `/api/account` route exists on the backend today (both 404, not
-      401 — the routes aren't there at all), so this is backend-blocked.
-      A client-side-only "delete" that just clears local storage would be
-      actively misleading since the server would still have everything,
-      so not building a workaround.
 - [ ] Figure out the `429` on `/api/meal-plan` — testing in Expo Go and a
       direct check from outside the app both got `{"error":"AI service is
       busy. Please wait a moment and try again."}`, even unauthenticated,
