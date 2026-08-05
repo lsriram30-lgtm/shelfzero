@@ -62,6 +62,70 @@ const CATEGORY_KEYWORDS: { category: string; keywords: string[] }[] = [
   },
 ];
 
+const DIET_EXCLUDED_TAGS: Record<string, string[]> = {
+  Vegetarian: ["meat"],
+  Vegan: ["meat", "dairy", "egg"],
+  Pescatarian: ["meat"],
+};
+
+function excludedTagsForPrefs(dietaryPrefs: string[]): Set<string> {
+  const excluded = new Set<string>();
+  for (const pref of dietaryPrefs) {
+    for (const tag of DIET_EXCLUDED_TAGS[pref] ?? []) {
+      excluded.add(tag);
+    }
+  }
+  return excluded;
+}
+
+export function filterByDietaryPrefs<T extends { dietTags?: string[] }>(
+  items: T[],
+  dietaryPrefs: string[]
+): T[] {
+  const excluded = excludedTagsForPrefs(dietaryPrefs);
+  if (excluded.size === 0) return items;
+  return items.filter((item) => !(item.dietTags ?? []).some((tag) => excluded.has(tag)));
+}
+
+export function filterCategoriesByDietaryPrefs(
+  categories: string[],
+  dietaryPrefs: string[]
+): string[] {
+  const excluded = excludedTagsForPrefs(dietaryPrefs);
+  if (!excluded.has("meat")) return categories;
+  return categories.filter((category) => category !== "Meat");
+}
+
+// Standard allergy options that map to a broader ingredient category, e.g.
+// a milk allergy should also hide butter, not just an item literally named
+// "Milk". Anything else (a standard option we don't have a tag for yet, or
+// a free-text custom allergy like "Bananas") falls back to matching the
+// staple's name directly.
+const ALLERGY_EXCLUDED_TAGS: Record<string, string[]> = {
+  Milk: ["dairy"],
+  Eggs: ["egg"],
+  Wheat: ["wheat"],
+};
+
+export function filterByAllergies<T extends { name: string; dietTags?: string[] }>(
+  items: T[],
+  allergies: string[]
+): T[] {
+  if (allergies.length === 0) return items;
+  const excludedTags = new Set<string>();
+  const excludedNames = new Set<string>();
+  for (const allergy of allergies) {
+    for (const tag of ALLERGY_EXCLUDED_TAGS[allergy] ?? []) {
+      excludedTags.add(tag);
+    }
+    excludedNames.add(allergy.trim().toLowerCase());
+  }
+  return items.filter((item) => {
+    if ((item.dietTags ?? []).some((tag) => excludedTags.has(tag))) return false;
+    return !excludedNames.has(item.name.trim().toLowerCase());
+  });
+}
+
 export function suggestCategory(name: string): string | null {
   const trimmed = name.trim().toLowerCase();
   if (!trimmed) return null;
