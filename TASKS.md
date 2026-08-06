@@ -45,7 +45,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 whoever updates this file should apply it, and it's fine to adjust
 the pace if that week doesn't actually support it.
 
-**Past Goals** 10 each by 7/25, 20 each by 8/1.
+**Past Goals:** 10 each by 7/25, 20 each by 8/1.
 
 ### Currently assigned
 
