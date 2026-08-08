@@ -507,24 +507,20 @@ the pace if that week doesn't actually support it.
 
 ### Not yet assigned
 
+Grouped by who/what can actually move each one forward.
+
+#### Backend (Airo only)
+
+Requires a change in the Airo AI Builder dashboard — not buildable from
+this repo.
+
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
       since the backend doesn't have a proper recipe search yet
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it)
-- [ ] Add on-device OCR to receipt scanning — see the correction note on
-      the "Improve receipt scanning" task above. Without this, no photo
-      scan can ever succeed against the current backend; it needs an
-      actual text-recognition step (e.g. ML Kit) before calling
-      `/api/scan`, plus fixing the response mapping (`quantity` comes
-      back as a string, there's no `unit` field, neither matches
-      `NewPantryItem` today).
-- [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
-- [ ] Test the full app on an actual Android phone and an actual iPhone
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
       way to remove them or leave
-- [ ] Refine the app's icon visuals and general look so it feels more polished
-      and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
       but there's no way to recover an account if someone forgets their password).
       Investigated by Laya: the backend has a `POST /api/auth/request-password-reset`
@@ -548,7 +544,7 @@ the pace if that week doesn't actually support it.
 - [ ] Add a cuisine filter to the Recipes screen — right now onboarding
       collects a cuisine preference, but it isn't used to filter or sort the
       Recipes screen at all. Blocked on the "tag each meal with its cuisine"
-      backend task below: recipes have no cuisine field today, and guessing
+      task below: recipes have no cuisine field today, and guessing
       one from title keywords would misclassify anything with a generic
       name, so this is on hold until that data actually exists. When this
       is built, also extend the empty-state logic to cover a cuisine
@@ -562,38 +558,22 @@ the pace if that week doesn't actually support it.
       Whatever generates a meal like "Pad Thai" already implicitly knows
       its cuisine — it's just not returned today. Once it exists, a real
       (non-guessed) cuisine filter becomes possible on the Recipes screen.
+
+#### Claude Code (client-side)
+
+Buildable in this repo with no backend involvement.
+
+- [ ] Add on-device OCR to receipt scanning — see the correction note on
+      the "Improve receipt scanning" task above. Without this, no photo
+      scan can ever succeed against the current backend; it needs an
+      actual text-recognition step (e.g. ML Kit) before calling
+      `/api/scan`, plus fixing the response mapping (`quantity` comes
+      back as a string, there's no `unit` field, neither matches
+      `NewPantryItem` today).
+- [ ] Refine the app's icon visuals and general look so it feels more polished
+      and professional overall
 - [ ] Let a single day in the meal plan be regenerated instead of only
       the whole 7-day plan at once.
-- [ ] **Needed for TestFlight:** research the best distribution method for
-      community/beta testing of the prototype — e.g. TestFlight for iOS,
-      the Google Play internal or closed testing track, or continuing
-      with Expo Go — as a step toward eventual App Store / Play Store
-      submission. Related but separate from the readiness gaps noted
-      elsewhere in this list (the testing-UI cleanup above, the real app
-      icon, and account deletion, which Apple's guidelines require for
-      any app with sign-up).
-- [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
-      the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
-      429 (quota exhausted or rate limited — Airo can't distinguish
-      which, and can't inspect the OpenAI account's usage/billing) gets
-      converted to the same generic "AI service is busy" message.
-      Reproduces 100% of the time, not intermittently, so this is a real
-      cap being hit, not normal traffic-based throttling. Needs checking
-      the OpenAI account's usage/billing via GoDaddy's "Manage my plan"
-      (from the user menu) or GoDaddy Support — not something visible or
-      fixable from Airo or this repo.
-- [ ] Finish the privacy policy — fill in the two placeholders left in
-      the draft (launch date, contact email), give it a final accuracy
-      check right before actually publishing since the app will keep
-      changing between now and then, and host it at a real, permanent
-      URL once the web domain exists, updating `PRIVACY_POLICY_URL` to
-      point there. One more reason this matters: the shared Claude
-      Artifact shows a "Content is user-generated and unverified" banner,
-      which undercuts credibility for what's supposed to be the app's
-      official, binding policy — fine for testing, not for an actual
-      submission. GitHub Pages was tried and isn't available on the
-      current plan (repo is private); would need either a public repo, a
-      paid GitHub plan, or a different static host.
 - [ ] Take a broader look at the "Add item" pantry form's other fields
       for the same kind of gap the Unit picker had (see the "Other"
       option task below, now done) — e.g. whether Category's fixed list
@@ -628,8 +608,47 @@ the pace if that week doesn't actually support it.
       account just authenticated. Fine for solo testing where you know to
       hit "Reset app," but a real user switching accounts on a shared
       device would hit this for real. Needs the profile keyed by user ID
-      (or fetched from the backend, once a profile endpoint exists)
-      instead of one global local flag.
+      instead of one global local flag — buildable now; fetching it from
+      the backend instead is a further improvement once a profile
+      endpoint exists.
+
+#### Human decision needed
+
+Not code — needs a person to research, decide, or check something
+outside this repo.
+
+- [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
+- [ ] Test the full app on an actual Android phone and an actual iPhone
+- [ ] **Needed for TestFlight:** research the best distribution method for
+      community/beta testing of the prototype — e.g. TestFlight for iOS,
+      the Google Play internal or closed testing track, or continuing
+      with Expo Go — as a step toward eventual App Store / Play Store
+      submission. Related but separate from the readiness gaps noted
+      elsewhere in this list (the testing-UI cleanup above, the real app
+      icon, and account deletion, which Apple's guidelines require for
+      any app with sign-up).
+- [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
+      the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
+      429 (quota exhausted or rate limited — Airo can't distinguish
+      which, and can't inspect the OpenAI account's usage/billing) gets
+      converted to the same generic "AI service is busy" message.
+      Reproduces 100% of the time, not intermittently, so this is a real
+      cap being hit, not normal traffic-based throttling. Needs checking
+      the OpenAI account's usage/billing via GoDaddy's "Manage my plan"
+      (from the user menu) or GoDaddy Support — not something visible or
+      fixable from Airo or this repo.
+- [ ] Finish the privacy policy — fill in the two placeholders left in
+      the draft (launch date, contact email), give it a final accuracy
+      check right before actually publishing since the app will keep
+      changing between now and then, and host it at a real, permanent
+      URL once the web domain exists, updating `PRIVACY_POLICY_URL` to
+      point there. One more reason this matters: the shared Claude
+      Artifact shows a "Content is user-generated and unverified" banner,
+      which undercuts credibility for what's supposed to be the app's
+      official, binding policy — fine for testing, not for an actual
+      submission. GitHub Pages was tried and isn't available on the
+      current plan (repo is private); would need either a public repo, a
+      paid GitHub plan, or a different static host.
 
 ---
 
