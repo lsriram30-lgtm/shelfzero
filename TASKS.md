@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 30 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 34 / 30 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 30 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
 
