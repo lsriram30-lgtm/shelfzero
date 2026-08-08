@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OnboardingProfile } from "../types";
-
-const STORAGE_KEY = "shelfzero.onboardingProfile";
+import { useAuth } from "./AuthContext";
+import { storageKeyFor } from "../utils/onboardingStorageKey";
 
 interface OnboardingContextValue {
   profile: OnboardingProfile | null;
@@ -15,25 +15,44 @@ interface OnboardingContextValue {
 const OnboardingContext = createContext<OnboardingContextValue | undefined>(undefined);
 
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
+  const { currentEmail, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
+    // Wait for AuthContext to resolve the real signed-in email first, so
+    // this doesn't briefly load the "anonymous" key and then swap to the
+    // right one a moment later.
+    if (authLoading) return;
+    let cancelled = false;
+    setIsLoading(true);
+    AsyncStorage.getItem(storageKeyFor(currentEmail))
       .then((stored) => {
-        if (stored) setProfile(JSON.parse(stored));
+        if (cancelled) return;
+        setProfile(stored ? JSON.parse(stored) : null);
       })
-      .finally(() => setIsLoading(false));
-  }, []);
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentEmail, authLoading]);
 
   const completeOnboarding = async (next: OnboardingProfile) => {
+    const previous = profile;
     setProfile(next);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    try {
+      await AsyncStorage.setItem(storageKeyFor(currentEmail), JSON.stringify(next));
+    } catch (err) {
+      setProfile(previous);
+      throw err;
+    }
   };
 
   const resetOnboarding = async () => {
     setProfile(null);
-    await AsyncStorage.removeItem(STORAGE_KEY);
+    await AsyncStorage.removeItem(storageKeyFor(currentEmail)).catch(() => {});
   };
 
   const value = useMemo(
