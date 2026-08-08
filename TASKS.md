@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 30 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 20 / 30 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 34 / 30 |
 
 **Goal:** 30 tasks each (total) by end of day 8/8.
 
@@ -506,6 +506,92 @@ the pace if that week doesn't actually support it.
       until the next refresh; `qty` comes back as a string, now coerced
       to a number. Also split the crowded Shopping list header into two
       rows.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix three missing-
+      error-handling bugs plus one missing-rollback bug (branch:
+      `feature/laya-batch4`) — merged into `master`. Found by grepping for
+      `try {}finally{}` blocks with no `catch` — the exact same gap showed
+      up independently in RecipeDetailScreen's favorite-toggle,
+      EditProfileScreen's save, and OnboardingScreen's final "Finish"
+      button (the worst one, since it's the first-time signup flow); all
+      three now show an error Alert like everywhere else in the app.
+      DonationContext.recordDonation also set state before awaiting its
+      AsyncStorage write with no rollback on failure — fixed the same way
+      usePantry/useShoppingList already handle it elsewhere.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a shopping-list
+      quantity stepper race condition (branch: `feature/laya-batch4`) —
+      merged into `master`. `updateQuantity` had nothing stopping
+      overlapping calls for the same item; rapid +/- tapping could revert
+      to a stale value if an earlier request failed after a later one had
+      already succeeded. Added a pending-ids guard and disabled the
+      buttons while an update for that item is in flight.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add free-text
+      fallback for the pantry form's Category and Unit "Other" options
+      (branch: `feature/laya-batch4`) — merged into `master`. Both were
+      just fixed labels with no way to say what "Other" actually meant;
+      picking either now shows a text field, and the typed value (falling
+      back to the literal "Other" if left blank) is what gets saved.
+      Editing an item whose category/unit isn't a known pill now correctly
+      shows Other selected with that value prefilled.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Redesign the Pantry
+      Stats category bars for real WCAG contrast (branch:
+      `feature/laya-batch4`) — merged into `master`. The audit found all
+      four `barPalette` fills failed 3:1 against the track color; no
+      single flat track color could work across a palette spanning very
+      pale to medium-dark fills. Fixed by giving each bar's filled segment
+      a border in whichever of dark/light text reads best against *that*
+      fill (`readableTextColor`, reusing the existing utility) instead of
+      guessing a new track shade, plus darkening the track itself. Every
+      pairing now clears 3:1 except one honestly-documented edge case
+      (dark mode's secondary-colored bar vs. the track, ~2.15:1 — still a
+      real improvement over the original 1.07–2.68:1 range).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Darken the primary
+      brand color for light-mode text contrast (branch:
+      `feature/laya-batch4`) — merged into `master`. Savory Sage
+      (`#818263`) rendered ~3.9:1 against the near-white text used
+      directly on it (selected pills, primary buttons) — under the 4.5:1
+      AA threshold, previously left as a "bigger design decision" since it
+      affects buttons/pills app-wide. Darkened it ~6% in lightness only
+      (same hue/saturation, so it still reads as the same green) to
+      `#707156`, clearing 4.5:1 with margin; dark mode's primary already
+      passed and is unchanged. Added regression tests against the real
+      theme values, not just the underlying math.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Scope onboarding-
+      complete state to the signed-in account instead of the device
+      (branch: `feature/laya-batch4`) — merged into `master`. The
+      onboarding profile was cached under one global key regardless of
+      account, so a second account signing in on the same device inherited
+      the first account's stale profile and skipped onboarding entirely.
+      There's no backend user ID exposed to the client, so this keys the
+      cache by the signed-in email instead (captured client-side at
+      sign-in/sign-up, a new SecureStore entry). Also fixed the same
+      missing-rollback bug as DonationContext in `completeOnboarding`, and
+      a 4th instance of the missing-catch bug in "Reset app (testing)."
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Let a single
+      meal-plan day be regenerated (branch: `feature/laya-batch4`) —
+      merged into `master`. No per-day backend endpoint exists, so this
+      generates a fresh full plan and splices just the requested day out
+      of it, leaving the rest of the cached week untouched. Subject to the
+      same known `/api/meal-plan` 429 quota issue as the rest of meal-plan
+      generation until that's resolved.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) **Needed for
+      TestFlight:** research the best distribution method for beta testing
+      (branch: `feature/laya-batch4`) — merged into `master`. Recommends
+      TestFlight + Google Play's Internal Testing track over continuing
+      with Expo Go once there's a real group of testers — Expo Go's link
+      breaks on network changes, always shows its own icon/splash instead
+      of the real app's, and (confirmed this project's own notifications
+      work) only partially supports notifications as of SDK 53+. Both
+      internal testing tracks support up to 100 testers with no store
+      review needed. Full reasoning and concrete setup steps in
+      `README.md`.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Re-verified two
+      previously-blocked backend gaps are still blocked (branch:
+      `feature/laya-batch4`) — merged into `master`. Household
+      member list/remove/leave and a favorites-remove endpoint were both
+      confirmed missing weeks ago; re-probed live since the backend has
+      since gained new endpoints on request (e.g. `DELETE /api/me`). Both
+      still return generic Express 404s (route doesn't exist at all), so
+      still genuinely blocked, not just stale documentation.
 
 ### Not yet assigned
 
@@ -524,7 +610,12 @@ the pace if that week doesn't actually support it.
 - [ ] Test the full app on an actual Android phone and an actual iPhone
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
-      way to remove them or leave
+      way to remove them or leave. Re-checked live by Laya: still 404s
+      (route doesn't exist), not just stale docs.
+- [ ] Add a way to un-favorite a recipe — `favoritesApi` only has
+      `list`/`add`, no remove, so RecipeDetailScreen's favorite button can
+      only ever turn one way. Checked live: `DELETE /api/favorites/:id`
+      404s, route doesn't exist.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
@@ -564,16 +655,6 @@ the pace if that week doesn't actually support it.
       Whatever generates a meal like "Pad Thai" already implicitly knows
       its cuisine — it's just not returned today. Once it exists, a real
       (non-guessed) cuisine filter becomes possible on the Recipes screen.
-- [ ] Let a single day in the meal plan be regenerated instead of only
-      the whole 7-day plan at once.
-- [ ] **Needed for TestFlight:** research the best distribution method for
-      community/beta testing of the prototype — e.g. TestFlight for iOS,
-      the Google Play internal or closed testing track, or continuing
-      with Expo Go — as a step toward eventual App Store / Play Store
-      submission. Related but separate from the readiness gaps noted
-      elsewhere in this list (the testing-UI cleanup above, the real app
-      icon, and account deletion, which Apple's guidelines require for
-      any app with sign-up).
 - [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
       the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
       429 (quota exhausted or rate limited — Airo can't distinguish
