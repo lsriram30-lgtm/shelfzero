@@ -3,8 +3,9 @@ import {
   hasEnoughPantryItems,
   hasPantryChanged,
   MIN_PANTRY_ITEMS_FOR_PLAN,
+  replaceDayInPlan,
 } from "./mealPlannerLogic";
-import { OnboardingProfile } from "../types";
+import { MealPlanDay, OnboardingProfile } from "../types";
 
 function profile(overrides: Partial<OnboardingProfile>): OnboardingProfile {
   return {
@@ -93,5 +94,36 @@ describe("hasEnoughPantryItems", () => {
 
   it("returns true above the minimum", () => {
     expect(hasEnoughPantryItems(MIN_PANTRY_ITEMS_FOR_PLAN + 5)).toBe(true);
+  });
+});
+
+function day(label: string, mealTitle: string): MealPlanDay {
+  return { day: label, meals: [{ label: "Dinner", title: mealTitle }] };
+}
+
+describe("replaceDayInPlan", () => {
+  const original = [day("Monday", "Pasta"), day("Tuesday", "Tacos"), day("Wednesday", "Soup")];
+
+  it("replaces only the matching day, leaving the rest untouched", () => {
+    const fresh = [day("Tuesday", "Stir Fry")];
+    const result = replaceDayInPlan(original, "Tuesday", fresh);
+    expect(result.map((d) => d.meals[0].title)).toEqual(["Pasta", "Stir Fry", "Soup"]);
+  });
+
+  it("only needs the target day to be present in the fresh plan, not the full week", () => {
+    const fresh = [day("Monday", "Omelet"), day("Tuesday", "Stir Fry"), day("Wednesday", "Curry")];
+    const result = replaceDayInPlan(original, "Tuesday", fresh);
+    expect(result.map((d) => d.meals[0].title)).toEqual(["Pasta", "Stir Fry", "Soup"]);
+  });
+
+  it("returns the original days unchanged if the fresh plan has no matching day label", () => {
+    const fresh = [day("SomeOtherLabel", "Mystery Dish")];
+    expect(replaceDayInPlan(original, "Tuesday", fresh)).toEqual(original);
+  });
+
+  it("does not mutate the original array", () => {
+    const before = [...original];
+    replaceDayInPlan(original, "Monday", [day("Monday", "Omelet")]);
+    expect(original).toEqual(before);
   });
 });
