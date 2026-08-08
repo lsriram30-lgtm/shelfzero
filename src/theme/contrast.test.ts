@@ -1,4 +1,5 @@
 import { contrastRatio, readableTextColor, relativeLuminance } from "./contrast";
+import { lightColors, darkColors } from "./colors";
 
 describe("relativeLuminance", () => {
   it("is ~1 for white", () => {
@@ -41,5 +42,24 @@ describe("readableTextColor", () => {
 
   it("picks light text for a dark background", () => {
     expect(readableTextColor("#22201C")).toBe("#FFFAF2");
+  });
+});
+
+describe("light-mode primary vs. surface/light text — regression case", () => {
+  // Selected pills and primary buttons render near-white text directly on
+  // colors.primary (not run through readableTextColor), so this pairing
+  // itself must clear AA on its own. The original Savory Sage (#818263)
+  // was only ~3.9:1 against light text — found in the accessibility
+  // contrast audit and initially left as a "bigger design decision" since
+  // darkening it affects buttons/pills app-wide. Fixed by darkening it
+  // ~6% in lightness (hue/saturation preserved) rather than picking a new
+  // color, or dark mode's primary (#C2C395, already ~7.9:1 against its
+  // dark-mode "surface" text) would need no change.
+  it("meets 4.5:1 for normal text", () => {
+    expect(contrastRatio(lightColors.primary, "#FFFAF2")).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("dark mode's primary already passes against its own surface color, unchanged", () => {
+    expect(contrastRatio(darkColors.primary, darkColors.surface)).toBeGreaterThanOrEqual(4.5);
   });
 });

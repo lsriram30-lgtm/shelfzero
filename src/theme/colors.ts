@@ -1,7 +1,7 @@
 export const lightColors = {
   background: "#FFFAF2", // Coconut Cream
   surface: "#FFFFFF",
-  primary: "#818263", // Savory Sage
+  primary: "#707156", // Savory Sage, darkened ~6% for AA text contrast (was #818263, ~3.9:1 against light text)
   secondary: "#C2C395", // Avocado Smoothie
   accent: "#DDBAAE", // Blush Beet
   highlight: "#EFD7CF", // Peach Protein
