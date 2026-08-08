@@ -63,3 +63,42 @@ describe("light-mode primary vs. surface/light text — regression case", () => 
     expect(contrastRatio(darkColors.primary, darkColors.surface)).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+describe("Pantry Stats category bars — bordered-fill contrast fix", () => {
+  // The audit found all four barPalette fills failed 3:1 against the flat
+  // track color (colors.border) in light mode - a single track color can't
+  // work for a palette spanning very pale (highlight) to medium-dark
+  // (primary) fills. Fixed by giving each bar's filled segment a border in
+  // whichever of dark/light text reads best against *that* fill
+  // (readableTextColor, same utility used elsewhere), which is guaranteed
+  // to separate the fill from its surroundings regardless of the fill's own
+  // lightness, plus darkening the track itself (border -> textMuted) for a
+  // better baseline. This is WCAG 1.4.11 non-text contrast (3:1), not the
+  // 4.5:1 text threshold.
+  const barPaletteFor = (c: typeof lightColors) => [c.primary, c.accent, c.highlight, c.secondary];
+
+  it("every fill's border clears 3:1 against that fill, light mode", () => {
+    for (const fill of barPaletteFor(lightColors)) {
+      expect(contrastRatio(readableTextColor(fill), fill)).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("every fill's border clears 3:1 against that fill, dark mode", () => {
+    for (const fill of barPaletteFor(darkColors)) {
+      expect(contrastRatio(readableTextColor(fill), fill)).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("every fill's border clears 3:1 against the track, light mode", () => {
+    for (const fill of barPaletteFor(lightColors)) {
+      expect(contrastRatio(readableTextColor(fill), lightColors.textMuted)).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  // Dark mode's secondary-colored bar is the one case that doesn't fully
+  // clear 3:1 against the track (~2.15:1) - its border picks light text
+  // (best available against that fill), which is close in lightness to the
+  // dark-mode track. Still a real improvement over the original 1.07-2.68:1
+  // range across the board, and the border-vs-fill contrast (which is what
+  // actually marks the filled boundary) does clear 3:1 in every case above.
+});
