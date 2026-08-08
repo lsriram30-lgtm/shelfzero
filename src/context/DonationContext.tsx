@@ -33,7 +33,12 @@ export function DonationProvider({ children }: { children: React.ReactNode }) {
     };
     const updated = [next, ...history];
     setHistory(updated);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (err) {
+      setHistory(history);
+      throw err;
+    }
   };
 
   const totalItemsDonated = useMemo(

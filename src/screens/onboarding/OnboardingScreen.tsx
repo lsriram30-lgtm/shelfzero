@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Alert } from "react-native";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
 import { initialOnboardingDraft, OnboardingDraft } from "./onboardingDraft";
@@ -31,6 +32,11 @@ export function OnboardingScreen() {
     setSubmitting(true);
     try {
       await completeOnboarding(draft);
+    } catch (err) {
+      Alert.alert(
+        "Couldn't finish setup",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
     } finally {
       setSubmitting(false);
     }
