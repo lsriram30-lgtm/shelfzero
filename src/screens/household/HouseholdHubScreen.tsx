@@ -48,6 +48,7 @@ export function HouseholdHubScreen() {
     addItem,
     toggleChecked,
     updateQuantity,
+    pendingQuantityIds,
     removeItem,
     clearChecked,
     removeItems,
@@ -440,7 +441,7 @@ export function HouseholdHubScreen() {
                       <View style={styles.quantityStepper}>
                         <Pressable
                           onPress={() => handleChangeQuantity(item, item.qty - 1)}
-                          disabled={item.qty <= 1}
+                          disabled={item.qty <= 1 || pendingQuantityIds.has(item.id)}
                           accessibilityRole="button"
                           accessibilityLabel={`Decrease quantity of ${item.name}`}
                         >
@@ -453,6 +454,7 @@ export function HouseholdHubScreen() {
                         <Text style={[styles.quantityValue, { color: colors.text }]}>{item.qty}</Text>
                         <Pressable
                           onPress={() => handleChangeQuantity(item, item.qty + 1)}
+                          disabled={pendingQuantityIds.has(item.id)}
                           accessibilityRole="button"
                           accessibilityLabel={`Increase quantity of ${item.name}`}
                         >
