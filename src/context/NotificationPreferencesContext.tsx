@@ -4,8 +4,10 @@ import {
   cancelExpiryReminders,
   requestNotificationPermission,
 } from "../notifications/expiryNotifications";
+import { useAuth } from "./AuthContext";
+import { accountScopedKey } from "../utils/accountScopedKey";
 
-const STORAGE_KEY = "shelfzero.notificationPreferences";
+const STORAGE_KEY_PREFIX = "shelfzero.notificationPreferences";
 
 interface NotificationPreferences {
   notifyExpiry: boolean;
@@ -28,16 +30,20 @@ const NotificationPreferencesContext = createContext<
 >(undefined);
 
 export function NotificationPreferencesProvider({ children }: { children: React.ReactNode }) {
+  const { currentEmail, isLoading: authLoading } = useAuth();
+  const storageKey = accountScopedKey(STORAGE_KEY_PREFIX, currentEmail);
   const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
+    if (authLoading) return;
+    setIsLoading(true);
+    AsyncStorage.getItem(storageKey)
       .then((stored) => {
-        if (stored) setPreferences({ ...DEFAULT_PREFERENCES, ...JSON.parse(stored) });
+        setPreferences(stored ? { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) } : DEFAULT_PREFERENCES);
       })
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [storageKey, authLoading]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -48,7 +54,7 @@ export function NotificationPreferencesProvider({ children }: { children: React.
 
   const updatePreferences = (next: NotificationPreferences) => {
     setPreferences(next);
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
+    AsyncStorage.setItem(storageKey, JSON.stringify(next)).catch(() => {});
   };
 
   const setNotifyExpiry = (value: boolean) => {
