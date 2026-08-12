@@ -21,14 +21,15 @@ export function SignInScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = email.trim().length > 0 && password.length > 0;
+  const emailFormatValid = email.trim().length === 0 || isValidEmail(email);
+  const emailError =
+    email.trim().length > 0 && !isValidEmail(email)
+      ? "Please enter a valid email address."
+      : undefined;
+  const canSubmit = email.trim().length > 0 && password.length > 0 && emailFormatValid;
 
   const handleSignIn = async () => {
     if (!canSubmit) return;
-    if (!isValidEmail(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
     setSubmitting(true);
     setError(null);
     try {
@@ -51,6 +52,7 @@ export function SignInScreen() {
           autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
+          error={emailError}
         />
         <TextField
           label="Password"
