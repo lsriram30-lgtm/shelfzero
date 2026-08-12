@@ -165,6 +165,7 @@ export function MealPlannerScreen() {
                   <CardHeaderLink
                     label={regeneratingDay === day.day ? "Regenerating…" : "Regenerate"}
                     onPress={() => handleRegenerateDay(day.day)}
+                    disabled={loading || !!regeneratingDay}
                   />
                 }
               />

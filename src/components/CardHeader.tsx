@@ -17,15 +17,23 @@ export function CardHeaderLink({
   label,
   onPress,
   tone = "default",
+  disabled = false,
 }: {
   label: string;
   onPress: () => void;
   tone?: "default" | "danger";
+  disabled?: boolean;
 }) {
   const { colors } = useTheme();
   return (
-    <Pressable onPress={onPress}>
-      <Text style={[styles.link, { color: tone === "danger" ? colors.danger : colors.primary }]}>
+    <Pressable onPress={onPress} disabled={disabled}>
+      <Text
+        style={[
+          styles.link,
+          { color: tone === "danger" ? colors.danger : colors.primary },
+          disabled ? styles.linkDisabled : null,
+        ]}
+      >
         {label}
       </Text>
     </Pressable>
@@ -44,5 +52,8 @@ const styles = StyleSheet.create({
   },
   link: {
     ...typography.bodyMedium,
+  },
+  linkDisabled: {
+    opacity: 0.4,
   },
 });
