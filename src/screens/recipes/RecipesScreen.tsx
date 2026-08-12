@@ -17,7 +17,12 @@ type RecipesNavigationProp = NativeStackNavigationProp<RecipesStackParamList, "R
 function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }) {
   const { colors } = useTheme();
   return (
-    <Pressable style={styles.tile} onPress={onPress}>
+    <Pressable
+      style={styles.tile}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={recipe.isFavorite ? `${recipe.title}, favorited` : recipe.title}
+    >
       <Card style={styles.tileCard}>
         {recipe.isFavorite ? (
           <Ionicons
