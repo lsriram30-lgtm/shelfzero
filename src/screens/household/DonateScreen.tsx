@@ -147,6 +147,9 @@ export function DonateScreen() {
                     key={item.id}
                     style={[styles.itemRow, { borderColor: colors.border }]}
                     onPress={() => toggleSelected(item.id)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: selected }}
+                    accessibilityLabel={item.name}
                   >
                     <Ionicons
                       name={selected ? "checkbox" : "square-outline"}
@@ -182,6 +185,9 @@ export function DonateScreen() {
                         backgroundColor: colors.surface,
                       },
                     ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: selected }}
+                    accessibilityLabel={p.name}
                   >
                     <View style={styles.partnerInfo}>
                       <Text style={[styles.partnerName, { color: colors.text }]}>{p.name}</Text>

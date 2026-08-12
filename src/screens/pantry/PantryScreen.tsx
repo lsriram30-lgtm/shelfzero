@@ -71,7 +71,13 @@ function CategoryGroup({
   const { colors } = useTheme();
   return (
     <Card style={styles.groupCard}>
-      <Pressable style={styles.groupHeader} onPress={onToggle}>
+      <Pressable
+        style={styles.groupHeader}
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={`${category}, ${items.length} item${items.length === 1 ? "" : "s"}`}
+      >
         <Text style={[styles.groupTitle, { color: colors.text }]}>
           {category} <Text style={{ color: colors.textMuted }}>({items.length})</Text>
         </Text>
