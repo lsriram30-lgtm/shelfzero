@@ -21,7 +21,13 @@ export const linking: LinkingOptions<RootStackParamList> = {
           RecipesTab: {
             screens: {
               Recipes: "recipes",
-              RecipeDetail: "recipes/:recipeId",
+              // No RecipeDetail deep link: that screen requires a full
+              // Recipe object passed via in-app navigation params, and
+              // there's no GET /api/recipes/:id to hydrate one from just an
+              // ID in a URL. A "recipes/:recipeId" entry here would always
+              // land on a broken/empty screen, so recipe links resolve to
+              // the list instead (RecipeDetailScreen still guards against
+              // a missing recipe param defensively either way).
             },
           },
           MealPlanner: "meal-plan",

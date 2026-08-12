@@ -12,14 +12,20 @@ type DetailRouteProp = RouteProp<RecipesStackParamList, "RecipeDetail">;
 export function RecipeDetailScreen() {
   const { colors } = useTheme();
   const route = useRoute<DetailRouteProp>();
-  const { recipe } = route.params;
+  // route.params is typed as always having `recipe`, but that only holds
+  // for in-app navigation, which is the only way this screen is actually
+  // reachable — there's no GET /api/recipes/:id to hydrate a full recipe
+  // from just an ID, so nothing can navigate here with anything else.
+  // Guarding anyway: TypeScript's type doesn't bind what a real deep link
+  // (or any future caller) could hand this screen at runtime.
+  const recipe = route.params?.recipe;
 
-  const [servings, setServings] = useState(recipe.servings ?? 2);
-  const [isFavorite, setIsFavorite] = useState(!!recipe.isFavorite);
+  const [servings, setServings] = useState(recipe?.servings ?? 2);
+  const [isFavorite, setIsFavorite] = useState(!!recipe?.isFavorite);
   const [savingFavorite, setSavingFavorite] = useState(false);
 
   const handleToggleFavorite = async () => {
-    if (isFavorite) return;
+    if (isFavorite || !recipe) return;
     setSavingFavorite(true);
     try {
       await favoritesApi.add(recipe.id);
@@ -33,6 +39,20 @@ export function RecipeDetailScreen() {
       setSavingFavorite(false);
     }
   };
+
+  if (!recipe) {
+    return (
+      <Screen>
+        <Header title="Recipe" />
+        <View style={styles.missingWrapper}>
+          <Text style={[styles.missingText, { color: colors.textMuted }]}>
+            We couldn't find that recipe. It may be from a link that's no longer valid — try
+            going back to Recipes.
+          </Text>
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -95,6 +115,16 @@ export function RecipeDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  missingWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: spacing.xl,
+  },
+  missingText: {
+    ...typography.body,
+    textAlign: "center",
+  },
   content: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxxl,
