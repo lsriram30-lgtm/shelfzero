@@ -47,10 +47,13 @@ function resolveErrorDetail(data: unknown, status: number): string {
 // While the app is still in the coding/testing phase, prefix every error
 // with its status code (e.g. "429 Error: ...") so it's easy to correlate
 // what's shown on-screen with what actually happened over the network.
-// Worth revisiting before real users see this — a plain message without
-// the code may read cleaner for production.
+// Gated behind __DEV__ (same flag already used to hide "Reset app" and
+// "send test notification") so a real release build shows the plain
+// message only — the status-code prefix is a debugging aid, not
+// something a real user needs to see.
 export function extractErrorMessage(data: unknown, status: number): string {
-  return `${status} Error: ${resolveErrorDetail(data, status)}`;
+  const detail = resolveErrorDetail(data, status);
+  return __DEV__ ? `${status} Error: ${detail}` : detail;
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {

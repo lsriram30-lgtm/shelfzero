@@ -126,4 +126,29 @@ describe("extractErrorMessage", () => {
       "500 Error: Something went wrong on our end. Please try again."
     );
   });
+
+  describe("in a real (non-dev) build", () => {
+    const originalDev = __DEV__;
+
+    beforeEach(() => {
+      // @ts-expect-error __DEV__ is a read-only RN global; reassigning it is
+      // only for this test's own sake, to simulate a release build.
+      __DEV__ = false;
+    });
+
+    afterEach(() => {
+      // @ts-expect-error see above
+      __DEV__ = originalDev;
+    });
+
+    it("omits the status-code prefix — that's a debugging aid, not something a real user needs", () => {
+      expect(extractErrorMessage({ message: "Bad request" }, 400)).toBe("Bad request");
+    });
+
+    it("still falls back to the plain-English default with no prefix", () => {
+      expect(extractErrorMessage(undefined, 401)).toBe(
+        "You're not signed in, or your session has expired. Please sign in again."
+      );
+    });
+  });
 });
