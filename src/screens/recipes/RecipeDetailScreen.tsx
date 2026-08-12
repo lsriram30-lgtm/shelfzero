@@ -65,6 +65,8 @@ export function RecipeDetailScreen() {
               label="−"
               variant="outline"
               onPress={() => setServings((s) => Math.max(1, s - 1))}
+              disabled={servings <= 1}
+              accessibilityLabel="Decrease servings"
               style={styles.stepperButton}
             />
             <Text style={[styles.servingsValue, { color: colors.text }]}>{servings}</Text>
@@ -72,6 +74,8 @@ export function RecipeDetailScreen() {
               label="+"
               variant="outline"
               onPress={() => setServings((s) => Math.min(20, s + 1))}
+              disabled={servings >= 20}
+              accessibilityLabel="Increase servings"
               style={styles.stepperButton}
             />
           </View>
