@@ -58,10 +58,12 @@ async function authRequest(path: string, body: unknown): Promise<AuthResult> {
     const detail = isAccountExists
       ? "An account with this email already exists."
       : humanizeMessage(rawMessage);
-    // Coding-phase convention (see client.ts's extractErrorMessage): prefix
-    // the status code so what's on-screen is easy to correlate with the
-    // network call. Revisit before real users see this.
-    throw new AuthError(`${response.status} Error: ${detail}`, isAccountExists);
+    // Same __DEV__ gating as client.ts's extractErrorMessage: the status
+    // code is a debugging aid, prefixed only in a dev build so it's easy to
+    // correlate what's on-screen with the network call while testing - a
+    // release build shows the plain message only.
+    const message = __DEV__ ? `${response.status} Error: ${detail}` : detail;
+    throw new AuthError(message, isAccountExists);
   }
 
   return data as AuthResult;

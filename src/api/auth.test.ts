@@ -87,4 +87,28 @@ describe("authApi", () => {
       message: "400 Error: Totally unrelated error",
     });
   });
+
+  describe("in a real (non-dev) build", () => {
+    const originalDev = __DEV__;
+
+    beforeEach(() => {
+      // @ts-expect-error __DEV__ is a read-only RN global; reassigning it is
+      // only for this test's own sake, to simulate a release build.
+      __DEV__ = false;
+    });
+
+    afterEach(() => {
+      // @ts-expect-error see above
+      __DEV__ = originalDev;
+    });
+
+    it("omits the status-code prefix", async () => {
+      jest
+        .spyOn(global, "fetch")
+        .mockResolvedValue(jsonResponse(500, { error: "Server is down for maintenance." }));
+      await expect(authApi.signIn("jamie@example.com", "hunter2")).rejects.toMatchObject({
+        message: "Server is down for maintenance.",
+      });
+    });
+  });
 });
