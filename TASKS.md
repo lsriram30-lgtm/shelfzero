@@ -39,13 +39,17 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 30 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 30 / 30 |
 
-**Goal:** 30 tasks each (total) by end of day 8/8.
+**Goal:** 40 tasks each (total) by end of day 8/15.
 
 **Note:** the goal increases by 10 each week. This isn't automatic;
 whoever updates this file should apply it, and it's fine to adjust
 the pace if that week doesn't actually support it.
 
-**Past Goals:** 10 each by 7/25, 20 each by 8/1.
+**NOTE (from Laya):** I'll be on my trip next week so I'll probably
+finish extra tasks this week but you should definetly go at your own
+pace I just won't be able to work much next week <3
+
+**Past Goals:** 10 each by 7/25, 20 each by 8/1, 30 each by 8/8.
 
 ### Currently assigned
 
