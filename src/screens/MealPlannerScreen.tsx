@@ -87,8 +87,12 @@ export function MealPlannerScreen() {
       });
       const updatedDays = replaceDayInPlan(days, dayLabel, plan.days);
       setDays(updatedDays);
-      setCachedPantryNames(currentPantryNames);
-      setCachedMealPlan({ days: updatedDays, pantryItemNames: currentPantryNames });
+      // Deliberately NOT updating cachedPantryNames here: only this one day
+      // was actually regenerated against the current pantry, so the other
+      // six are still whatever they were before. Marking the whole week as
+      // "matches current pantry" would incorrectly hide the "pantry
+      // changed" banner even though most of the week is still stale.
+      setCachedMealPlan({ days: updatedDays, pantryItemNames: cachedPantryNames });
     } catch (err) {
       setError(err instanceof Error ? err.message : `Couldn't regenerate ${dayLabel}.`);
     } finally {
