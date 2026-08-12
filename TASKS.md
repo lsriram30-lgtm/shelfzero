@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 40 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 30 / 40 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 40 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
 
@@ -596,6 +596,87 @@ pace I just won't be able to work much next week <3
       since gained new endpoints on request (e.g. `DELETE /api/me`). Both
       still return generic Express 404s (route doesn't exist at all), so
       still genuinely blocked, not just stale documentation.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix meal-plan
+      single-day regen incorrectly clearing staleness (branch:
+      `feature/laya-batch5`) — merged into `master`. Found in the "regen
+      one day" feature from a previous session: refreshing a single day
+      marked the *entire* cached plan as matching current pantry, hiding
+      the "pantry changed" banner even though the other six days were
+      still built on stale pantry data. Now leaves the cached pantry
+      snapshot untouched on a single-day regen.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Gate the debug
+      status-code error prefix behind `__DEV__` (branch:
+      `feature/laya-batch5`) — merged into `master`. Every error message
+      was prefixed "N Error: ...", explicitly flagged in-code as "worth
+      revisiting before real users see this." Gated behind `__DEV__`,
+      matching the pattern already used for Reset app / send test
+      notification — a release build now shows the plain message only.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an honest
+      caption to the recipe detail servings stepper (branch:
+      `feature/laya-batch5`) — merged into `master`. It implied scaling
+      ingredient amounts, but `recipe.servings` is never actually
+      populated by `useSuggestedRecipes` and `ingredients` is just one
+      unstructured description string — nothing to scale. Added a caption
+      clarifying it's a planning note only, same honesty pattern as the
+      Waste Savings fix.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Merge duplicate
+      shopping-list item names into a quantity bump (branch:
+      `feature/laya-batch5`) — merged into `master`. Adding "Milk" while
+      "Milk" was already on the list created a second row instead of
+      bumping the existing one. Matches case/whitespace-insensitively
+      against unchecked items only — a checked item represents a finished
+      need, so re-adding that name starts a fresh entry instead.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a donation
+      partial-failure accounting bug (branch: `feature/laya-batch5`) —
+      merged into `master`. Donating multiple items removed them from the
+      pantry one at a time but only logged the donation once the whole
+      batch succeeded — if item 2 of 3 failed, item 1 was already gone
+      from the pantry for real but never recorded as donated anywhere.
+      Now tracks what actually got removed and best-effort logs it even
+      on partial failure, with an honest error message about what
+      happened.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Validate contact
+      format on the Invite flow (branch: `feature/laya-batch5`) — merged
+      into `master`. The email/phone field only checked for non-empty, not
+      format — a garbled address would send successfully and silently
+      never reach anyone. Reuses `isValidEmail` and adds a new
+      `isValidPhone` (loose digit-count check), wired into an inline
+      TextField error.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add `disabled`
+      support to `CardHeaderLink`, use it on meal-plan Regenerate links
+      (branch: `feature/laya-batch5`) — merged into `master`. The
+      single-day regenerate feature already guarded against overlapping
+      regens in its handler, but gave no visual feedback — tapping
+      another day's Regenerate link while one was in flight silently did
+      nothing. The shared component had no `disabled` prop at all (used
+      for 10 different actions app-wide); added one and wired it in.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a broken
+      RecipeDetail deep link — crash risk (branch: `feature/laya-batch5`)
+      — merged into `master`. `linking.ts` declared a
+      `recipes/:recipeId` route, but the screen requires a full `Recipe`
+      object via in-app navigation params — there's no
+      `GET /api/recipes/:id` to hydrate one from a URL. Triggering that
+      link would have crashed on `recipe.title` with `recipe` undefined
+      at runtime (TypeScript's type only holds for in-app navigation, not
+      whatever a real deep link hands the screen). Removed the misleading
+      route and added a defensive runtime guard with a graceful fallback.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a
+      `CustomOptionField` duplicate-value bug (branch:
+      `feature/laya-batch5`) — merged into `master`. Typing a custom
+      cuisine/dietary/allergy value that matched an already-selected
+      *base* pill option (e.g. "Italian") silently appended a duplicate
+      string into the underlying array — invisible in the UI, since only
+      genuinely-custom entries render as removable pills. The duplicate
+      check only compared against that custom subset, not the full
+      selection. Fixed with a new `allSelected` prop and a tested
+      `isDuplicateOption` helper, wired into all four places this
+      component is used (3 onboarding steps + EditProfileScreen).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Deduplicate
+      `computeHealth` between `dashboardLogic.ts` and `PantryStatsScreen`
+      (branch: `feature/laya-batch5`) — merged into `master`. Byte-for-
+      byte identical logic lived in two places; the screen's local copy
+      was untested and nothing stopped the two from silently drifting
+      apart. `PantryStatsScreen` now imports the shared, tested version.
 
 ### Not yet assigned
 
