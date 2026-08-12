@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
 import { useOnboarding } from "../context/OnboardingContext";
+import { useAuth } from "../context/AuthContext";
 import { mealPlanApi } from "../api/mealPlan";
 import {
   Screen,
@@ -31,6 +32,7 @@ export function MealPlannerScreen() {
   const { colors } = useTheme();
   const { items: pantryItems } = usePantry();
   const { profile } = useOnboarding();
+  const { currentEmail } = useAuth();
   const [days, setDays] = useState<MealPlanDay[]>([]);
   const [cachedPantryNames, setCachedPantryNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,12 +40,12 @@ export function MealPlannerScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getCachedMealPlan().then((cached) => {
+    getCachedMealPlan(currentEmail).then((cached) => {
       if (!cached) return;
       setDays(cached.days);
       setCachedPantryNames(cached.pantryItemNames);
     });
-  }, []);
+  }, [currentEmail]);
 
   const currentPantryNames = pantryItems.map((item) => item.name);
   const isStale = days.length > 0 && hasPantryChanged(currentPantryNames, cachedPantryNames);
@@ -64,7 +66,7 @@ export function MealPlannerScreen() {
       setDays(plan.days);
       setCachedPantryNames(currentPantryNames);
       const toCache: CachedMealPlan = { days: plan.days, pantryItemNames: currentPantryNames };
-      setCachedMealPlan(toCache);
+      setCachedMealPlan(toCache, currentEmail);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't generate a meal plan.");
     } finally {
@@ -92,7 +94,7 @@ export function MealPlannerScreen() {
       // six are still whatever they were before. Marking the whole week as
       // "matches current pantry" would incorrectly hide the "pantry
       // changed" banner even though most of the week is still stale.
-      setCachedMealPlan({ days: updatedDays, pantryItemNames: cachedPantryNames });
+      setCachedMealPlan({ days: updatedDays, pantryItemNames: cachedPantryNames }, currentEmail);
     } catch (err) {
       setError(err instanceof Error ? err.message : `Couldn't regenerate ${dayLabel}.`);
     } finally {
@@ -103,7 +105,7 @@ export function MealPlannerScreen() {
   const handleKeepPlan = () => {
     setCachedPantryNames(currentPantryNames);
     const toCache: CachedMealPlan = { days, pantryItemNames: currentPantryNames };
-    setCachedMealPlan(toCache);
+    setCachedMealPlan(toCache, currentEmail);
   };
 
   return (

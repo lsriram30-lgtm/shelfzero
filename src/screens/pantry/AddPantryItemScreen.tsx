@@ -4,6 +4,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
 import { useOnboarding } from "../../context/OnboardingContext";
+import { useAuth } from "../../context/AuthContext";
 import { Screen, Header, TextField, Button, Pill, SwitchRow } from "../../components";
 import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
@@ -50,6 +51,7 @@ export function AddPantryItemScreen() {
   const route = useRoute<AddRouteProp>();
   const { addItem, updateItem, removeItem, isAutoAddOptedOut, setAutoAddOptOut } = usePantry();
   const { profile } = useOnboarding();
+  const { currentEmail } = useAuth();
 
   const prefill = route.params?.prefill;
   const editingItem = route.params?.item;
@@ -103,7 +105,7 @@ export function AddPantryItemScreen() {
   useEffect(() => {
     if (!editingItem) return;
     let cancelled = false;
-    getCachedMealPlan().then((cached) => {
+    getCachedMealPlan(currentEmail).then((cached) => {
       if (!cancelled && cached?.pantryItemNames.includes(editingItem.name)) {
         setIsInCurrentPlan(true);
       }
@@ -111,7 +113,7 @@ export function AddPantryItemScreen() {
     return () => {
       cancelled = true;
     };
-  }, [editingItem?.name]);
+  }, [editingItem?.name, currentEmail]);
 
   const parsedQuantity = Number(quantity);
   const minQuantity = isEditing ? 0 : 1;

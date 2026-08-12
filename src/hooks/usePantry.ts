@@ -3,8 +3,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { pantryApi, shoppingListApi } from "../api";
 import { NewPantryItem, PantryItem, UpdatePantryItem } from "../types";
 import { withAutoAddOptOut } from "../screens/pantry/pantryLogic";
+import { useAuth } from "../context/AuthContext";
+import { accountScopedKey } from "../utils/accountScopedKey";
 
-const CACHE_KEY = "shelfzero.pantryCache";
+const CACHE_KEY_PREFIX = "shelfzero.pantryCache";
 const AUTO_ADD_OPT_OUT_KEY = "shelfzero.autoAddOptOutIds";
 
 async function loadAutoAddOptOutIds(): Promise<string[]> {
@@ -17,6 +19,8 @@ async function loadAutoAddOptOutIds(): Promise<string[]> {
 }
 
 export function usePantry() {
+  const { currentEmail, isLoading: authLoading } = useAuth();
+  const cacheKey = accountScopedKey(CACHE_KEY_PREFIX, currentEmail);
   const [items, setItems] = useState<PantryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,11 +38,11 @@ export function usePantry() {
       const data = await pantryApi.list();
       setItems(data);
       setIsOffline(false);
-      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data)).catch(() => {});
+      AsyncStorage.setItem(cacheKey, JSON.stringify(data)).catch(() => {});
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load pantry items");
       try {
-        const cached = await AsyncStorage.getItem(CACHE_KEY);
+        const cached = await AsyncStorage.getItem(cacheKey);
         if (cached) {
           setItems(JSON.parse(cached) as PantryItem[]);
           setIsOffline(true);
@@ -49,11 +53,15 @@ export function usePantry() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cacheKey]);
 
   useEffect(() => {
+    // Wait for AuthContext to resolve the real signed-in email first, so
+    // this doesn't fetch once under the "anonymous" cache key and then
+    // immediately re-fetch under the real one a moment later.
+    if (authLoading) return;
     refresh();
-  }, [refresh]);
+  }, [refresh, authLoading]);
 
   const addItem = useCallback(async (item: NewPantryItem) => {
     const created = await pantryApi.create(item);
