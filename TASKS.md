@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 40 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 40 / 40 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
 
@@ -677,6 +677,77 @@ pace I just won't be able to work much next week <3
       byte identical logic lived in two places; the screen's local copy
       was untested and nothing stopped the two from silently drifting
       apart. `PantryStatsScreen` now imports the shared, tested version.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add a client-side
+      search/filter box to the Recipes screen (branch:
+      `feature/laya-batch6`) — merged into `master`. There's still no real
+      recipe-catalog search endpoint (see the "Not yet assigned" note
+      below), so this only filters whatever's already loaded (suggested +
+      favorited) by title, same honest-partial pattern as the Pantry
+      search box. 5 tests added.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Re-verified four
+      backend-blocked backlog items and documented findings (branch:
+      `feature/laya-batch6`) — merged into `master`. Re-checked live:
+      recipe search, donation backend, household member remove/leave, and
+      recipe un-favorite are all still blocked (404s or no endpoint at
+      all), not just stale docs. Notes below each entry now reflect the
+      8/12 re-check.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add live
+      email-format validation to SignIn, SignUp, and the onboarding
+      account step (branch: `feature/laya-batch6`) — merged into
+      `master`. The Invite flow already validated format live in an
+      earlier batch, but these three screens only checked format at
+      submit time (or not at all) — inconsistent with each other and
+      with Invite. Now all four match.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Gate `auth.ts`'s
+      debug status-code error prefix behind `__DEV__` too (branch:
+      `feature/laya-batch6`) — merged into `master`. The earlier
+      `__DEV__`-gating fix (batch5) covered `client.ts` but missed this
+      file's independent copy of the same "N Error: ..." prefix.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an honest
+      "scanning isn't working yet" notice to the Scan screen (branch:
+      `feature/laya-batch6`) — merged into `master`. Re-confirmed live
+      that both receipt and barcode scans still fail against the backend
+      (same root cause as the earlier scanning-reliability correction
+      note). Rather than let someone scan and hit a confusing failure,
+      the idle camera view now shows a plain-English notice up front with
+      a shortcut to add the item manually instead.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Scope the pantry
+      offline cache and meal-plan cache to the signed-in account instead
+      of the device (branch: `feature/laya-batch6`) — merged into
+      `master`. Same bug class as the onboarding-profile fix in batch4,
+      but worse here: a second account signing in on the same device
+      would see the *first* account's actual pantry items or meal plan
+      shown as its own. Extracted the per-account keying into a shared,
+      tested `accountScopedKey()` util instead of duplicating the pattern
+      a third time.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Scope donation
+      history, notification preferences, and the auto-add opt-out list to
+      the signed-in account too (branch: `feature/laya-batch6`) — merged
+      into `master`. Same fix as above, batched in for consistency now
+      that `accountScopedKey()` exists. Donation history is the more
+      serious of the three (real donation records); notification prefs
+      and the opt-out list are lower-severity personal toggles.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add
+      `accessibilityRole`/`accessibilityState` to the Donate screen's item
+      checkboxes and partner radio rows, and the Pantry screen's
+      collapsible category header (branch: `feature/laya-batch6`) —
+      merged into `master`. Each had visible text, but nothing told a
+      screen reader it was a checkbox/radio/expandable toggle or what its
+      current state was.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add
+      `accessibilityRole` to the Recipes screen's recipe tiles (branch:
+      `feature/laya-batch6`) — merged into `master`. Same gap as the item
+      above, batched in for consistency; the label also now surfaces
+      favorite status, previously conveyed only by a star icon.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Make the recipe
+      detail servings stepper accessible and disable it at its 1/20
+      boundaries (branch: `feature/laya-batch6`) — merged into `master`.
+      The +/- buttons only had single-character visible labels ("−"/"+"),
+      unhelpful to a screen reader, and silently no-op'd at the boundaries
+      instead of disabling like the shopping-list stepper already does.
+      Added an optional `accessibilityLabel` prop to the shared `Button`
+      component (every other call site is unaffected, since it defaults
+      to the visible label) and used it here.
 
 ### Not yet assigned
 
