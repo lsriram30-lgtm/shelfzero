@@ -681,42 +681,6 @@ pace I just won't be able to work much next week <3
       submission. GitHub Pages was tried and isn't available on the
       current plan (repo is private); would need either a public repo, a
       paid GitHub plan, or a different static host.
-- [ ] Take a broader look at the "Add item" pantry form's other fields
-      for the same kind of gap the Unit picker had (see the "Other"
-      option task below, now done) — e.g. whether Category's fixed list
-      needs a genuine free-text fallback rather than just a literal
-      "Other" pill.
-- [ ] Redesign the Pantry Stats category bars' fill-vs-track contrast —
-      found during the accessibility contrast audit. All four
-      `barPalette` colors (primary, accent, highlight, secondary) fail
-      3:1 contrast against the track color (`colors.border`) in light
-      mode (1.07–2.68:1), meaning the filled portion of each bar is hard
-      to distinguish from the empty track. Needs a real track redesign
-      (a more neutral/contrasting track background), not a one-line
-      color swap like the other audit fixes — the track color itself is
-      too close in lightness to every fill color it's paired with.
-- [ ] Darken the core `primary` brand color (Savory Sage) for light
-      mode, or otherwise fix selected-pill text contrast — found during
-      the accessibility contrast audit. Selected pills render
-      `colors.surface` (white) text on a `colors.primary` background at
-      ~4.0:1 in light mode, just under the 4.5:1 AA threshold for normal
-      text. This affects every selected filter/category/toggle pill
-      app-wide, so it's a bigger design decision than the other audit
-      fixes, not a quick swap — darkening primary has knock-on effects
-      on buttons and every other place it's used.
-- [ ] Scope onboarding-complete state to the signed-in account instead of
-      the device — found while testing account deletion. The onboarding
-      profile (name, cuisine/dietary prefs, etc.) lives only in
-      `AsyncStorage`, keyed generically, not per-account or fetched from
-      the backend. Once it's been filled in once on a device, `isComplete`
-      (`!!profile`) stays true for *any* subsequent sign-up or sign-in on
-      that same device, skipping the questionnaire entirely and showing
-      stale local data (e.g. an old test name) regardless of which real
-      account just authenticated. Fine for solo testing where you know to
-      hit "Reset app," but a real user switching accounts on a shared
-      device would hit this for real. Needs the profile keyed by user ID
-      (or fetched from the backend, once a profile endpoint exists)
-      instead of one global local flag.
 
 ---
 
