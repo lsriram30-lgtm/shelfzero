@@ -1,3 +1,17 @@
+// Finds an existing unchecked item with the same name (case/whitespace
+// insensitive) so adding it again can bump its quantity instead of
+// creating a second row. Deliberately excludes checked items — one
+// already picked up represents a finished need, not a duplicate of a new
+// one, so adding "Milk" again after checking off "Milk" should start a
+// fresh entry, not silently bump the already-checked one.
+export function findMatchingUnchecked<T extends { name: string; checked: boolean }>(
+  items: T[],
+  name: string
+): T | undefined {
+  const normalized = name.trim().toLowerCase();
+  return items.find((item) => !item.checked && item.name.trim().toLowerCase() === normalized);
+}
+
 export function toggleSelection(selected: Set<string>, id: string): Set<string> {
   const next = new Set(selected);
   if (next.has(id)) next.delete(id);

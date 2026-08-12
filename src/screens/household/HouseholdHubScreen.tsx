@@ -26,7 +26,12 @@ import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { ShoppingListItem } from "../../types";
 import { sendTestNotification } from "../../notifications/expiryNotifications";
-import { formatShoppingListForShare, toggleSelectAll, toggleSelection } from "./shoppingListLogic";
+import {
+  findMatchingUnchecked,
+  formatShoppingListForShare,
+  toggleSelectAll,
+  toggleSelection,
+} from "./shoppingListLogic";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
 
@@ -83,8 +88,14 @@ export function HouseholdHubScreen() {
   };
 
   const handleAddShoppingItem = async () => {
-    if (!newItem.trim()) return;
-    await addItem({ name: newItem.trim(), qty: 1 });
+    const name = newItem.trim();
+    if (!name) return;
+    const existing = findMatchingUnchecked(shoppingItems, name);
+    if (existing) {
+      await handleChangeQuantity(existing, existing.qty + 1);
+    } else {
+      await addItem({ name, qty: 1 });
+    }
     setNewItem("");
   };
 

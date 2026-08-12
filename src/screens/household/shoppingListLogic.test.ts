@@ -1,4 +1,42 @@
-import { formatShoppingListForShare, toggleSelectAll, toggleSelection } from "./shoppingListLogic";
+import {
+  findMatchingUnchecked,
+  formatShoppingListForShare,
+  toggleSelectAll,
+  toggleSelection,
+} from "./shoppingListLogic";
+
+describe("findMatchingUnchecked", () => {
+  it("finds an unchecked item with an exact name match", () => {
+    const items = [{ name: "Milk", checked: false }];
+    expect(findMatchingUnchecked(items, "Milk")).toBe(items[0]);
+  });
+
+  it("matches case-insensitively", () => {
+    const items = [{ name: "Milk", checked: false }];
+    expect(findMatchingUnchecked(items, "milk")).toBe(items[0]);
+  });
+
+  it("ignores leading/trailing whitespace on both sides", () => {
+    const items = [{ name: "  Milk ", checked: false }];
+    expect(findMatchingUnchecked(items, "Milk")).toBe(items[0]);
+  });
+
+  it("does not match a checked item — a picked-up item is a finished need, not a duplicate", () => {
+    const items = [{ name: "Milk", checked: true }];
+    expect(findMatchingUnchecked(items, "Milk")).toBeUndefined();
+  });
+
+  it("returns undefined when there's no match at all", () => {
+    const items = [{ name: "Eggs", checked: false }];
+    expect(findMatchingUnchecked(items, "Milk")).toBeUndefined();
+  });
+
+  it("prefers an unchecked match even if a checked duplicate also exists", () => {
+    const uncheckedMilk = { name: "Milk", checked: false };
+    const items = [{ name: "Milk", checked: true }, uncheckedMilk];
+    expect(findMatchingUnchecked(items, "Milk")).toBe(uncheckedMilk);
+  });
+});
 
 describe("toggleSelection", () => {
   it("adds an id that isn't selected", () => {
