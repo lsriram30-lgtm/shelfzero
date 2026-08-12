@@ -681,9 +681,18 @@ pace I just won't be able to work much next week <3
 ### Not yet assigned
 
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
-      since the backend doesn't have a proper recipe search yet
+      since the backend doesn't have a proper recipe search yet. Checked live by
+      Laya on 8/12: `GET /api/recipes` still 404s, so a real cross-catalog search
+      still isn't buildable. Added the honest partial version instead — a
+      search box that filters whatever's already loaded (suggested + favorited),
+      same pattern as the Pantry search box — but that's a filter over what's
+      visible, not a real search, so leaving this open until the backend has a
+      real recipes endpoint.
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
-      no server endpoint or actual donation partner behind it)
+      no server endpoint or actual donation partner behind it). Re-checked live
+      by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
+      API to integrate with in the first place, so this isn't just a missing
+      route, there's nothing to build against at all yet.
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend; it needs an
@@ -696,11 +705,17 @@ pace I just won't be able to work much next week <3
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
       way to remove them or leave. Re-checked live by Laya: still 404s
-      (route doesn't exist), not just stale docs.
+      (route doesn't exist), not just stale docs. Re-re-checked live on 8/12
+      (both `DELETE /api/household/members/:id` and `POST
+      /api/household/leave`) — still 404, unchanged.
 - [ ] Add a way to un-favorite a recipe — `favoritesApi` only has
       `list`/`add`, no remove, so RecipeDetailScreen's favorite button can
       only ever turn one way. Checked live: `DELETE /api/favorites/:id`
-      404s, route doesn't exist.
+      404s, route doesn't exist. Re-checked live again on 8/12, still 404.
+      Deliberately not building a client-side-only "un-favorite" (hiding it
+      locally while the backend still has it favorited) — it would reappear
+      on next refresh and mislead about state on other devices/sessions,
+      same reasoning as the earlier account-deletion decision.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 - [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
