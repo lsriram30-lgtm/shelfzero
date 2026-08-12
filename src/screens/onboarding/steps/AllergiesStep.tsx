@@ -50,6 +50,7 @@ export function AllergiesStep({ draft, update, onNext, onBack }: Props) {
 
       <CustomOptionField
         customValues={customAllergies}
+        allSelected={draft.allergies}
         onAdd={(value) => update({ allergies: [...draft.allergies, value] })}
         onRemove={(value) => update({ allergies: toggleValue(draft.allergies, value) })}
         placeholder="e.g. Kiwi, Mustard, Sulfites…"

@@ -3,9 +3,14 @@ import { StyleSheet, Text, View } from "react-native";
 import { Button, Pill, TextField } from "../../components";
 import { useTheme } from "../../context/ThemeContext";
 import { spacing, typography } from "../../theme";
+import { isDuplicateOption } from "../../utils/customOptions";
 
 interface CustomOptionFieldProps {
   customValues: string[];
+  /** The full current selection (base pills + custom values combined),
+   * used only to catch a typed duplicate of an already-selected base
+   * pill option — `customValues` alone wouldn't see that collision. */
+  allSelected: string[];
   onAdd: (value: string) => void;
   onRemove: (value: string) => void;
   placeholder?: string;
@@ -14,6 +19,7 @@ interface CustomOptionFieldProps {
 
 export function CustomOptionField({
   customValues,
+  allSelected,
   onAdd,
   onRemove,
   placeholder = "Type your own…",
@@ -24,7 +30,7 @@ export function CustomOptionField({
 
   const handleAdd = () => {
     const value = input.trim();
-    if (!value || customValues.includes(value)) return;
+    if (!value || isDuplicateOption(value, allSelected)) return;
     onAdd(value);
     setInput("");
   };

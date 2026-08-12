@@ -49,6 +49,7 @@ export function DietaryPrefsStep({ draft, update, onNext, onBack }: Props) {
 
       <CustomOptionField
         customValues={customPrefs}
+        allSelected={draft.dietaryPrefs}
         onAdd={(value) => update({ dietaryPrefs: [...draft.dietaryPrefs, value] })}
         onRemove={(value) => update({ dietaryPrefs: toggleValue(draft.dietaryPrefs, value) })}
         placeholder="e.g. FODMAP-friendly, Halal, Kosher…"
