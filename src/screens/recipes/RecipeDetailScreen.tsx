@@ -55,6 +55,9 @@ export function RecipeDetailScreen() {
               style={styles.stepperButton}
             />
           </View>
+          <Text style={[styles.servingsHint, { color: colors.textMuted }]}>
+            A planning note only — ingredient amounts below aren't scaled to this yet.
+          </Text>
         </Card>
 
         {recipe.ingredients && recipe.ingredients.length > 0 ? (
@@ -116,6 +119,11 @@ const styles = StyleSheet.create({
   servingsValue: {
     ...typography.h1,
     minWidth: 40,
+    textAlign: "center",
+  },
+  servingsHint: {
+    ...typography.caption,
+    marginTop: spacing.md,
     textAlign: "center",
   },
   card: {},
