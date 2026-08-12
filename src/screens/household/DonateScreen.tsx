@@ -68,20 +68,41 @@ export function DonateScreen() {
   const handleConfirm = async () => {
     if (!partner) return;
     setSubmitting(true);
+    // Removed one at a time so a mid-batch failure still leaves us knowing
+    // exactly which items are actually gone from the pantry (for real,
+    // regardless of what happens next) vs. which never got touched.
+    const removed: typeof selectedItems = [];
     try {
       for (const item of selectedItems) {
         await removeItem(item.id);
+        removed.push(item);
       }
       await recordDonation({
         partnerId: partner.id,
         partnerName: partner.name,
-        itemNames: selectedItems.map((item) => item.name),
+        itemNames: removed.map((item) => item.name),
       });
-      setDone({ count: selectedItems.length, partnerName: partner.name });
+      setDone({ count: removed.length, partnerName: partner.name });
     } catch (err) {
+      if (removed.length > 0) {
+        // These items are genuinely gone from the pantry already - log them
+        // as donated (best-effort) so that removal isn't left unaccounted
+        // for in history, even though the batch didn't fully complete.
+        await recordDonation({
+          partnerId: partner.id,
+          partnerName: partner.name,
+          itemNames: removed.map((item) => item.name),
+        }).catch(() => {});
+      }
       Alert.alert(
         "Couldn't complete donation",
-        err instanceof Error ? err.message : "Please try again."
+        removed.length > 0
+          ? `${removed.length} of ${selectedItems.length} items were removed from your pantry ` +
+            `and logged as donated before this failed. The rest are unchanged — you can try ` +
+            `again with what's left.`
+          : err instanceof Error
+            ? err.message
+            : "Please try again."
       );
     } finally {
       setSubmitting(false);
