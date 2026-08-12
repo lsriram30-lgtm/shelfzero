@@ -1,4 +1,4 @@
-import { filterByMealType, uniqueMealTypes } from "./recipesLogic";
+import { filterByMealType, filterByTitle, uniqueMealTypes } from "./recipesLogic";
 import { Recipe } from "../../types";
 
 function recipe(overrides: Partial<Recipe>): Recipe {
@@ -52,5 +52,33 @@ describe("filterByMealType", () => {
 
   it("returns an empty array when nothing matches", () => {
     expect(filterByMealType(recipes, "Snack")).toEqual([]);
+  });
+});
+
+describe("filterByTitle", () => {
+  const recipes = [
+    recipe({ id: "1", title: "Chicken Stir Fry" }),
+    recipe({ id: "2", title: "Vegetable Soup" }),
+    recipe({ id: "3", title: "Chicken Noodle Soup" }),
+  ];
+
+  it("returns all recipes when the query is empty", () => {
+    expect(filterByTitle(recipes, "")).toEqual(recipes);
+  });
+
+  it("returns all recipes when the query is only whitespace", () => {
+    expect(filterByTitle(recipes, "   ")).toEqual(recipes);
+  });
+
+  it("matches a substring anywhere in the title, case-insensitively", () => {
+    expect(filterByTitle(recipes, "chicken").map((r) => r.id)).toEqual(["1", "3"]);
+  });
+
+  it("trims the query before matching", () => {
+    expect(filterByTitle(recipes, "  soup  ").map((r) => r.id)).toEqual(["2", "3"]);
+  });
+
+  it("returns an empty array when nothing matches", () => {
+    expect(filterByTitle(recipes, "pizza")).toEqual([]);
   });
 });
