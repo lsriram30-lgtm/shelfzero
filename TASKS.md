@@ -828,12 +828,17 @@ this repo.
       Gemini-backed, capped at 8 results, same detailed shape as
       `/api/meal-plan`'s per-meal data — deliberately routed through Gemini
       rather than OpenAI to avoid inheriting the meal-plan `429` quota issue)
-      but Airo confirmed it currently returns a `503` because the configured
-      Gemini service itself is unavailable — not a client-side problem,
-      nothing to build against yet. Still the honest partial version in the
-      meantime — a search box that filters whatever's already loaded
-      (suggested + favorited), same pattern as the Pantry search box — but
-      that's a filter over what's visible, not a real search.
+      but Airo found the config was pointing at a retired model
+      (`gemini-2.0-flash`, 404ing); fixed to `gemini-2.5-flash` on 8/14, but a
+      real `pasta` search still exceeds a 10-second window — too slow for
+      live keystroke search, Airo's own assessment. Needs a real "Search"
+      button + loading state design instead of search-as-you-type, plus
+      Airo's suggested server-side timeout and caching before it's worth
+      building the client for — still nothing solid to build against yet.
+      Still the honest partial version in the meantime — a search box that
+      filters whatever's already loaded (suggested + favorited), same
+      pattern as the Pantry search box — but that's a filter over what's
+      visible, not a real search.
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it). Re-checked live
       by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
