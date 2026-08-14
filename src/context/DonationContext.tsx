@@ -1,10 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DonationRecord } from "../types";
 import { useAuth } from "./AuthContext";
-import { accountScopedKey } from "../utils/accountScopedKey";
-
-const STORAGE_KEY_PREFIX = "shelfzero.donationHistory";
+import { donationsApi } from "../api/donations";
 
 interface DonationContextValue {
   history: DonationRecord[];
@@ -16,38 +13,36 @@ interface DonationContextValue {
 const DonationContext = createContext<DonationContextValue | undefined>(undefined);
 
 export function DonationProvider({ children }: { children: React.ReactNode }) {
-  const { currentEmail, isLoading: authLoading } = useAuth();
-  const storageKey = accountScopedKey(STORAGE_KEY_PREFIX, currentEmail);
+  const { isSignedIn, isLoading: authLoading } = useAuth();
   const [history, setHistory] = useState<DonationRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Wait for AuthContext to resolve the real signed-in email first, so
-    // this doesn't load once under the "anonymous" key and then swap to a
-    // different account's history a moment later.
-    if (authLoading) return;
+  const refresh = async () => {
     setIsLoading(true);
-    AsyncStorage.getItem(storageKey)
-      .then((stored) => {
-        setHistory(stored ? JSON.parse(stored) : []);
-      })
-      .finally(() => setIsLoading(false));
-  }, [storageKey, authLoading]);
+    try {
+      const data = await donationsApi.list();
+      setHistory(data);
+    } catch {
+      setHistory([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isSignedIn) {
+      setHistory([]);
+      setIsLoading(false);
+      return;
+    }
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, isSignedIn]);
 
   const recordDonation = async (record: Omit<DonationRecord, "id" | "date">) => {
-    const next: DonationRecord = {
-      ...record,
-      id: `${Date.now()}`,
-      date: new Date().toISOString(),
-    };
-    const updated = [next, ...history];
-    setHistory(updated);
-    try {
-      await AsyncStorage.setItem(storageKey, JSON.stringify(updated));
-    } catch (err) {
-      setHistory(history);
-      throw err;
-    }
+    await donationsApi.create(record);
+    await refresh();
   };
 
   const totalItemsDonated = useMemo(
