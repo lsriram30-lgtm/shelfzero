@@ -2,6 +2,7 @@ import { apiClient } from "./client";
 
 export type CurrentUser = {
   householdId: string | null;
+  role?: "owner" | "member";
 };
 
 export const householdApi = {

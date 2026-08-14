@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 33 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 34 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -786,6 +786,18 @@ pace I just won't be able to work much next week <3
       to the wrong thing — needs a real live test (invite, accept, remove)
       to confirm or fix. Typecheck, tests, and an `expo export` bundle all
       pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Gate the
+      remove-member action to household owners (branch:
+      `feature/household-member-roles`). Airo added owner/member roles on
+      8/14 (`GET /api/me` now returns `role`) and restricted
+      `DELETE /api/household/members/:id` to owners server-side —
+      previously any member could remove any other. Client now fetches
+      the signed-in user's role on Profile and only shows the trash icon
+      per member row when it's `"owner"`; defaults to hidden (not
+      "unknown") while that loads, so a non-owner never briefly sees a
+      control that would just 403. "Leave household" stays available to
+      everyone, unaffected by role. Typecheck, tests, and an
+      `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -815,12 +827,6 @@ this repo.
       locally while the backend still has it favorited) — it would reappear
       on next refresh and mislead about state on other devices/sessions,
       same reasoning as the earlier account-deletion decision.
-- [ ] Add household member roles (e.g. owner vs. member) — Airo confirmed
-      on 8/14 that the new remove/leave endpoints below don't enforce this
-      yet: any household member can remove any other member (self-removal
-      has to go through the leave endpoint instead). No role concept
-      exists server-side to restrict that to, say, whoever created the
-      household.
 - [ ] Add an "add ingredients to shopping list" action on a planned meal —
       right now meals in the plan are just display-only, with no way to turn
       one into shopping list items. Turns out to be lower-value than it
