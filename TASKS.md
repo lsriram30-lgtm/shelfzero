@@ -750,14 +750,15 @@ pace I just won't be able to work much next week <3
       to the visible label) and used it here.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Build the
       forgot-password / reset-password flow (branch:
-      `feature/forgot-password-reset`). No longer backend-blocked as of
-      8/14 — Airo confirmed `POST /api/auth/request-password-reset` sends
-      a real branded email, and the emailed link's token + new password
-      go to `POST /api/auth/reset-password`. Added a "Forgot password?"
-      link on Sign In, a request-screen (`ForgotPasswordScreen`, in the
-      Auth stack) that always shows a generic "check your email" success
-      message regardless of whether the address has an account (so this
-      can't be used to enumerate real emails), and a reset screen
+      `feature/forgot-password-reset`) — merged into `master`. No longer
+      backend-blocked as of 8/14 — Airo confirmed `POST
+      /api/auth/request-password-reset` sends a real branded email, and
+      the emailed link's token + new password go to `POST
+      /api/auth/reset-password`. Added a "Forgot password?" link on Sign
+      In, a request-screen (`ForgotPasswordScreen`, in the Auth stack)
+      that always shows a generic "check your email" success message
+      regardless of whether the address has an account (so this can't be
+      used to enumerate real emails), and a reset screen
       (`ResetPasswordScreen`) mounted at the root navigator level rather
       than inside the Auth stack, since the emailed link has to resolve
       correctly no matter what screen the app would otherwise show —
@@ -769,7 +770,6 @@ pace I just won't be able to work much next week <3
       navigator to push a screen from, so it's left as a smaller followup
       rather than restructuring onboarding for it. Typecheck, all 186
       tests, and a real `expo export --platform ios` bundle all pass.
-      Not yet merged into `master`.
 
 ### Not yet assigned
 
