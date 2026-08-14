@@ -800,7 +800,8 @@ pace I just won't be able to work much next week <3
       everyone, unaffected by role. Typecheck, tests, and an
       `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Let a recipe
-      be un-favorited (branch: `feature/unfavorite-recipe`). Airo added
+      be un-favorited (branch: `feature/unfavorite-recipe`) — merged into
+      `master`. Airo added
       `DELETE /api/favorites/:id` on 8/14 (auth-scoped, 404s on someone
       else's favorite). The favorite star on Recipe Detail could
       previously only ever turn on; the button is now a real toggle both
