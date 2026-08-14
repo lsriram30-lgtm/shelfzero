@@ -879,6 +879,12 @@ outside this repo.
 
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Test the full app on an actual Android phone and an actual iPhone
+- [ ] Live-test household invitations end-to-end: invite someone, have
+      them accept, then remove them from Profile's "Household members"
+      list. Confirms/fixes the unverified assumption on the remove-member
+      task above — the app reuses the accepted invite's `id` as the
+      member id for `DELETE /api/household/members/:id`, which was never
+      confirmed against a real invite.
 - [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
       the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
       429 (quota exhausted or rate limited — Airo can't distinguish
