@@ -772,17 +772,20 @@ pace I just won't be able to work much next week <3
       tests, and a real `expo export --platform ios` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Build
       remove-member / leave-household UI (branch:
-      `feature/household-member-removal`). No longer backend-blocked as
-      of 8/14. Added a trash icon per row in Profile's "Household members"
-      list (confirm dialog, matches the cancel-invite pattern) and a
-      "Leave household" action that re-provisions a fresh empty household
-      afterward (the app has no "no household" UI state otherwise). Not
-      role-gated on the backend yet — any member can remove any other.
-      **Unverified:** the app has no real members endpoint, so "members"
-      is just accepted invites; remove reuses the invite's `id` as the
-      member id, unconfirmed against what the backend route actually
-      expects. Needs a live test before trusting it. Typecheck, tests, and
-      an `expo export` bundle all pass. Not yet merged.
+      `feature/household-member-removal`) — merged into `master`. No
+      longer backend-blocked as of 8/14. Added a trash icon per row in
+      Profile's "Household members" list (confirm dialog, matches the
+      cancel-invite pattern) and a "Leave household" action that
+      re-provisions a fresh empty household afterward (the app has no "no
+      household" UI state otherwise). Not role-gated on the backend yet —
+      any member can remove any other. **Unverified, merged anyway:** the
+      app has no real members endpoint, so "members" is just accepted
+      invites; remove reuses the invite's `id` as the member id, unconfirmed
+      against what the backend route actually expects. If wrong, removal
+      just fails with a clear error rather than doing anything destructive
+      to the wrong thing — needs a real live test (invite, accept, remove)
+      to confirm or fix. Typecheck, tests, and an `expo export` bundle all
+      pass.
 
 ### Not yet assigned
 
