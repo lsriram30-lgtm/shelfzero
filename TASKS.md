@@ -815,7 +815,8 @@ pace I just won't be able to work much next week <3
       on the way back instead of needing a manual pull-to-refresh.
       Typecheck, tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a real
-      recipe search feature (branch: `feature/recipe-search`). Airo added
+      recipe search feature (branch: `feature/recipe-search`) — merged
+      into `master`. Airo added
       `GET /api/recipes?q=<text>` on 8/14 — Gemini-backed (not OpenAI, so
       it doesn't share meal-plan's `429` quota issue), capped at 8
       results, ~8-second server-side timeout, 10-minute cache for repeat
