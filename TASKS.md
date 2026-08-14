@@ -822,14 +822,18 @@ pace I just won't be able to work much next week <3
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
-- [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
-      since the backend doesn't have a proper recipe search yet. Checked live by
-      Laya on 8/12: `GET /api/recipes` still 404s, so a real cross-catalog search
-      still isn't buildable. Added the honest partial version instead — a
-      search box that filters whatever's already loaded (suggested + favorited),
-      same pattern as the Pantry search box — but that's a filter over what's
-      visible, not a real search, so leaving this open until the backend has a
-      real recipes endpoint.
+- [ ] Add a real "search recipes" feature — right now suggested recipes are a
+      workaround since the backend doesn't have a working recipe search yet.
+      The route now exists as of 8/14 (`GET /api/recipes?q=<text>`,
+      Gemini-backed, capped at 8 results, same detailed shape as
+      `/api/meal-plan`'s per-meal data — deliberately routed through Gemini
+      rather than OpenAI to avoid inheriting the meal-plan `429` quota issue)
+      but Airo confirmed it currently returns a `503` because the configured
+      Gemini service itself is unavailable — not a client-side problem,
+      nothing to build against yet. Still the honest partial version in the
+      meantime — a search box that filters whatever's already loaded
+      (suggested + favorited), same pattern as the Pantry search box — but
+      that's a filter over what's visible, not a real search.
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it). Re-checked live
       by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
