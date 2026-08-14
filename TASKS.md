@@ -751,8 +751,6 @@ pace I just won't be able to work much next week <3
 
 ### Not yet assigned
 
-Grouped by who/what can actually move each one forward.
-
 #### Backend (Airo only)
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
