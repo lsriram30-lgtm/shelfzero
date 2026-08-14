@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
@@ -19,9 +20,10 @@ export function ProfileScreen() {
   const { colors, mode, setMode } = useTheme();
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile, resetOnboarding } = useOnboarding();
-  const { invites } = useInvites();
+  const { invites, removeMember } = useInvites();
   const { signOut } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [leavingHousehold, setLeavingHousehold] = useState(false);
 
   const members = invites.filter((invite) => invite.status === "accepted");
 
@@ -44,6 +46,47 @@ export function ProfileScreen() {
             "Couldn't reset",
             err instanceof Error ? err.message : "Something went wrong. Please try again."
           );
+        }
+      },
+    });
+  };
+
+  const handleRemoveMember = (id: string, name: string) => {
+    confirmDestructiveAction({
+      title: "Remove member",
+      message: `Remove ${name} from your household? They'll lose access to the shared pantry and shopping list.`,
+      confirmLabel: "Remove",
+      onConfirm: async () => {
+        try {
+          await removeMember(id);
+        } catch (err) {
+          Alert.alert(
+            "Couldn't remove member",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        }
+      },
+    });
+  };
+
+  const handleLeaveHousehold = () => {
+    confirmDestructiveAction({
+      title: "Leave household",
+      message:
+        "You'll lose access to this household's shared pantry and shopping list, and a new, empty household will be set up for you instead. This can't be undone.",
+      confirmLabel: "Leave",
+      onConfirm: async () => {
+        setLeavingHousehold(true);
+        try {
+          await householdApi.leave();
+          await householdApi.create(profile?.name ? `${profile.name}'s Household` : "My Household");
+        } catch (err) {
+          Alert.alert(
+            "Couldn't leave household",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        } finally {
+          setLeavingHousehold(false);
         }
       },
     });
@@ -120,11 +163,29 @@ export function ProfileScreen() {
             </Text>
           ) : (
             members.map((member) => (
-              <Text key={member.id} style={[styles.detail, { color: colors.text }]}>
-                {member.name} · {member.role}
-              </Text>
+              <View key={member.id} style={styles.memberRow}>
+                <Text style={[styles.detail, { color: colors.text }]}>
+                  {member.name} · {member.role}
+                </Text>
+                <Pressable
+                  onPress={() => handleRemoveMember(member.id, member.name)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${member.name} from household`}
+                >
+                  <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+                </Pressable>
+              </View>
             ))
           )}
+          <Button
+            label={leavingHousehold ? "Leaving…" : "Leave household"}
+            variant="ghost"
+            onPress={handleLeaveHousehold}
+            disabled={leavingHousehold}
+            loading={leavingHousehold}
+            style={styles.leaveButton}
+          />
         </Card>
 
         <Card style={styles.card}>
@@ -183,6 +244,14 @@ const styles = StyleSheet.create({
   detail: {
     ...typography.body,
     marginBottom: spacing.xs,
+  },
+  memberRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  leaveButton: {
+    marginTop: spacing.sm,
   },
   detailMuted: {
     ...typography.caption,

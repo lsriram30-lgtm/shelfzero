@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 32 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 33 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -770,6 +770,19 @@ pace I just won't be able to work much next week <3
       navigator to push a screen from, so it's left as a smaller followup
       rather than restructuring onboarding for it. Typecheck, all 186
       tests, and a real `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Build
+      remove-member / leave-household UI (branch:
+      `feature/household-member-removal`). No longer backend-blocked as
+      of 8/14. Added a trash icon per row in Profile's "Household members"
+      list (confirm dialog, matches the cancel-invite pattern) and a
+      "Leave household" action that re-provisions a fresh empty household
+      afterward (the app has no "no household" UI state otherwise). Not
+      role-gated on the backend yet — any member can remove any other.
+      **Unverified:** the app has no real members endpoint, so "members"
+      is just accepted invites; remove reuses the invite's `id` as the
+      member id, unconfirmed against what the backend route actually
+      expects. Needs a live test before trusting it. Typecheck, tests, and
+      an `expo export` bundle all pass. Not yet merged.
 
 ### Not yet assigned
 
@@ -838,14 +851,6 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Build remove-member / leave-household UI — no longer backend-blocked.
-      Airo confirmed on 8/14 that `DELETE /api/household/members/:id` and
-      `POST /api/household/leave` are both live: each returns `200` with
-      no body, detaches the user without spinning up a new household for
-      them, and leaves the rest of the shared household data (pantry,
-      shopping list) intact for whoever remains. Note: member removal
-      currently isn't role-gated — any member can remove any other member
-      today (see the "household member roles" backend task below).
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend; it needs an
