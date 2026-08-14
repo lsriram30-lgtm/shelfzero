@@ -6,7 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useSuggestedRecipes } from "../../hooks/useSuggestedRecipes";
 import { favoritesApi } from "../../api/favorites";
-import { Screen, Header, Card, EmptyState, ErrorState, Pill, TextField } from "../../components";
+import { recipesApi } from "../../api/recipes";
+import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { RecipesStackParamList } from "../../navigation/types";
 import { Recipe } from "../../types";
@@ -53,6 +54,12 @@ export function RecipesScreen() {
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [mealTypeFilter, setMealTypeFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  // Real search hits a slow (up to several seconds), Gemini-backed
+  // catalog search - deliberately a separate, explicit action from the
+  // instant local filter below, not fired on every keystroke.
+  const [searchResults, setSearchResults] = useState<Recipe[] | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const loadFavorites = async () => {
     setFavoritesLoading(true);
@@ -76,6 +83,29 @@ export function RecipesScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSearch = async () => {
+    const trimmed = query.trim();
+    if (!trimmed || searching) return;
+    setSearching(true);
+    setSearchError(null);
+    try {
+      const results = await recipesApi.search(trimmed);
+      setSearchResults(results);
+    } catch (err) {
+      setSearchResults(null);
+      setSearchError(
+        err instanceof Error ? err.message : "Couldn't search recipes. Please try again."
+      );
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchResults(null);
+    setSearchError(null);
+  };
+
   // Refreshed on focus (not just mount) so favoriting/un-favoriting from
   // RecipeDetail is reflected here on the way back, the same pattern
   // PantryScreen already uses for its own re-fetch-on-return.
@@ -98,19 +128,42 @@ export function RecipesScreen() {
   return (
     <Screen>
       <Header title="Recipes" subtitle="Suggested from what's in your pantry" />
-      {combined.length > 0 ? (
-        <View style={styles.searchWrapper}>
-          <TextField
-            placeholder="Search recipes"
-            value={query}
-            onChangeText={setQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="search"
+      <View style={styles.searchWrapper}>
+        <TextField
+          placeholder="Search recipes"
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text);
+            if (searchResults || searchError) clearSearch();
+          }}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
+        />
+        {trimmedQuery && !searchResults ? (
+          <Button
+            label={searching ? "Searching…" : `Search all recipes for "${trimmedQuery}"`}
+            variant="ghost"
+            onPress={handleSearch}
+            disabled={searching}
+            loading={searching}
+            style={styles.searchAllButton}
           />
-        </View>
-      ) : null}
-      {mealTypes.length > 0 ? (
+        ) : null}
+        {searchResults ? (
+          <Button
+            label="Back to suggestions"
+            variant="ghost"
+            onPress={clearSearch}
+            style={styles.searchAllButton}
+          />
+        ) : null}
+        {searchError ? (
+          <Text style={[styles.searchErrorText, { color: colors.danger }]}>{searchError}</Text>
+        ) : null}
+      </View>
+      {!searchResults && mealTypes.length > 0 ? (
         <View style={styles.filterRow}>
           <Pill
             label="All"
@@ -128,7 +181,7 @@ export function RecipesScreen() {
         </View>
       ) : null}
       <FlatList
-        data={filtered}
+        data={searchResults ?? filtered}
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={styles.grid}
@@ -143,8 +196,14 @@ export function RecipesScreen() {
           />
         }
         ListEmptyComponent={
-          !loading ? (
-            error ? (
+          !loading && !searching ? (
+            searchResults ? (
+              <EmptyState
+                icon="restaurant-outline"
+                title="No matching recipes"
+                message={`No recipes found for "${trimmedQuery}". Try a different search.`}
+              />
+            ) : error ? (
               <ErrorState
                 message={error}
                 onRetry={() => {
@@ -168,7 +227,7 @@ export function RecipesScreen() {
               <EmptyState
                 icon="restaurant-outline"
                 title="No recipes yet"
-                message="Add a few pantry items and pull to refresh to get suggestions."
+                message="Add a few pantry items and pull to refresh to get suggestions, or search all recipes above."
               />
             )
           ) : null
@@ -187,6 +246,13 @@ export function RecipesScreen() {
 const styles = StyleSheet.create({
   searchWrapper: {
     paddingHorizontal: spacing.lg,
+  },
+  searchAllButton: {
+    marginBottom: spacing.sm,
+  },
+  searchErrorText: {
+    ...typography.caption,
+    marginBottom: spacing.sm,
   },
   filterRow: {
     flexDirection: "row",
