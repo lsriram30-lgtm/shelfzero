@@ -847,7 +847,8 @@ pace I just won't be able to work much next week <3
       Typecheck, tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add an
       "add ingredients to shopping list" action on a planned meal (branch:
-      `feature/mealplan-shopping-gap`). Airo added a structured
+      `feature/mealplan-shopping-gap`) — merged into `master`. Airo added
+      a structured
       `ingredients` array per meal (`name`, `quantity`, `inPantry`) on
       8/14 — the `inPantry` flag means no client-side diffing needed. Each
       meal now shows "Missing: X, Y" plus an "Add missing to shopping
