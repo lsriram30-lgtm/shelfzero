@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
@@ -73,9 +73,18 @@ export function RecipesScreen() {
 
   useEffect(() => {
     generate();
-    loadFavorites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Refreshed on focus (not just mount) so favoriting/un-favoriting from
+  // RecipeDetail is reflected here on the way back, the same pattern
+  // PantryScreen already uses for its own re-fetch-on-return.
+  useFocusEffect(
+    useCallback(() => {
+      loadFavorites();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+  );
 
   const favoriteIds = new Set(favorites.map((f) => f.id));
   const combined = [
