@@ -788,7 +788,8 @@ pace I just won't be able to work much next week <3
       pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Gate the
       remove-member action to household owners (branch:
-      `feature/household-member-roles`). Airo added owner/member roles on
+      `feature/household-member-roles`) — merged into `master`. Airo
+      added owner/member roles on
       8/14 (`GET /api/me` now returns `role`) and restricted
       `DELETE /api/household/members/:id` to owners server-side —
       previously any member could remove any other. Client now fetches
