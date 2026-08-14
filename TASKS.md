@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 35 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 36 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -814,6 +814,22 @@ pace I just won't be able to work much next week <3
       un-favoriting on Detail is actually reflected in the star/ordering
       on the way back instead of needing a manual pull-to-refresh.
       Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a real
+      recipe search feature (branch: `feature/recipe-search`). Airo added
+      `GET /api/recipes?q=<text>` on 8/14 — Gemini-backed (not OpenAI, so
+      it doesn't share meal-plan's `429` quota issue), capped at 8
+      results, ~8-second server-side timeout, 10-minute cache for repeat
+      queries. Since Airo's own assessment is that this is too slow for
+      live keystroke search, it's a deliberately separate, explicit
+      action from the existing instant local filter — a "Search all
+      recipes" button/return-key action below the search box, shown only
+      when there's query text, with its own loading state and a "Back to
+      suggestions" link to return to the normal suggested+favorited view.
+      Errors (including the documented `504` timeout, whether Airo's own
+      JSON body or the preview gateway's HTML one) surface via the
+      existing generic error-message handling in `client.ts` — no special
+      casing needed, the existing 504 fallback message already covers it.
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -822,23 +838,6 @@ pace I just won't be able to work much next week <3
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
-- [ ] Add a real "search recipes" feature — right now suggested recipes are a
-      workaround since the backend doesn't have a working recipe search yet.
-      The route now exists as of 8/14 (`GET /api/recipes?q=<text>`,
-      Gemini-backed, capped at 8 results, same detailed shape as
-      `/api/meal-plan`'s per-meal data — deliberately routed through Gemini
-      rather than OpenAI to avoid inheriting the meal-plan `429` quota issue)
-      but Airo found the config was pointing at a retired model
-      (`gemini-2.0-flash`, 404ing); fixed to `gemini-2.5-flash` on 8/14, but a
-      real `pasta` search still exceeds a 10-second window — too slow for
-      live keystroke search, Airo's own assessment. Needs a real "Search"
-      button + loading state design instead of search-as-you-type, plus
-      Airo's suggested server-side timeout and caching before it's worth
-      building the client for — still nothing solid to build against yet.
-      Still the honest partial version in the meantime — a search box that
-      filters whatever's already loaded (suggested + favorited), same
-      pattern as the Pantry search box — but that's a filter over what's
-      visible, not a real search.
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
       no server endpoint or actual donation partner behind it). Re-checked live
       by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
