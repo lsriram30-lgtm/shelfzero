@@ -1,4 +1,4 @@
-import { MealPlanDay, OnboardingProfile } from "../types";
+import { MealIngredient, MealPlanDay, OnboardingProfile } from "../types";
 
 // The backend doesn't document a minimum pantry size for generating a
 // 7-day plan, so this is a client-side heuristic to catch the obvious
@@ -34,6 +34,16 @@ export function hasPantryChanged(current: string[], cached: string[]): boolean {
 // the cached week untouched. If the fresh plan doesn't happen to include a
 // day with a matching label, the original days are returned unchanged
 // rather than silently dropping that day.
+// Only the 1-2 things actually missing are worth adding to the shopping
+// list - most of a suggested meal's ingredients should already be on hand,
+// since the plan was generated from the current pantry in the first place.
+export function missingIngredients(
+  ingredients: MealIngredient[] | undefined
+): MealIngredient[] {
+  if (!ingredients) return [];
+  return ingredients.filter((ingredient) => ingredient.inPantry === false);
+}
+
 export function replaceDayInPlan(
   days: MealPlanDay[],
   dayLabel: string,

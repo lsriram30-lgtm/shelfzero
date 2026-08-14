@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 37 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 38 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -845,6 +845,20 @@ pace I just won't be able to work much next week <3
       only — reworded Donate's disclaimer to say that plainly instead of
       implying a real handoff is coming "once the backend supports it."
       Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add an
+      "add ingredients to shopping list" action on a planned meal (branch:
+      `feature/mealplan-shopping-gap`). Airo added a structured
+      `ingredients` array per meal (`name`, `quantity`, `inPantry`) on
+      8/14 — the `inPantry` flag means no client-side diffing needed. Each
+      meal now shows "Missing: X, Y" plus an "Add missing to shopping
+      list" link, reusing the existing duplicate-merges-into-a-quantity-
+      bump logic. **Can't be verified even in principle right now:** Airo
+      couldn't confirm this against a real plan either, since generation
+      is fully blocked by the existing `429` issue — unlike the other
+      live-test items, this isn't a "no test account" gap, the underlying
+      feature doesn't work for anyone yet. Revisit once `429` is fixed.
+      4 tests added, suite at 190. Typecheck, tests, and an
+      `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -853,17 +867,6 @@ pace I just won't be able to work much next week <3
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
-- [ ] Add an "add ingredients to shopping list" action on a planned meal —
-      right now meals in the plan are just display-only, with no way to turn
-      one into shopping list items. Turns out to be lower-value than it
-      looks: since the meal plan is generated from the current pantry,
-      most of a suggested meal's ingredients should already be on hand —
-      the useful version of this feature is surfacing just the gap (the
-      1-2 things you don't have), not the whole ingredient list. That's
-      not buildable today: a meal's `ingredients` field is just the raw
-      description text, not a parsed list, so there's nothing to diff
-      against pantry contents. Revisit once the backend returns real
-      structured ingredients per meal.
 - [ ] Add a cuisine filter to the Recipes screen — right now onboarding
       collects a cuisine preference, but it isn't used to filter or sort the
       Recipes screen at all. Blocked on the "tag each meal with its cuisine"
