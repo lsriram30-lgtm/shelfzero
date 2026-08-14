@@ -8,6 +8,7 @@ import { Screen, Header, Card, Button, Pill, TextField } from "../../components"
 import { spacing, typography } from "../../theme";
 import { ContactType } from "../../types";
 import { inviteLink } from "../../utils/inviteLink";
+import { isValidEmail, isValidPhone } from "../../utils/validation";
 
 type FlowStep = "choose" | "details" | "sent";
 
@@ -27,7 +28,19 @@ export function InviteFlowScreen() {
   const [sentToken, setSentToken] = useState<string | null>(null);
 
   const needsContact = contactType !== "link";
-  const canSend = name.trim().length > 0 && (!needsContact || contact.trim().length > 0);
+  const contactFormatValid =
+    !needsContact ||
+    contact.trim().length === 0 ||
+    (contactType === "email" ? isValidEmail(contact) : isValidPhone(contact));
+  const contactError =
+    needsContact && contact.trim().length > 0 && !contactFormatValid
+      ? contactType === "email"
+        ? "Please enter a valid email address."
+        : "Please enter a valid phone number."
+      : undefined;
+  const canSend =
+    name.trim().length > 0 &&
+    (!needsContact || (contact.trim().length > 0 && contactFormatValid));
 
   const handleChooseMethod = (method: ContactType) => {
     setContactType(method);
@@ -87,6 +100,7 @@ export function InviteFlowScreen() {
                 keyboardType={contactType === "phone" ? "phone-pad" : "email-address"}
                 value={contact}
                 onChangeText={setContact}
+                error={contactError}
               />
             ) : null}
             <Text style={[styles.stepLabel, { color: colors.textMuted }]}>Role</Text>

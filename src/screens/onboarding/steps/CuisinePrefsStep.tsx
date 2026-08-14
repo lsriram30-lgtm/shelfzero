@@ -57,6 +57,7 @@ export function CuisinePrefsStep({ draft, update, onNext, onBack }: Props) {
 
       <CustomOptionField
         customValues={customCuisines}
+        allSelected={draft.cuisinePrefs}
         onAdd={(value) => update({ cuisinePrefs: [...draft.cuisinePrefs, value] })}
         onRemove={(value) => update({ cuisinePrefs: toggleValue(draft.cuisinePrefs, value) })}
         placeholder="e.g. Georgian, Uzbek, Cambodian…"

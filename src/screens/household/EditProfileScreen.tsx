@@ -154,6 +154,7 @@ export function EditProfileScreen() {
           />
           <CustomOptionField
             customValues={customCuisines}
+            allSelected={cuisinePrefs}
             onAdd={(value) => setCuisinePrefs((prev) => [...prev, value])}
             onRemove={(value) => setCuisinePrefs((prev) => toggleValue(prev, value))}
             placeholder="e.g. Georgian, Uzbek, Cambodian…"
@@ -169,6 +170,7 @@ export function EditProfileScreen() {
           />
           <CustomOptionField
             customValues={customDietary}
+            allSelected={dietaryPrefs}
             onAdd={(value) => setDietaryPrefs((prev) => [...prev, value])}
             onRemove={(value) => setDietaryPrefs((prev) => toggleValue(prev, value))}
             placeholder="e.g. FODMAP-friendly, Halal, Kosher…"

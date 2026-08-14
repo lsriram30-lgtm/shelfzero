@@ -16,3 +16,13 @@ export function filterByMealType(recipes: Recipe[], mealType: string | null): Re
   if (!mealType) return recipes;
   return recipes.filter((recipe) => recipe.mealType === mealType);
 }
+
+// There's no backend recipe search/catalog endpoint (see README's "Known
+// gaps"), so this only ever filters whatever's already been suggested from
+// the current pantry + favorited — not a real search across all possible
+// recipes. Same pattern as the Pantry screen's filterByName.
+export function filterByTitle(recipes: Recipe[], query: string): Recipe[] {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return recipes;
+  return recipes.filter((recipe) => recipe.title.toLowerCase().includes(trimmed));
+}

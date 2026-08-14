@@ -26,11 +26,17 @@ export function SignUpScreen() {
   const [accountExists, setAccountExists] = useState(false);
 
   const passwordsMatch = confirmPassword.length === 0 || confirmPassword === password;
+  const emailFormatValid = email.trim().length === 0 || isValidEmail(email);
+  const emailError =
+    email.trim().length > 0 && !isValidEmail(email)
+      ? "Please enter a valid email address."
+      : undefined;
   const canSubmit =
     name.trim().length > 0 &&
     email.trim().length > 0 &&
     password.length > 0 &&
-    password === confirmPassword;
+    password === confirmPassword &&
+    emailFormatValid;
 
   const handleTryDifferentEmail = () => {
     setEmail("");
@@ -40,10 +46,6 @@ export function SignUpScreen() {
 
   const handleSignUp = async () => {
     if (!canSubmit) return;
-    if (!isValidEmail(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
     setSubmitting(true);
     setError(null);
     setAccountExists(false);
@@ -73,6 +75,7 @@ export function SignUpScreen() {
           autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
+          error={emailError}
         />
         <TextField
           label="Password"

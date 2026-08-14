@@ -29,10 +29,16 @@ export function AccountStep({ onAccountCreated, onSignedIn }: Props) {
 
   const isSignUp = mode === "signup";
   const passwordsMatch = !isSignUp || confirmPassword.length === 0 || confirmPassword === password;
+  const emailFormatValid = email.trim().length === 0 || isValidEmail(email);
+  const emailError =
+    email.trim().length > 0 && !isValidEmail(email)
+      ? "Please enter a valid email address."
+      : undefined;
   const canSubmit =
     email.trim().length > 0 &&
     password.length > 0 &&
-    (!isSignUp || password === confirmPassword);
+    (!isSignUp || password === confirmPassword) &&
+    emailFormatValid;
 
   const resetMessages = () => {
     setError(null);
@@ -52,10 +58,6 @@ export function AccountStep({ onAccountCreated, onSignedIn }: Props) {
 
   const handleContinue = async () => {
     if (!canSubmit) return;
-    if (!isValidEmail(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
     setSubmitting(true);
     resetMessages();
     try {
@@ -106,6 +108,7 @@ export function AccountStep({ onAccountCreated, onSignedIn }: Props) {
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
+        error={emailError}
       />
       <TextField
         label="Password"

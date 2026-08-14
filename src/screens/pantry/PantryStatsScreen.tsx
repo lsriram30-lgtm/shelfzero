@@ -9,20 +9,11 @@ import { Screen, Header, Card, ProgressRing } from "../../components";
 import { spacing, typography, radius, readableTextColor } from "../../theme";
 import { PantryItem } from "../../types";
 import { PantryStackParamList } from "../../navigation/types";
+import { computeHealth } from "../dashboardLogic";
 
 type PantryStatsNavigationProp = NativeStackNavigationProp<PantryStackParamList, "PantryStats">;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-function computeHealth(items: PantryItem[]): number {
-  if (items.length === 0) return 100;
-  const now = Date.now();
-  const healthy = items.filter((item) => {
-    if (!item.expiresAt) return true;
-    return new Date(item.expiresAt).getTime() - now > 3 * DAY_MS;
-  });
-  return Math.round((healthy.length / items.length) * 100);
-}
 
 function groupCounts(items: PantryItem[]): { category: string; count: number }[] {
   const counts = items.reduce<Record<string, number>>((acc, item) => {

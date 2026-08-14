@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DonationRecord } from "../types";
+import { useAuth } from "./AuthContext";
+import { accountScopedKey } from "../utils/accountScopedKey";
 
-const STORAGE_KEY = "shelfzero.donationHistory";
+const STORAGE_KEY_PREFIX = "shelfzero.donationHistory";
 
 interface DonationContextValue {
   history: DonationRecord[];
@@ -14,16 +16,23 @@ interface DonationContextValue {
 const DonationContext = createContext<DonationContextValue | undefined>(undefined);
 
 export function DonationProvider({ children }: { children: React.ReactNode }) {
+  const { currentEmail, isLoading: authLoading } = useAuth();
+  const storageKey = accountScopedKey(STORAGE_KEY_PREFIX, currentEmail);
   const [history, setHistory] = useState<DonationRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
+    // Wait for AuthContext to resolve the real signed-in email first, so
+    // this doesn't load once under the "anonymous" key and then swap to a
+    // different account's history a moment later.
+    if (authLoading) return;
+    setIsLoading(true);
+    AsyncStorage.getItem(storageKey)
       .then((stored) => {
-        if (stored) setHistory(JSON.parse(stored));
+        setHistory(stored ? JSON.parse(stored) : []);
       })
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [storageKey, authLoading]);
 
   const recordDonation = async (record: Omit<DonationRecord, "id" | "date">) => {
     const next: DonationRecord = {
@@ -34,7 +43,7 @@ export function DonationProvider({ children }: { children: React.ReactNode }) {
     const updated = [next, ...history];
     setHistory(updated);
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      await AsyncStorage.setItem(storageKey, JSON.stringify(updated));
     } catch (err) {
       setHistory(history);
       throw err;

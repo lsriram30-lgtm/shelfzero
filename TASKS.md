@@ -36,16 +36,20 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 30 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 30 / 30 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 31 / 40 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
-**Goal:** 30 tasks each (total) by end of day 8/8.
+**Goal:** 40 tasks each (total) by end of day 8/15.
 
 **Note:** the goal increases by 10 each week. This isn't automatic;
 whoever updates this file should apply it, and it's fine to adjust
 the pace if that week doesn't actually support it.
 
-**Past Goals:** 10 each by 7/25, 20 each by 8/1.
+**NOTE (from Laya):** I'll be on my trip next week so I'll probably
+finish extra tasks this week but you should definetly go at your own
+pace I just won't be able to work much next week <3
+
+**Past Goals:** 10 each by 7/25, 20 each by 8/1, 30 each by 8/8.
 
 ### Currently assigned
 
@@ -592,6 +596,158 @@ the pace if that week doesn't actually support it.
       since gained new endpoints on request (e.g. `DELETE /api/me`). Both
       still return generic Express 404s (route doesn't exist at all), so
       still genuinely blocked, not just stale documentation.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix meal-plan
+      single-day regen incorrectly clearing staleness (branch:
+      `feature/laya-batch5`) — merged into `master`. Found in the "regen
+      one day" feature from a previous session: refreshing a single day
+      marked the *entire* cached plan as matching current pantry, hiding
+      the "pantry changed" banner even though the other six days were
+      still built on stale pantry data. Now leaves the cached pantry
+      snapshot untouched on a single-day regen.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Gate the debug
+      status-code error prefix behind `__DEV__` (branch:
+      `feature/laya-batch5`) — merged into `master`. Every error message
+      was prefixed "N Error: ...", explicitly flagged in-code as "worth
+      revisiting before real users see this." Gated behind `__DEV__`,
+      matching the pattern already used for Reset app / send test
+      notification — a release build now shows the plain message only.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an honest
+      caption to the recipe detail servings stepper (branch:
+      `feature/laya-batch5`) — merged into `master`. It implied scaling
+      ingredient amounts, but `recipe.servings` is never actually
+      populated by `useSuggestedRecipes` and `ingredients` is just one
+      unstructured description string — nothing to scale. Added a caption
+      clarifying it's a planning note only, same honesty pattern as the
+      Waste Savings fix.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Merge duplicate
+      shopping-list item names into a quantity bump (branch:
+      `feature/laya-batch5`) — merged into `master`. Adding "Milk" while
+      "Milk" was already on the list created a second row instead of
+      bumping the existing one. Matches case/whitespace-insensitively
+      against unchecked items only — a checked item represents a finished
+      need, so re-adding that name starts a fresh entry instead.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a donation
+      partial-failure accounting bug (branch: `feature/laya-batch5`) —
+      merged into `master`. Donating multiple items removed them from the
+      pantry one at a time but only logged the donation once the whole
+      batch succeeded — if item 2 of 3 failed, item 1 was already gone
+      from the pantry for real but never recorded as donated anywhere.
+      Now tracks what actually got removed and best-effort logs it even
+      on partial failure, with an honest error message about what
+      happened.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Validate contact
+      format on the Invite flow (branch: `feature/laya-batch5`) — merged
+      into `master`. The email/phone field only checked for non-empty, not
+      format — a garbled address would send successfully and silently
+      never reach anyone. Reuses `isValidEmail` and adds a new
+      `isValidPhone` (loose digit-count check), wired into an inline
+      TextField error.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add `disabled`
+      support to `CardHeaderLink`, use it on meal-plan Regenerate links
+      (branch: `feature/laya-batch5`) — merged into `master`. The
+      single-day regenerate feature already guarded against overlapping
+      regens in its handler, but gave no visual feedback — tapping
+      another day's Regenerate link while one was in flight silently did
+      nothing. The shared component had no `disabled` prop at all (used
+      for 10 different actions app-wide); added one and wired it in.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a broken
+      RecipeDetail deep link — crash risk (branch: `feature/laya-batch5`)
+      — merged into `master`. `linking.ts` declared a
+      `recipes/:recipeId` route, but the screen requires a full `Recipe`
+      object via in-app navigation params — there's no
+      `GET /api/recipes/:id` to hydrate one from a URL. Triggering that
+      link would have crashed on `recipe.title` with `recipe` undefined
+      at runtime (TypeScript's type only holds for in-app navigation, not
+      whatever a real deep link hands the screen). Removed the misleading
+      route and added a defensive runtime guard with a graceful fallback.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fix a
+      `CustomOptionField` duplicate-value bug (branch:
+      `feature/laya-batch5`) — merged into `master`. Typing a custom
+      cuisine/dietary/allergy value that matched an already-selected
+      *base* pill option (e.g. "Italian") silently appended a duplicate
+      string into the underlying array — invisible in the UI, since only
+      genuinely-custom entries render as removable pills. The duplicate
+      check only compared against that custom subset, not the full
+      selection. Fixed with a new `allSelected` prop and a tested
+      `isDuplicateOption` helper, wired into all four places this
+      component is used (3 onboarding steps + EditProfileScreen).
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Deduplicate
+      `computeHealth` between `dashboardLogic.ts` and `PantryStatsScreen`
+      (branch: `feature/laya-batch5`) — merged into `master`. Byte-for-
+      byte identical logic lived in two places; the screen's local copy
+      was untested and nothing stopped the two from silently drifting
+      apart. `PantryStatsScreen` now imports the shared, tested version.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add a client-side
+      search/filter box to the Recipes screen (branch:
+      `feature/laya-batch6`) — merged into `master`. There's still no real
+      recipe-catalog search endpoint (see the "Not yet assigned" note
+      below), so this only filters whatever's already loaded (suggested +
+      favorited) by title, same honest-partial pattern as the Pantry
+      search box. 5 tests added.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Re-verified four
+      backend-blocked backlog items and documented findings (branch:
+      `feature/laya-batch6`) — merged into `master`. Re-checked live:
+      recipe search, donation backend, household member remove/leave, and
+      recipe un-favorite are all still blocked (404s or no endpoint at
+      all), not just stale docs. Notes below each entry now reflect the
+      8/12 re-check.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add live
+      email-format validation to SignIn, SignUp, and the onboarding
+      account step (branch: `feature/laya-batch6`) — merged into
+      `master`. The Invite flow already validated format live in an
+      earlier batch, but these three screens only checked format at
+      submit time (or not at all) — inconsistent with each other and
+      with Invite. Now all four match.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Gate `auth.ts`'s
+      debug status-code error prefix behind `__DEV__` too (branch:
+      `feature/laya-batch6`) — merged into `master`. The earlier
+      `__DEV__`-gating fix (batch5) covered `client.ts` but missed this
+      file's independent copy of the same "N Error: ..." prefix.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add an honest
+      "scanning isn't working yet" notice to the Scan screen (branch:
+      `feature/laya-batch6`) — merged into `master`. Re-confirmed live
+      that both receipt and barcode scans still fail against the backend
+      (same root cause as the earlier scanning-reliability correction
+      note). Rather than let someone scan and hit a confusing failure,
+      the idle camera view now shows a plain-English notice up front with
+      a shortcut to add the item manually instead.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Scope the pantry
+      offline cache and meal-plan cache to the signed-in account instead
+      of the device (branch: `feature/laya-batch6`) — merged into
+      `master`. Same bug class as the onboarding-profile fix in batch4,
+      but worse here: a second account signing in on the same device
+      would see the *first* account's actual pantry items or meal plan
+      shown as its own. Extracted the per-account keying into a shared,
+      tested `accountScopedKey()` util instead of duplicating the pattern
+      a third time.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Scope donation
+      history, notification preferences, and the auto-add opt-out list to
+      the signed-in account too (branch: `feature/laya-batch6`) — merged
+      into `master`. Same fix as above, batched in for consistency now
+      that `accountScopedKey()` exists. Donation history is the more
+      serious of the three (real donation records); notification prefs
+      and the opt-out list are lower-severity personal toggles.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add
+      `accessibilityRole`/`accessibilityState` to the Donate screen's item
+      checkboxes and partner radio rows, and the Pantry screen's
+      collapsible category header (branch: `feature/laya-batch6`) —
+      merged into `master`. Each had visible text, but nothing told a
+      screen reader it was a checkbox/radio/expandable toggle or what its
+      current state was.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Add
+      `accessibilityRole` to the Recipes screen's recipe tiles (branch:
+      `feature/laya-batch6`) — merged into `master`. Same gap as the item
+      above, batched in for consistency; the label also now surfaces
+      favorite status, previously conveyed only by a star icon.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Make the recipe
+      detail servings stepper accessible and disable it at its 1/20
+      boundaries (branch: `feature/laya-batch6`) — merged into `master`.
+      The +/- buttons only had single-character visible labels ("−"/"+"),
+      unhelpful to a screen reader, and silently no-op'd at the boundaries
+      instead of disabling like the shopping-list stepper already does.
+      Added an optional `accessibilityLabel` prop to the shared `Button`
+      component (every other call site is unaffected, since it defaults
+      to the visible label) and used it here.
 
 ### Not yet assigned
 
@@ -603,23 +759,32 @@ Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
 - [ ] Add a real "search recipes" feature — right now suggested recipes are a workaround
-      since the backend doesn't have a proper recipe search yet
+      since the backend doesn't have a proper recipe search yet. Checked live by
+      Laya on 8/12: `GET /api/recipes` still 404s, so a real cross-catalog search
+      still isn't buildable. Added the honest partial version instead — a
+      search box that filters whatever's already loaded (suggested + favorited),
+      same pattern as the Pantry search box — but that's a filter over what's
+      visible, not a real search, so leaving this open until the backend has a
+      real recipes endpoint.
 - [ ] Add a real backend for the donation feature (right now it's local-only, with
-      no server endpoint or actual donation partner behind it)
+      no server endpoint or actual donation partner behind it). Re-checked live
+      by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
+      API to integrate with in the first place, so this isn't just a missing
+      route, there's nothing to build against at all yet.
 - [ ] Add a way to remove a household member, or leave a household yourself —
       right now you can invite people, but once someone's a member there's no
       way to remove them or leave. Re-checked live by Laya: still 404s
-      (route doesn't exist), not just stale docs.
+      (route doesn't exist), not just stale docs. Re-re-checked live on 8/12
+      (both `DELETE /api/household/members/:id` and `POST
+      /api/household/leave`) — still 404, unchanged.
 - [ ] Add a way to un-favorite a recipe — `favoritesApi` only has
       `list`/`add`, no remove, so RecipeDetailScreen's favorite button can
       only ever turn one way. Checked live: `DELETE /api/favorites/:id`
-      404s, route doesn't exist.
-- [ ] Add a forgot-password / reset-password flow (sign-up and sign-in exist now,
-      but there's no way to recover an account if someone forgets their password).
-      Investigated by Laya: the backend has a `POST /api/auth/request-password-reset`
-      route, but it responds `"Reset password isn't enabled"` — it's turned off
-      server-side, so there's no frontend workaround. Needs the backend team to
-      enable it (and configure outbound email) before this is buildable.
+      404s, route doesn't exist. Re-checked live again on 8/12, still 404.
+      Deliberately not building a client-side-only "un-favorite" (hiding it
+      locally while the backend still has it favorited) — it would reappear
+      on next refresh and mislead about state on other devices/sessions,
+      same reasoning as the earlier account-deletion decision.
 - [ ] Add household member roles (e.g. owner vs. member) — relevant once the
       "remove a member" task above exists, since removing people needs some
       notion of who's allowed to do it
@@ -665,6 +830,14 @@ Buildable in this repo with no backend involvement.
       `NewPantryItem` today).
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
+- [ ] Build the forgot-password / reset-password flow — no longer backend-blocked.
+      Airo confirmed on 8/14 that password reset is enabled and sends
+      ShelfZero-branded reset emails. `POST /api/auth/request-password-reset`
+      accepts `{ email, redirectTo: "/reset-password" }` and returns a generic
+      200; the emailed link's token plus the new password then get submitted to
+      `POST /api/auth/reset-password`. Needs a "Forgot password?" entry point on
+      sign-in, a request screen, and a reset screen that reads the token (deep
+      link off `redirectTo`) and submits the new password.
 
 #### Human decision needed
 

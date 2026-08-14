@@ -133,6 +133,21 @@ export function ScanScreen() {
       </View>
 
       {state === "idle" ? (
+        <View style={styles.noticeWrapper}>
+          <Text style={[styles.noticeText, { color: colors.warning }]}>
+            Scanning isn't working yet — the server can't read a photo or
+            barcode directly right now, so a scan attempt here will fail.
+          </Text>
+          <Button
+            label="Add item manually instead"
+            variant="outline"
+            onPress={() => navigation.navigate("AddPantryItem")}
+            style={styles.noticeButton}
+          />
+        </View>
+      ) : null}
+
+      {state === "idle" ? (
         <View style={styles.cameraWrapper}>
           <CameraView
             ref={cameraRef}
@@ -246,6 +261,17 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.xl,
     marginBottom: spacing.md,
+  },
+  noticeWrapper: {
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  noticeText: {
+    ...typography.caption,
+  },
+  noticeButton: {
+    marginTop: spacing.sm,
+    alignSelf: "flex-start",
   },
   cameraWrapper: {
     flex: 1,

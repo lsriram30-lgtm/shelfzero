@@ -3,13 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { pantryApi, shoppingListApi } from "../api";
 import { NewPantryItem, PantryItem, UpdatePantryItem } from "../types";
 import { withAutoAddOptOut } from "../screens/pantry/pantryLogic";
+import { useAuth } from "../context/AuthContext";
+import { accountScopedKey } from "../utils/accountScopedKey";
 
-const CACHE_KEY = "shelfzero.pantryCache";
-const AUTO_ADD_OPT_OUT_KEY = "shelfzero.autoAddOptOutIds";
+const CACHE_KEY_PREFIX = "shelfzero.pantryCache";
+const AUTO_ADD_OPT_OUT_KEY_PREFIX = "shelfzero.autoAddOptOutIds";
 
-async function loadAutoAddOptOutIds(): Promise<string[]> {
+async function loadAutoAddOptOutIds(optOutKey: string): Promise<string[]> {
   try {
-    const raw = await AsyncStorage.getItem(AUTO_ADD_OPT_OUT_KEY);
+    const raw = await AsyncStorage.getItem(optOutKey);
     return raw ? (JSON.parse(raw) as string[]) : [];
   } catch {
     return [];
@@ -17,6 +19,9 @@ async function loadAutoAddOptOutIds(): Promise<string[]> {
 }
 
 export function usePantry() {
+  const { currentEmail, isLoading: authLoading } = useAuth();
+  const cacheKey = accountScopedKey(CACHE_KEY_PREFIX, currentEmail);
+  const optOutKey = accountScopedKey(AUTO_ADD_OPT_OUT_KEY_PREFIX, currentEmail);
   const [items, setItems] = useState<PantryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,11 +39,11 @@ export function usePantry() {
       const data = await pantryApi.list();
       setItems(data);
       setIsOffline(false);
-      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data)).catch(() => {});
+      AsyncStorage.setItem(cacheKey, JSON.stringify(data)).catch(() => {});
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load pantry items");
       try {
-        const cached = await AsyncStorage.getItem(CACHE_KEY);
+        const cached = await AsyncStorage.getItem(cacheKey);
         if (cached) {
           setItems(JSON.parse(cached) as PantryItem[]);
           setIsOffline(true);
@@ -49,11 +54,15 @@ export function usePantry() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cacheKey]);
 
   useEffect(() => {
+    // Wait for AuthContext to resolve the real signed-in email first, so
+    // this doesn't fetch once under the "anonymous" cache key and then
+    // immediately re-fetch under the real one a moment later.
+    if (authLoading) return;
     refresh();
-  }, [refresh]);
+  }, [refresh, authLoading]);
 
   const addItem = useCallback(async (item: NewPantryItem) => {
     const created = await pantryApi.create(item);
@@ -68,7 +77,7 @@ export function usePantry() {
 
     const ranOut = updated.quantity <= 0 && (!previous || previous.quantity > 0);
     if (ranOut) {
-      const optOutIds = await loadAutoAddOptOutIds();
+      const optOutIds = await loadAutoAddOptOutIds(optOutKey);
       if (!optOutIds.includes(id)) {
         try {
           await shoppingListApi.create({ name: updated.name, qty: 1 });
@@ -79,7 +88,7 @@ export function usePantry() {
     }
 
     return updated;
-  }, []);
+  }, [optOutKey]);
 
   const removeItem = useCallback(async (id: string) => {
     await pantryApi.remove(id);
@@ -87,15 +96,15 @@ export function usePantry() {
   }, []);
 
   const isAutoAddOptedOut = useCallback(async (id: string) => {
-    const ids = await loadAutoAddOptOutIds();
+    const ids = await loadAutoAddOptOutIds(optOutKey);
     return ids.includes(id);
-  }, []);
+  }, [optOutKey]);
 
   const setAutoAddOptOut = useCallback(async (id: string, optedOut: boolean) => {
-    const ids = await loadAutoAddOptOutIds();
+    const ids = await loadAutoAddOptOutIds(optOutKey);
     const next = withAutoAddOptOut(ids, id, optedOut);
-    await AsyncStorage.setItem(AUTO_ADD_OPT_OUT_KEY, JSON.stringify(next)).catch(() => {});
-  }, []);
+    await AsyncStorage.setItem(optOutKey, JSON.stringify(next)).catch(() => {});
+  }, [optOutKey]);
 
   return {
     items,

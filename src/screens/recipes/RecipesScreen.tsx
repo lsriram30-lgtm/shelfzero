@@ -6,18 +6,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useSuggestedRecipes } from "../../hooks/useSuggestedRecipes";
 import { favoritesApi } from "../../api/favorites";
-import { Screen, Header, Card, EmptyState, ErrorState, Pill } from "../../components";
+import { Screen, Header, Card, EmptyState, ErrorState, Pill, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { RecipesStackParamList } from "../../navigation/types";
 import { Recipe } from "../../types";
-import { filterByMealType, uniqueMealTypes } from "./recipesLogic";
+import { filterByMealType, filterByTitle, uniqueMealTypes } from "./recipesLogic";
 
 type RecipesNavigationProp = NativeStackNavigationProp<RecipesStackParamList, "Recipes">;
 
 function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }) {
   const { colors } = useTheme();
   return (
-    <Pressable style={styles.tile} onPress={onPress}>
+    <Pressable
+      style={styles.tile}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={recipe.isFavorite ? `${recipe.title}, favorited` : recipe.title}
+    >
       <Card style={styles.tileCard}>
         {recipe.isFavorite ? (
           <Ionicons
@@ -47,6 +52,7 @@ export function RecipesScreen() {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [mealTypeFilter, setMealTypeFilter] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   const loadFavorites = async () => {
     setFavoritesLoading(true);
@@ -77,11 +83,24 @@ export function RecipesScreen() {
     ...recipes.filter((r) => !favoriteIds.has(r.id)),
   ];
   const mealTypes = uniqueMealTypes(combined);
-  const filtered = filterByMealType(combined, mealTypeFilter);
+  const filtered = filterByTitle(filterByMealType(combined, mealTypeFilter), query);
+  const trimmedQuery = query.trim();
 
   return (
     <Screen>
       <Header title="Recipes" subtitle="Suggested from what's in your pantry" />
+      {combined.length > 0 ? (
+        <View style={styles.searchWrapper}>
+          <TextField
+            placeholder="Search recipes"
+            value={query}
+            onChangeText={setQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+          />
+        </View>
+      ) : null}
       {mealTypes.length > 0 ? (
         <View style={styles.filterRow}>
           <Pill
@@ -128,7 +147,13 @@ export function RecipesScreen() {
               <EmptyState
                 icon="restaurant-outline"
                 title="No matching recipes"
-                message={`No ${mealTypeFilter} recipes right now — try a different filter.`}
+                message={
+                  trimmedQuery && mealTypeFilter
+                    ? `No ${mealTypeFilter} recipes match "${trimmedQuery}".`
+                    : trimmedQuery
+                      ? `No recipes match "${trimmedQuery}".`
+                      : `No ${mealTypeFilter} recipes right now — try a different filter.`
+                }
               />
             ) : (
               <EmptyState
@@ -151,6 +176,9 @@ export function RecipesScreen() {
 }
 
 const styles = StyleSheet.create({
+  searchWrapper: {
+    paddingHorizontal: spacing.lg,
+  },
   filterRow: {
     flexDirection: "row",
     flexWrap: "wrap",
