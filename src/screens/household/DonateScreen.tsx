@@ -205,8 +205,8 @@ export function DonateScreen() {
               })}
             </View>
             <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
-              These are placeholder partners for now — real local organizations can be connected
-              here once the backend supports it.
+              These are placeholder partners — picking one records your choice in your donation
+              history, but no real organization is notified or receives anything yet.
             </Text>
 
             <Button

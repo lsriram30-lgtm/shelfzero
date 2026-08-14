@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 36 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 37 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -831,6 +831,19 @@ pace I just won't be able to work much next week <3
       existing generic error-message handling in `client.ts` — no special
       casing needed, the existing 504 fallback message already covers it.
       Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a real
+      backend for the donation feature (branch: `feature/donation-backend`).
+      Airo added authenticated `POST /api/donations` and
+      `GET /api/donations` on 8/14, household-scoped — donation records
+      now survive a reinstall and are visible to other household members,
+      not just whoever tapped confirm. `DonationContext` now fetches/posts
+      through the real API instead of per-account `AsyncStorage`; pantry
+      items are still removed for real on donation (unchanged, already
+      real). Explicitly scoped down per Airo: there's no real food-bank/
+      nonprofit handoff configured, so partner selection stays a label
+      only — reworded Donate's disclaimer to say that plainly instead of
+      implying a real handoff is coming "once the backend supports it."
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -839,11 +852,6 @@ pace I just won't be able to work much next week <3
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
-- [ ] Add a real backend for the donation feature (right now it's local-only, with
-      no server endpoint or actual donation partner behind it). Re-checked live
-      by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
-      API to integrate with in the first place, so this isn't just a missing
-      route, there's nothing to build against at all yet.
 - [ ] Add an "add ingredients to shopping list" action on a planned meal —
       right now meals in the plan are just display-only, with no way to turn
       one into shopping list items. Turns out to be lower-value than it
@@ -901,6 +909,12 @@ Not code — needs a person to research, decide, or check something
 outside this repo.
 
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
+- [ ] Identify a real donation partner (food bank, nonprofit, etc.) to
+      actually integrate with. Airo confirmed on 8/14 that donation
+      records are now real and persisted, but partner selection is still
+      just a label with no real handoff behind it — nothing gets
+      notified, nothing gets fulfilled. Needs a real organization/API
+      identified before there's anything to integrate against.
 - [ ] Test the full app on an actual Android phone and an actual iPhone
 - [ ] Live-test household invitations end-to-end: invite someone, have
       them accept, then remove them from Profile's "Household members"
