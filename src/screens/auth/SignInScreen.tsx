@@ -70,6 +70,12 @@ export function SignInScreen() {
           style={styles.submitButton}
         />
         <Button
+          label="Forgot password?"
+          variant="ghost"
+          onPress={() => navigation.navigate("ForgotPassword")}
+          style={styles.switchButton}
+        />
+        <Button
           label="Don't have an account? Sign up"
           variant="ghost"
           onPress={() => navigation.navigate("SignUp")}

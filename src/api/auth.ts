@@ -33,7 +33,7 @@ function humanizeMessage(raw: string): string {
   return `There's a problem with your ${label}. Please check it and try again.`;
 }
 
-async function authRequest(path: string, body: unknown): Promise<AuthResult> {
+async function authRequestRaw(path: string, body: unknown): Promise<unknown> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: {
@@ -66,7 +66,11 @@ async function authRequest(path: string, body: unknown): Promise<AuthResult> {
     throw new AuthError(message, isAccountExists);
   }
 
-  return data as AuthResult;
+  return data;
+}
+
+async function authRequest(path: string, body: unknown): Promise<AuthResult> {
+  return (await authRequestRaw(path, body)) as AuthResult;
 }
 
 export const authApi = {
@@ -74,4 +78,13 @@ export const authApi = {
     authRequest("/api/auth/sign-in/email", { email, password }),
   signUp: (name: string, email: string, password: string) =>
     authRequest("/api/auth/sign-up/email", { name, email, password }),
+  // Always resolves on a valid HTTP response, even if no account matches
+  // the email - the backend returns a generic 200 either way so a caller
+  // here can't be used to enumerate which emails have accounts.
+  requestPasswordReset: async (email: string, redirectTo: string) => {
+    await authRequestRaw("/api/auth/request-password-reset", { email, redirectTo });
+  },
+  resetPassword: async (token: string, newPassword: string) => {
+    await authRequestRaw("/api/auth/reset-password", { token, newPassword });
+  },
 };

@@ -21,6 +21,7 @@ export type RecipesStackParamList = {
 export type AuthStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
+  ForgotPassword: undefined;
 };
 
 export type HouseholdStackParamList = {
@@ -44,6 +45,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Main: NavigatorScreenParams<MainTabParamList>;
   Join: { token: string };
+  ResetPassword: { token?: string } | undefined;
 };
 
 declare global {
