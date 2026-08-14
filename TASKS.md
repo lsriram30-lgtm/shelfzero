@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 34 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 35 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -799,6 +799,20 @@ pace I just won't be able to work much next week <3
       control that would just 403. "Leave household" stays available to
       everyone, unaffected by role. Typecheck, tests, and an
       `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Let a recipe
+      be un-favorited (branch: `feature/unfavorite-recipe`). Airo added
+      `DELETE /api/favorites/:id` on 8/14 (auth-scoped, 404s on someone
+      else's favorite). The favorite star on Recipe Detail could
+      previously only ever turn on; the button is now a real toggle both
+      ways, reusing the recipe's own `id` as the favorite id — matches
+      how `favoritesApi.list()` already returns full `Recipe` objects
+      with no separate favorite-record id, so there was never a second id
+      space to be unsure about here (unlike the household-member case).
+      Also added a focus-refresh to the Recipes list's favorites fetch
+      (previously mount-only), matching Pantry's existing pattern, so
+      un-favoriting on Detail is actually reflected in the star/ordering
+      on the way back instead of needing a manual pull-to-refresh.
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -820,14 +834,6 @@ this repo.
       by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
       API to integrate with in the first place, so this isn't just a missing
       route, there's nothing to build against at all yet.
-- [ ] Add a way to un-favorite a recipe — `favoritesApi` only has
-      `list`/`add`, no remove, so RecipeDetailScreen's favorite button can
-      only ever turn one way. Checked live: `DELETE /api/favorites/:id`
-      404s, route doesn't exist. Re-checked live again on 8/12, still 404.
-      Deliberately not building a client-side-only "un-favorite" (hiding it
-      locally while the backend still has it favorited) — it would reappear
-      on next refresh and mislead about state on other devices/sessions,
-      same reasoning as the earlier account-deletion decision.
 - [ ] Add an "add ingredients to shopping list" action on a planned meal —
       right now meals in the plan are just display-only, with no way to turn
       one into shopping list items. Turns out to be lower-value than it

@@ -25,14 +25,19 @@ export function RecipeDetailScreen() {
   const [savingFavorite, setSavingFavorite] = useState(false);
 
   const handleToggleFavorite = async () => {
-    if (isFavorite || !recipe) return;
+    if (!recipe) return;
     setSavingFavorite(true);
     try {
-      await favoritesApi.add(recipe.id);
-      setIsFavorite(true);
+      if (isFavorite) {
+        await favoritesApi.remove(recipe.id);
+        setIsFavorite(false);
+      } else {
+        await favoritesApi.add(recipe.id);
+        setIsFavorite(true);
+      }
     } catch (err) {
       Alert.alert(
-        "Couldn't add to favorites",
+        isFavorite ? "Couldn't remove from favorites" : "Couldn't add to favorites",
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     } finally {
@@ -107,10 +112,11 @@ export function RecipeDetailScreen() {
         ) : null}
 
         <Button
-          label={isFavorite ? "Favorited" : savingFavorite ? "Saving…" : "Add to favorites"}
+          label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           variant={isFavorite ? "secondary" : "outline"}
           onPress={handleToggleFavorite}
-          disabled={isFavorite || savingFavorite}
+          disabled={savingFavorite}
+          loading={savingFavorite}
           style={styles.favoriteButton}
         />
       </ScrollView>
