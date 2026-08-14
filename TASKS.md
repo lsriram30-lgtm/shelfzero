@@ -908,6 +908,12 @@ outside this repo.
       task above — the app reuses the accepted invite's `id` as the
       member id for `DELETE /api/household/members/:id`, which was never
       confirmed against a real invite.
+- [ ] Live-test the recipe search feature: search for something on the
+      Recipes screen and confirm real results actually come back (Airo's
+      own last check found even a `pasta` search exceeding 10 seconds).
+      Built and unit-tested, but never confirmed end-to-end against the
+      real Gemini-backed endpoint — no test account or device/simulator
+      available to do that from here.
 - [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
       the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
       429 (quota exhausted or rate limited — Airo can't distinguish
