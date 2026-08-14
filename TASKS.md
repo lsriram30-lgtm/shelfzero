@@ -748,6 +748,28 @@ pace I just won't be able to work much next week <3
       Added an optional `accessibilityLabel` prop to the shared `Button`
       component (every other call site is unaffected, since it defaults
       to the visible label) and used it here.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Build the
+      forgot-password / reset-password flow (branch:
+      `feature/forgot-password-reset`). No longer backend-blocked as of
+      8/14 — Airo confirmed `POST /api/auth/request-password-reset` sends
+      a real branded email, and the emailed link's token + new password
+      go to `POST /api/auth/reset-password`. Added a "Forgot password?"
+      link on Sign In, a request-screen (`ForgotPasswordScreen`, in the
+      Auth stack) that always shows a generic "check your email" success
+      message regardless of whether the address has an account (so this
+      can't be used to enumerate real emails), and a reset screen
+      (`ResetPasswordScreen`) mounted at the root navigator level rather
+      than inside the Auth stack, since the emailed link has to resolve
+      correctly no matter what screen the app would otherwise show —
+      unlike Join, this can't wait for a signed-in/onboarded state. Wired
+      a `reset-password` deep-link path so the emailed link opens directly
+      to it, with a token-missing state for an invalid/expired link.
+      Doesn't yet cover the "sign in" step of onboarding's embedded
+      AccountStep (only the standalone Sign In screen) — that flow has no
+      navigator to push a screen from, so it's left as a smaller followup
+      rather than restructuring onboarding for it. Typecheck, all 186
+      tests, and a real `expo export --platform ios` bundle all pass.
+      Not yet merged into `master`.
 
 ### Not yet assigned
 
@@ -769,12 +791,6 @@ this repo.
       by Laya on 8/12: `GET /api/donations` still 404s — and there's no partner
       API to integrate with in the first place, so this isn't just a missing
       route, there's nothing to build against at all yet.
-- [ ] Add a way to remove a household member, or leave a household yourself —
-      right now you can invite people, but once someone's a member there's no
-      way to remove them or leave. Re-checked live by Laya: still 404s
-      (route doesn't exist), not just stale docs. Re-re-checked live on 8/12
-      (both `DELETE /api/household/members/:id` and `POST
-      /api/household/leave`) — still 404, unchanged.
 - [ ] Add a way to un-favorite a recipe — `favoritesApi` only has
       `list`/`add`, no remove, so RecipeDetailScreen's favorite button can
       only ever turn one way. Checked live: `DELETE /api/favorites/:id`
@@ -783,9 +799,12 @@ this repo.
       locally while the backend still has it favorited) — it would reappear
       on next refresh and mislead about state on other devices/sessions,
       same reasoning as the earlier account-deletion decision.
-- [ ] Add household member roles (e.g. owner vs. member) — relevant once the
-      "remove a member" task above exists, since removing people needs some
-      notion of who's allowed to do it
+- [ ] Add household member roles (e.g. owner vs. member) — Airo confirmed
+      on 8/14 that the new remove/leave endpoints below don't enforce this
+      yet: any household member can remove any other member (self-removal
+      has to go through the leave endpoint instead). No role concept
+      exists server-side to restrict that to, say, whoever created the
+      household.
 - [ ] Add an "add ingredients to shopping list" action on a planned meal —
       right now meals in the plan are just display-only, with no way to turn
       one into shopping list items. Turns out to be lower-value than it
@@ -819,6 +838,14 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
+- [ ] Build remove-member / leave-household UI — no longer backend-blocked.
+      Airo confirmed on 8/14 that `DELETE /api/household/members/:id` and
+      `POST /api/household/leave` are both live: each returns `200` with
+      no body, detaches the user without spinning up a new household for
+      them, and leaves the rest of the shared household data (pantry,
+      shopping list) intact for whoever remains. Note: member removal
+      currently isn't role-gated — any member can remove any other member
+      today (see the "household member roles" backend task below).
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend; it needs an

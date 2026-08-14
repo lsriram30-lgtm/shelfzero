@@ -5,6 +5,7 @@ import { TabNavigator } from "./TabNavigator";
 import { AuthStackNavigator } from "./AuthStackNavigator";
 import { OnboardingScreen } from "../screens/onboarding/OnboardingScreen";
 import { JoinScreen } from "../screens/JoinScreen";
+import { ResetPasswordScreen } from "../screens/ResetPasswordScreen";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -38,6 +39,14 @@ export function RootNavigator() {
           />
         </>
       )}
+      {/* Mounted regardless of auth/onboarding state: a password-reset link
+          arrives by email and has to work no matter what screen the app
+          would otherwise land on. */}
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPasswordScreen}
+        options={{ presentation: "modal", headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }

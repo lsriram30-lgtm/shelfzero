@@ -7,6 +7,7 @@ export const linking: LinkingOptions<RootStackParamList> = {
   config: {
     screens: {
       Join: "join/:token",
+      ResetPassword: "reset-password",
       Main: {
         screens: {
           Dashboard: "dashboard",
