@@ -929,6 +929,12 @@ outside this repo.
       Built and unit-tested, but never confirmed end-to-end against the
       real Gemini-backed endpoint — no test account or device/simulator
       available to do that from here.
+- [ ] Live-test the donation backend: donate an item, confirm it shows
+      up in donation history afterward, and (with a second household
+      member) confirm they can see the same record. Built and
+      unit-tested against the documented `POST`/`GET /api/donations`
+      contract, but never confirmed end-to-end — same no test
+      account/device limitation as the other live-test items above.
 - [ ] Fix the `429` on `/api/meal-plan` — root cause confirmed via Airo:
       the route calls OpenAI's `gpt-4o-mini` directly, and every upstream
       429 (quota exhausted or rate limited — Airo can't distinguish
