@@ -32,12 +32,19 @@ export function ProfileScreen() {
         "This signs you out and clears the local questionnaire status, so the next app open starts from the very first screen again. Your account and data on the server aren't affected.",
       confirmLabel: "Reset",
       onConfirm: async () => {
-        // Sign out first: OnboardingScreen reads isSignedIn once at mount to
-        // decide which step to start on, so clearing the profile first (and
-        // letting RootNavigator swap it in while isSignedIn is still
-        // momentarily true) locks in the wrong starting step.
-        await signOut();
-        await resetOnboarding();
+        try {
+          // Sign out first: OnboardingScreen reads isSignedIn once at mount
+          // to decide which step to start on, so clearing the profile first
+          // (and letting RootNavigator swap it in while isSignedIn is still
+          // momentarily true) locks in the wrong starting step.
+          await signOut();
+          await resetOnboarding();
+        } catch (err) {
+          Alert.alert(
+            "Couldn't reset",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        }
       },
     });
   };

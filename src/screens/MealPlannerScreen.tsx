@@ -4,10 +4,25 @@ import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
 import { useOnboarding } from "../context/OnboardingContext";
 import { mealPlanApi } from "../api/mealPlan";
-import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill } from "../components";
+import {
+  Screen,
+  Header,
+  Card,
+  CardHeader,
+  CardHeaderLink,
+  Button,
+  EmptyState,
+  ErrorState,
+  Pill,
+} from "../components";
 import { spacing, typography } from "../theme";
 import { MealPlanDay } from "../types";
-import { buildMealPlanPreferences, hasEnoughPantryItems, hasPantryChanged } from "./mealPlannerLogic";
+import {
+  buildMealPlanPreferences,
+  hasEnoughPantryItems,
+  hasPantryChanged,
+  replaceDayInPlan,
+} from "./mealPlannerLogic";
 import { CachedMealPlan, getCachedMealPlan, setCachedMealPlan } from "../utils/mealPlanCache";
 
 const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
@@ -19,6 +34,7 @@ export function MealPlannerScreen() {
   const [days, setDays] = useState<MealPlanDay[]>([]);
   const [cachedPantryNames, setCachedPantryNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [regeneratingDay, setRegeneratingDay] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +72,30 @@ export function MealPlannerScreen() {
     }
   };
 
+  const handleRegenerateDay = async (dayLabel: string) => {
+    if (loading || regeneratingDay) return;
+    if (!hasEnoughItems) {
+      setError(NOT_ENOUGH_ITEMS_MESSAGE);
+      return;
+    }
+    setRegeneratingDay(dayLabel);
+    setError(null);
+    try {
+      const plan = await mealPlanApi.generate({
+        pantryItems: currentPantryNames,
+        preferences: buildMealPlanPreferences(profile),
+      });
+      const updatedDays = replaceDayInPlan(days, dayLabel, plan.days);
+      setDays(updatedDays);
+      setCachedPantryNames(currentPantryNames);
+      setCachedMealPlan({ days: updatedDays, pantryItemNames: currentPantryNames });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Couldn't regenerate ${dayLabel}.`);
+    } finally {
+      setRegeneratingDay(null);
+    }
+  };
+
   const handleKeepPlan = () => {
     setCachedPantryNames(currentPantryNames);
     const toCache: CachedMealPlan = { days, pantryItemNames: currentPantryNames };
@@ -70,6 +110,7 @@ export function MealPlannerScreen() {
           label={loading ? "Generating…" : days.length > 0 ? "Regenerate plan" : "Generate 7-day plan"}
           onPress={handleGenerate}
           loading={loading}
+          disabled={!!regeneratingDay}
           style={styles.generateButton}
         />
 
@@ -114,7 +155,15 @@ export function MealPlannerScreen() {
         ) : (
           days.map((day) => (
             <Card key={day.day} style={styles.dayCard}>
-              <Text style={[styles.dayTitle, { color: colors.text }]}>{day.day}</Text>
+              <CardHeader
+                title={day.day}
+                action={
+                  <CardHeaderLink
+                    label={regeneratingDay === day.day ? "Regenerating…" : "Regenerate"}
+                    onPress={() => handleRegenerateDay(day.day)}
+                  />
+                }
+              />
               {day.meals.map((meal, index) => (
                 <View key={index} style={styles.mealRow}>
                   <Text style={[styles.mealLabel, { color: colors.textMuted }]}>{meal.label}</Text>
@@ -164,10 +213,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   dayCard: {
-    marginBottom: spacing.md,
-  },
-  dayTitle: {
-    ...typography.h3,
     marginBottom: spacing.md,
   },
   mealRow: {

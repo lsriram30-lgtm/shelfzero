@@ -4,6 +4,8 @@ import { authApi } from "../api/auth";
 import { householdApi } from "../api/household";
 import { AUTH_TOKEN_KEY } from "../api/client";
 
+const AUTH_EMAIL_KEY = "shelfzero.authEmail";
+
 async function ensureHousehold(householdName: string) {
   try {
     const me = await householdApi.me();
@@ -19,6 +21,7 @@ async function ensureHousehold(householdName: string) {
 interface AuthContextValue {
   isSignedIn: boolean;
   isLoading: boolean;
+  currentEmail: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -28,36 +31,53 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    SecureStore.getItemAsync(AUTH_TOKEN_KEY)
-      .then((token) => setIsSignedIn(!!token))
+    Promise.all([
+      SecureStore.getItemAsync(AUTH_TOKEN_KEY),
+      SecureStore.getItemAsync(AUTH_EMAIL_KEY),
+    ])
+      .then(([token, email]) => {
+        setIsSignedIn(!!token);
+        setCurrentEmail(email);
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
   const signIn = async (email: string, password: string) => {
     const { token } = await authApi.signIn(email, password);
     await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+    await SecureStore.setItemAsync(AUTH_EMAIL_KEY, email);
     await ensureHousehold("My Household");
+    setCurrentEmail(email);
     setIsSignedIn(true);
   };
 
   const signUp = async (name: string, email: string, password: string) => {
     const { token } = await authApi.signUp(name, email, password);
     await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+    await SecureStore.setItemAsync(AUTH_EMAIL_KEY, email);
     await ensureHousehold(`${name}'s Household`);
+    setCurrentEmail(email);
     setIsSignedIn(true);
   };
 
   const signOut = async () => {
     await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+    // Deliberately not clearing AUTH_EMAIL_KEY here: OnboardingContext reads
+    // it to key the cached profile by account, and a signed-out user who
+    // signs back in as themselves should still see their own cached
+    // profile rather than being treated as a brand-new device. It's
+    // overwritten as soon as anyone (the same person or someone else)
+    // actually signs in/up again.
     setIsSignedIn(false);
   };
 
   const value = useMemo(
-    () => ({ isSignedIn, isLoading, signIn, signUp, signOut }),
-    [isSignedIn, isLoading]
+    () => ({ isSignedIn, isLoading, currentEmail, signIn, signUp, signOut }),
+    [isSignedIn, isLoading, currentEmail]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

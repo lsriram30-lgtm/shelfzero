@@ -1,4 +1,4 @@
-import { OnboardingProfile } from "../types";
+import { MealPlanDay, OnboardingProfile } from "../types";
 
 // The backend doesn't document a minimum pantry size for generating a
 // 7-day plan, so this is a client-side heuristic to catch the obvious
@@ -26,4 +26,20 @@ export function hasPantryChanged(current: string[], cached: string[]): boolean {
   if (current.length !== cached.length) return true;
   const currentSet = new Set(current);
   return cached.some((name) => !currentSet.has(name));
+}
+
+// The backend only ever generates a full 7-day plan - there's no per-day
+// endpoint - so "regenerate one day" works by generating a whole fresh
+// plan and splicing just the requested day out of it, leaving the rest of
+// the cached week untouched. If the fresh plan doesn't happen to include a
+// day with a matching label, the original days are returned unchanged
+// rather than silently dropping that day.
+export function replaceDayInPlan(
+  days: MealPlanDay[],
+  dayLabel: string,
+  freshDays: MealPlanDay[]
+): MealPlanDay[] {
+  const replacement = freshDays.find((d) => d.day === dayLabel);
+  if (!replacement) return days;
+  return days.map((d) => (d.day === dayLabel ? replacement : d));
 }

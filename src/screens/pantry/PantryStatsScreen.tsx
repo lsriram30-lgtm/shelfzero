@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
 import { Screen, Header, Card, ProgressRing } from "../../components";
-import { spacing, typography, radius } from "../../theme";
+import { spacing, typography, radius, readableTextColor } from "../../theme";
 import { PantryItem } from "../../types";
 import { PantryStackParamList } from "../../navigation/types";
 
@@ -58,8 +58,13 @@ function CategoryBar({
       accessibilityLabel={`View ${category} items in Pantry`}
     >
       <Text style={[styles.barLabel, { color: colors.text }]}>{category}</Text>
-      <View style={[styles.barTrack, { backgroundColor: colors.border }]}>
-        <View style={[styles.barFill, { width: `${width}%`, backgroundColor: color }]} />
+      <View style={[styles.barTrack, { backgroundColor: colors.textMuted }]}>
+        <View
+          style={[
+            styles.barFill,
+            { width: `${width}%`, backgroundColor: color, borderColor: readableTextColor(color) },
+          ]}
+        />
       </View>
       <Text style={[styles.barCount, { color: colors.textMuted }]}>{count}</Text>
       <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
@@ -196,6 +201,7 @@ const styles = StyleSheet.create({
   barFill: {
     height: 8,
     borderRadius: radius.pill,
+    borderWidth: 1.5,
   },
   barCount: {
     ...typography.caption,

@@ -6,6 +6,7 @@ export function useShoppingList() {
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingQuantityIds, setPendingQuantityIds] = useState<Set<string>>(new Set());
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -42,7 +43,12 @@ export function useShoppingList() {
 
   const updateQuantity = useCallback(
     async (id: string, qty: number) => {
+      // Guard against overlapping calls for the same item (e.g. rapid +/-
+      // tapping): without this, an earlier request failing after a later
+      // one already succeeded would revert to a stale previousQty.
+      if (pendingQuantityIds.has(id)) return;
       const previousQty = items.find((i) => i.id === id)?.qty;
+      setPendingQuantityIds((prev) => new Set(prev).add(id));
       setItems((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
       try {
         await shoppingListApi.setQuantity(id, qty);
@@ -51,9 +57,15 @@ export function useShoppingList() {
           prev.map((i) => (i.id === id && previousQty !== undefined ? { ...i, qty: previousQty } : i))
         );
         throw err;
+      } finally {
+        setPendingQuantityIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
       }
     },
-    [items]
+    [items, pendingQuantityIds]
   );
 
   const removeItem = useCallback(async (id: string) => {
@@ -108,6 +120,7 @@ export function useShoppingList() {
     addItem,
     toggleChecked,
     updateQuantity,
+    pendingQuantityIds,
     removeItem,
     clearChecked,
     removeItems,

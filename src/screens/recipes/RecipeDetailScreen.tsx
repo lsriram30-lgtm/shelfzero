@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import { favoritesApi } from "../../api/favorites";
@@ -24,6 +24,11 @@ export function RecipeDetailScreen() {
     try {
       await favoritesApi.add(recipe.id);
       setIsFavorite(true);
+    } catch (err) {
+      Alert.alert(
+        "Couldn't add to favorites",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
     } finally {
       setSavingFavorite(false);
     }

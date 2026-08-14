@@ -66,11 +66,20 @@ export function AddPantryItemScreen() {
     ? STAPLES
     : filterByAllergies(filterByDietaryPrefs(STAPLES, dietaryPrefs), allergies);
 
+  const initialCategoryRaw = editingItem?.category ?? prefill?.category ?? CATEGORIES[0];
+  const initialCategoryIsCustom = !CATEGORIES.includes(initialCategoryRaw);
+  const initialUnitRaw = editingItem?.unit ?? prefill?.unit ?? UNITS[0];
+  const initialUnitIsCustom = !UNITS.includes(initialUnitRaw);
+
   const [name, setName] = useState(editingItem?.name ?? prefill?.name ?? "");
-  const [category, setCategory] = useState(editingItem?.category ?? prefill?.category ?? CATEGORIES[0]);
+  const [category, setCategory] = useState(initialCategoryIsCustom ? "Other" : initialCategoryRaw);
+  const [customCategory, setCustomCategory] = useState(
+    initialCategoryIsCustom ? initialCategoryRaw : ""
+  );
   const [categoryTouched, setCategoryTouched] = useState(!!editingItem || !!prefill?.category);
   const [quantity, setQuantity] = useState(String(editingItem?.quantity ?? prefill?.quantity ?? 1));
-  const [unit, setUnit] = useState(editingItem?.unit ?? prefill?.unit ?? UNITS[0]);
+  const [unit, setUnit] = useState(initialUnitIsCustom ? "Other" : initialUnitRaw);
+  const [customUnit, setCustomUnit] = useState(initialUnitIsCustom ? initialUnitRaw : "");
   const [expiryParts, setExpiryParts] = useState<DateParts>(() =>
     fromIsoDate(editingItem?.expiresAt)
   );
@@ -155,11 +164,14 @@ export function AddPantryItemScreen() {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
+      const resolvedCategory =
+        category === "Other" && customCategory.trim() ? customCategory.trim() : category;
+      const resolvedUnit = unit === "Other" && customUnit.trim() ? customUnit.trim() : unit;
       const payload = {
         name: name.trim(),
-        category,
+        category: resolvedCategory,
         quantity: parsedQuantity,
-        unit,
+        unit: resolvedUnit,
         expiresAt: isoExpiry,
         notes: notes.trim() ? notes.trim() : null,
       };
@@ -252,6 +264,13 @@ export function AddPantryItemScreen() {
             />
           ))}
         </View>
+        {category === "Other" ? (
+          <TextField
+            placeholder="Enter a category"
+            value={customCategory}
+            onChangeText={setCustomCategory}
+          />
+        ) : null}
 
         <View style={styles.row}>
           <View style={styles.quantityField}>
@@ -285,6 +304,13 @@ export function AddPantryItemScreen() {
             <Pill key={option} label={option} selected={unit === option} onPress={() => setUnit(option)} />
           ))}
         </View>
+        {unit === "Other" ? (
+          <TextField
+            placeholder="Enter a unit (e.g. bunch, jar, box)"
+            value={customUnit}
+            onChangeText={setCustomUnit}
+          />
+        ) : null}
 
         <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>Expires</Text>
         <View style={styles.pillRow}>

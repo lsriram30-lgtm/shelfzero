@@ -109,6 +109,58 @@ has no `extra.eas.projectId`. Whoever has (or creates) an Expo account needs
 to run `eas login` then `eas init` once to link this repo to a real EAS
 project; that writes the project ID into `app.json` automatically.
 
+### Distribution method for beta testing
+
+**Recommendation: TestFlight (iOS) + Google Play's Internal Testing track
+(Android), not Expo Go, once there's a real group of testers beyond
+whoever's actively developing.**
+
+Expo Go is the right tool for the current dev loop (instant reload, no
+build/upload wait) but a poor fit for actual beta distribution:
+
+- Every tester needs Expo Go installed, then has to manually paste a link
+  that changes each time the dev server restarts and stops working the
+  moment the developer's phone/computer switches networks (this happened
+  more than once during this project's own testing sessions).
+- Expo Go always shows its own icon/splash screen, never the real app's —
+  testers can't evaluate what the app will actually look/feel like.
+- Push/local notifications are only partially supported in Expo Go as of
+  SDK 53+ (confirmed while building the notifications feature — see the
+  `expo-notifications` warnings logged at startup); a real build is the
+  only way to test that feature properly.
+- Dev-only UI (the `__DEV__`-gated "Reset app" and "send test notification"
+  buttons) is only actually hidden in a real release build, so Expo Go
+  testing can't validate what a production build looks like.
+
+TestFlight and Google Play's Internal Testing are both effectively free to
+start at this scale and don't require going through a full store review:
+
+| | TestFlight (iOS) | Play Internal Testing (Android) |
+|---|---|---|
+| Cost | Apple Developer Program, $99/year | Google Play Developer, $25 one-time |
+| Testers (no review needed) | Up to 100, added by email | Up to 100, via a shareable opt-in link |
+| Review wait | None for internal testing | None |
+| What testers install | The real TestFlight app, then the real build | The real app directly, no separate app needed |
+
+**Concrete next steps**, building on the EAS setup above:
+
+1. Whoever will own this needs an Apple Developer Program membership and a
+   Google Play Developer account (one-time setup, real money, so this is a
+   deliberate decision for a person to make, not something to automate).
+2. `eas login` / `eas init` (already noted above) to link the EAS project.
+3. Configure `eas submit` credentials for each store (an App Store Connect
+   API key for Apple; a service account JSON key for Google) — `eas submit
+   --platform ios` / `--platform android` walks through generating these
+   interactively the first time.
+4. `npm run build:production`, then `eas submit` to each store's internal
+   testing track, and add testers by email (TestFlight) or via the
+   internal-testing opt-in link (Play).
+
+Once there's a reason to go beyond ~100 known testers, TestFlight's
+external testing (up to 10,000, but requires a first-time Apple review,
+typically 1–2 days) or Play's Closed/Open testing tracks are the next step
+up — not needed yet at this project's current stage.
+
 ## Design tokens
 
 Colors, spacing, radii, and shadows are centralized in `src/theme/` and match
