@@ -77,12 +77,19 @@ export interface MealPlanRequest {
   preferences?: Record<string, unknown>;
 }
 
+export interface MealIngredient {
+  name: string;
+  quantity?: string;
+  inPantry?: boolean;
+}
+
 export interface MealPlanDay {
   day: string;
   meals: {
     label: string;
     title: string;
     description?: string;
+    ingredients?: MealIngredient[];
   }[];
 }
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
+import { useShoppingList } from "../hooks/useShoppingList";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useAuth } from "../context/AuthContext";
 import { mealPlanApi } from "../api/mealPlan";
@@ -17,13 +18,15 @@ import {
   Pill,
 } from "../components";
 import { spacing, typography } from "../theme";
-import { MealPlanDay } from "../types";
+import { MealIngredient, MealPlanDay } from "../types";
 import {
   buildMealPlanPreferences,
   hasEnoughPantryItems,
   hasPantryChanged,
+  missingIngredients,
   replaceDayInPlan,
 } from "./mealPlannerLogic";
+import { findMatchingUnchecked } from "./household/shoppingListLogic";
 import { CachedMealPlan, getCachedMealPlan, setCachedMealPlan } from "../utils/mealPlanCache";
 
 const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
@@ -31,6 +34,7 @@ const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items 
 export function MealPlannerScreen() {
   const { colors } = useTheme();
   const { items: pantryItems } = usePantry();
+  const { items: shoppingItems, addItem, updateQuantity } = useShoppingList();
   const { profile } = useOnboarding();
   const { currentEmail } = useAuth();
   const [days, setDays] = useState<MealPlanDay[]>([]);
@@ -38,6 +42,8 @@ export function MealPlannerScreen() {
   const [loading, setLoading] = useState(false);
   const [regeneratingDay, setRegeneratingDay] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [addingMissingKey, setAddingMissingKey] = useState<string | null>(null);
+  const [addedMissingKeys, setAddedMissingKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     getCachedMealPlan(currentEmail).then((cached) => {
@@ -108,6 +114,29 @@ export function MealPlannerScreen() {
     setCachedMealPlan(toCache, currentEmail);
   };
 
+  const handleAddMissingIngredients = async (key: string, missing: MealIngredient[]) => {
+    if (addingMissingKey) return;
+    setAddingMissingKey(key);
+    try {
+      for (const ingredient of missing) {
+        const existing = findMatchingUnchecked(shoppingItems, ingredient.name);
+        if (existing) {
+          await updateQuantity(existing.id, existing.qty + 1);
+        } else {
+          await addItem({ name: ingredient.name, qty: 1 });
+        }
+      }
+      setAddedMissingKeys((prev) => new Set(prev).add(key));
+    } catch (err) {
+      Alert.alert(
+        "Couldn't add items",
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setAddingMissingKey(null);
+    }
+  };
+
   return (
     <Screen>
       <Header title="Meal planner" subtitle="A 7-day plan built from your pantry" />
@@ -171,17 +200,43 @@ export function MealPlannerScreen() {
                   />
                 }
               />
-              {day.meals.map((meal, index) => (
-                <View key={index} style={styles.mealRow}>
-                  <Text style={[styles.mealLabel, { color: colors.textMuted }]}>{meal.label}</Text>
-                  <Text style={[styles.mealTitle, { color: colors.text }]}>{meal.title}</Text>
-                  {meal.description ? (
-                    <Text style={[styles.mealDescription, { color: colors.textMuted }]}>
-                      {meal.description}
+              {day.meals.map((meal, index) => {
+                const missing = missingIngredients(meal.ingredients);
+                const key = `${day.day}-${meal.title}`;
+                const added = addedMissingKeys.has(key);
+                const adding = addingMissingKey === key;
+                return (
+                  <View key={index} style={styles.mealRow}>
+                    <Text style={[styles.mealLabel, { color: colors.textMuted }]}>
+                      {meal.label}
                     </Text>
-                  ) : null}
-                </View>
-              ))}
+                    <Text style={[styles.mealTitle, { color: colors.text }]}>{meal.title}</Text>
+                    {meal.description ? (
+                      <Text style={[styles.mealDescription, { color: colors.textMuted }]}>
+                        {meal.description}
+                      </Text>
+                    ) : null}
+                    {missing.length > 0 ? (
+                      <View style={styles.missingWrapper}>
+                        <Text style={[styles.missingText, { color: colors.textMuted }]}>
+                          Missing: {missing.map((ingredient) => ingredient.name).join(", ")}
+                        </Text>
+                        <CardHeaderLink
+                          label={
+                            added
+                              ? "Added to shopping list"
+                              : adding
+                                ? "Adding…"
+                                : "Add missing to shopping list"
+                          }
+                          onPress={() => handleAddMissingIngredients(key, missing)}
+                          disabled={added || adding}
+                        />
+                      </View>
+                    ) : null}
+                  </View>
+                );
+              })}
             </Card>
           ))
         )}
@@ -235,5 +290,12 @@ const styles = StyleSheet.create({
   mealDescription: {
     ...typography.caption,
     marginTop: spacing.xs / 2,
+  },
+  missingWrapper: {
+    marginTop: spacing.sm,
+  },
+  missingText: {
+    ...typography.caption,
+    marginBottom: spacing.xs,
   },
 });

@@ -3,6 +3,7 @@ import {
   hasEnoughPantryItems,
   hasPantryChanged,
   MIN_PANTRY_ITEMS_FOR_PLAN,
+  missingIngredients,
   replaceDayInPlan,
 } from "./mealPlannerLogic";
 import { MealPlanDay, OnboardingProfile } from "../types";
@@ -94,6 +95,32 @@ describe("hasEnoughPantryItems", () => {
 
   it("returns true above the minimum", () => {
     expect(hasEnoughPantryItems(MIN_PANTRY_ITEMS_FOR_PLAN + 5)).toBe(true);
+  });
+});
+
+describe("missingIngredients", () => {
+  it("returns an empty array when there are no ingredients", () => {
+    expect(missingIngredients(undefined)).toEqual([]);
+  });
+
+  it("returns only ingredients explicitly marked not in pantry", () => {
+    const ingredients = [
+      { name: "chicken breast", inPantry: false },
+      { name: "rice", inPantry: true },
+      { name: "garlic", inPantry: false },
+    ];
+    expect(missingIngredients(ingredients)).toEqual([
+      { name: "chicken breast", inPantry: false },
+      { name: "garlic", inPantry: false },
+    ]);
+  });
+
+  it("treats a missing inPantry flag as not-missing (unknown, not assumed absent)", () => {
+    expect(missingIngredients([{ name: "salt" }])).toEqual([]);
+  });
+
+  it("returns an empty array when everything is already in the pantry", () => {
+    expect(missingIngredients([{ name: "rice", inPantry: true }])).toEqual([]);
   });
 });
 
