@@ -832,7 +832,8 @@ pace I just won't be able to work much next week <3
       casing needed, the existing 504 fallback message already covers it.
       Typecheck, tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a real
-      backend for the donation feature (branch: `feature/donation-backend`).
+      backend for the donation feature (branch: `feature/donation-backend`)
+      — merged into `master`.
       Airo added authenticated `POST /api/donations` and
       `GET /api/donations` on 8/14, household-scoped — donation records
       now survive a reinstall and are visible to other household members,
