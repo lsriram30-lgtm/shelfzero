@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -24,6 +24,17 @@ export function ProfileScreen() {
   const { signOut } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [leavingHousehold, setLeavingHousehold] = useState(false);
+  // Defaults to false (not just "unknown") so the remove-member action
+  // stays hidden until we've actually confirmed ownership, rather than
+  // flashing a control that a non-owner would just get a 403 from.
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    householdApi
+      .me()
+      .then((me) => setIsOwner(me.role === "owner"))
+      .catch(() => {});
+  }, []);
 
   const members = invites.filter((invite) => invite.status === "accepted");
 
@@ -167,14 +178,16 @@ export function ProfileScreen() {
                 <Text style={[styles.detail, { color: colors.text }]}>
                   {member.name} · {member.role}
                 </Text>
-                <Pressable
-                  onPress={() => handleRemoveMember(member.id, member.name)}
-                  hitSlop={8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove ${member.name} from household`}
-                >
-                  <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
-                </Pressable>
+                {isOwner ? (
+                  <Pressable
+                    onPress={() => handleRemoveMember(member.id, member.name)}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove ${member.name} from household`}
+                  >
+                    <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+                  </Pressable>
+                ) : null}
               </View>
             ))
           )}
