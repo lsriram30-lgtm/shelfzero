@@ -5,6 +5,18 @@ import { MealIngredient, MealPlanDay, OnboardingProfile } from "../types";
 // case (an empty or near-empty pantry) before wasting a request on it.
 export const MIN_PANTRY_ITEMS_FOR_PLAN = 3;
 
+// Matches the backend's documented dayIndex mapping (0-6, Monday-Sunday)
+// for requesting one specific day of a plan at a time.
+export const WEEKDAY_LABELS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 export function hasEnoughPantryItems(itemCount: number): boolean {
   return itemCount >= MIN_PANTRY_ITEMS_FOR_PLAN;
 }
@@ -42,6 +54,19 @@ export function missingIngredients(
 ): MealIngredient[] {
   if (!ingredients) return [];
   return ingredients.filter((ingredient) => ingredient.inPantry === false);
+}
+
+// Building a week out of 7 sequential single-day requests means a
+// mid-week failure shouldn't discard the days that already succeeded -
+// this summarizes what happened so the partial result and the failure
+// are both clear, and points at per-day regenerate for the rest.
+export function buildGenerationFailureMessage(
+  successCount: number,
+  totalCount: number,
+  errorMessage: string
+): string {
+  if (successCount === 0) return errorMessage;
+  return `Generated ${successCount} of ${totalCount} days before this failed: ${errorMessage} You can regenerate the missing days individually below.`;
 }
 
 export function replaceDayInPlan(

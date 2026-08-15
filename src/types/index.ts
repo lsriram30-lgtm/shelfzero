@@ -76,6 +76,15 @@ export interface Recipe {
 export interface MealPlanRequest {
   pantryItems: string[];
   preferences?: Record<string, unknown>;
+  // Requests a subset of the week instead of the default full 7 days -
+  // added because a full 7-day/21-meal generation was too slow for one
+  // request. dayIndex (0-6, Monday-Sunday) targets a specific day for
+  // building a week out of several fast calls; startDay (a weekday name
+  // already present in a previously-generated plan) targets regenerating
+  // one specific existing day.
+  days?: number;
+  dayIndex?: number;
+  startDay?: string;
 }
 
 export interface MealIngredient {

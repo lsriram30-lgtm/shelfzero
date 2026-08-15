@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 39 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 40 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -873,6 +873,29 @@ pace I just won't be able to work much next week <3
       blocked by `429`. 15 tests added (cuisine filter/list + the
       combined empty-message logic), suite at 205. Typecheck, tests, and
       an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
+      `429` on `/api/meal-plan` (branch: `feature/mealplan-day-scoped`).
+      Multi-step diagnosis on 8/15: root cause was the OpenAI project
+      behind `OPENAI_API_KEY` sitting on a fully-exhausted free trial
+      ($0.00 credit, `insufficient_quota`). Ruled out GoDaddy's "Manage
+      my plan" first (separate system, unrelated). Rather than add
+      OpenAI billing, Airo switched the route to Gemini 2.5 Flash —
+      quota block gone, but a full 7-day/21-meal request turned out too
+      slow for one call (even Airo's own test timed out; handler now
+      hard-aborts at 20s with a documented `504`). Airo then added
+      `days`/`dayIndex`/`startDay` so a request can target one specific
+      day instead of the whole week. Client now rebuilds "Generate 7-day
+      plan" as 7 fast sequential single-day requests stitched together
+      (with a "Generating day N of 7…" progress caption) instead of one
+      slow whole-week request; a mid-week failure keeps whatever days
+      already succeeded rather than discarding them. Also fixed
+      "regenerate one day," which turned out to have been requesting a
+      full 7-day plan and discarding six days this whole time — now
+      correctly targets just that one day via `startDay`. 2 tests added
+      for the new failure-message builder, suite at 207. **Still
+      unverified end-to-end** — same no test account/device limitation
+      as the other live-test items; add this to that list once merged.
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -935,26 +958,14 @@ outside this repo.
       unit-tested against the documented `POST`/`GET /api/donations`
       contract, but never confirmed end-to-end — same no test
       account/device limitation as the other live-test items above.
-- [ ] Fix the `429` on `/api/meal-plan` — root cause diagnosed on 8/15:
-      the OpenAI project behind `OPENAI_API_KEY` was on the free trial
-      with $0.00 credit remaining (`insufficient_quota` on every
-      request). Rather than add billing, Airo switched the route to
-      Gemini 2.5 Flash on 8/15 (same fix as `/api/recipes`), preserving
-      the structured `ingredients`/`cuisine` fields — the OpenAI quota
-      block itself is gone. But a full 7-day/21-meal generation with all
-      the new structured fields is too slow for one request: even Airo's
-      own test couldn't get a successful response, and the handler now
-      hard-aborts at 20s with a documented `504`
-      (`{ error, code: "MEAL_PLAN_TIMEOUT" }`, same pattern as recipe
-      search). Airo's own assessment: generating fewer days per request
-      is the real fix, not a bigger timeout. Client-side implication:
-      "regenerate one day" already exists but currently works by
-      requesting a full 7-day plan and discarding six days
-      (`src/screens/mealPlannerLogic.ts`'s `replaceDayInPlan`) — it's
-      paying the same slow-generation cost for a single day, for no
-      reason. Needs a `days`-scoped request option from Airo before
-      that's fixable client-side. Blocks the meal-plan shopping-gap and
-      cuisine-filter tasks above from being verified either.
+- [ ] Live-test meal-plan generation: press "Generate 7-day plan" and
+      confirm all 7 days actually come back (not a `504` partway
+      through), then try "Regenerate" on a single day and confirm it
+      updates just that day. This is the one most worth checking first —
+      it's been through the most changes (OpenAI → Gemini, whole-week →
+      day-by-day) and unlocks confirming the meal-plan shopping-gap and
+      cuisine-filter tasks too, both of which depend on real generated
+      output.
 - [ ] Finish the privacy policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep

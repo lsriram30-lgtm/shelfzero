@@ -20,11 +20,13 @@ import {
 import { spacing, typography } from "../theme";
 import { MealIngredient, MealPlanDay } from "../types";
 import {
+  buildGenerationFailureMessage,
   buildMealPlanPreferences,
   hasEnoughPantryItems,
   hasPantryChanged,
   missingIngredients,
   replaceDayInPlan,
+  WEEKDAY_LABELS,
 } from "./mealPlannerLogic";
 import { findMatchingUnchecked } from "./household/shoppingListLogic";
 import { CachedMealPlan, getCachedMealPlan, setCachedMealPlan } from "../utils/mealPlanCache";
@@ -41,6 +43,10 @@ export function MealPlannerScreen() {
   const [cachedPantryNames, setCachedPantryNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [regeneratingDay, setRegeneratingDay] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState<{
+    current: number;
+    total: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [addingMissingKey, setAddingMissingKey] = useState<string | null>(null);
   const [addedMissingKeys, setAddedMissingKeys] = useState<Set<string>>(new Set());
@@ -57,6 +63,12 @@ export function MealPlannerScreen() {
   const isStale = days.length > 0 && hasPantryChanged(currentPantryNames, cachedPantryNames);
   const hasEnoughItems = hasEnoughPantryItems(pantryItems.length);
 
+  // A single request for all 7 days/21 meals was too slow (Airo confirmed
+  // even their own test timed out) - this makes 7 fast single-day
+  // requests instead, one per weekday, and stitches the results together.
+  // A day that fails partway through doesn't discard the days that
+  // already succeeded; per-day regenerate (below) is how to retry just
+  // the missing one(s) afterward.
   const handleGenerate = async () => {
     if (!hasEnoughItems) {
       setError(NOT_ENOUGH_ITEMS_MESSAGE);
@@ -64,19 +76,34 @@ export function MealPlannerScreen() {
     }
     setLoading(true);
     setError(null);
+    const preferences = buildMealPlanPreferences(profile);
+    const generatedDays: MealPlanDay[] = [];
     try {
-      const plan = await mealPlanApi.generate({
-        pantryItems: currentPantryNames,
-        preferences: buildMealPlanPreferences(profile),
-      });
-      setDays(plan.days);
+      for (let dayIndex = 0; dayIndex < WEEKDAY_LABELS.length; dayIndex++) {
+        setGenerationProgress({ current: dayIndex + 1, total: WEEKDAY_LABELS.length });
+        const plan = await mealPlanApi.generate({
+          pantryItems: currentPantryNames,
+          preferences,
+          days: 1,
+          dayIndex,
+        });
+        if (plan.days[0]) generatedDays.push(plan.days[0]);
+      }
+      setDays(generatedDays);
       setCachedPantryNames(currentPantryNames);
-      const toCache: CachedMealPlan = { days: plan.days, pantryItemNames: currentPantryNames };
-      setCachedMealPlan(toCache, currentEmail);
+      setCachedMealPlan({ days: generatedDays, pantryItemNames: currentPantryNames }, currentEmail);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't generate a meal plan.");
+      if (generatedDays.length > 0) setDays(generatedDays);
+      setError(
+        buildGenerationFailureMessage(
+          generatedDays.length,
+          WEEKDAY_LABELS.length,
+          err instanceof Error ? err.message : "Couldn't generate a meal plan."
+        )
+      );
     } finally {
       setLoading(false);
+      setGenerationProgress(null);
     }
   };
 
@@ -92,6 +119,8 @@ export function MealPlannerScreen() {
       const plan = await mealPlanApi.generate({
         pantryItems: currentPantryNames,
         preferences: buildMealPlanPreferences(profile),
+        days: 1,
+        startDay: dayLabel,
       });
       const updatedDays = replaceDayInPlan(days, dayLabel, plan.days);
       setDays(updatedDays);
@@ -148,6 +177,11 @@ export function MealPlannerScreen() {
           disabled={!!regeneratingDay}
           style={styles.generateButton}
         />
+        {generationProgress ? (
+          <Text style={[styles.generationProgressText, { color: colors.textMuted }]}>
+            Generating day {generationProgress.current} of {generationProgress.total}…
+          </Text>
+        ) : null}
 
         {isStale && !loading ? (
           <Card style={styles.staleBanner}>
@@ -251,6 +285,11 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
   },
   generateButton: {
+    marginBottom: spacing.lg,
+  },
+  generationProgressText: {
+    ...typography.caption,
+    textAlign: "center",
     marginBottom: spacing.lg,
   },
   staleBanner: {
