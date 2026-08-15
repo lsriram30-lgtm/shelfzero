@@ -935,18 +935,22 @@ outside this repo.
       unit-tested against the documented `POST`/`GET /api/donations`
       contract, but never confirmed end-to-end — same no test
       account/device limitation as the other live-test items above.
-- [ ] Fix the `429` on `/api/meal-plan` — root cause fully diagnosed on
-      8/15: the OpenAI project behind `OPENAI_API_KEY` is still on the
-      **free trial**, with **$0.00 credit remaining** — confirmed via
-      Airo that the API error is `insufficient_quota`, and confirmed
-      directly on platform.openai.com that trial credit is fully used up.
-      (Ruled out GoDaddy's "Manage my plan" first — Airo confirmed those
-      builder credits are a separate system from the deployed app's
-      OpenAI billing.) **Fix:** add a payment method under Billing on
-      platform.openai.com to move off the trial's fixed credit pool onto
-      pay-as-you-go. Blocks meal-plan generation entirely, plus two
-      already-built features that can't be verified until this is fixed
-      (the meal-plan shopping-gap and cuisine-filter tasks above).
+- [ ] Fix the `429` on `/api/meal-plan` — root cause diagnosed on 8/15:
+      the OpenAI project behind `OPENAI_API_KEY` was on the free trial
+      with $0.00 credit remaining (`insufficient_quota` on every
+      request). Rather than add billing, Airo switched the route from
+      OpenAI to Gemini 2.5 Flash on 8/15 (same fix pattern as
+      `/api/recipes`), preserving the structured `ingredients`/`cuisine`
+      fields. The OpenAI quota block is gone, but **not confirmed
+      working**: Airo added a 20-second timeout because the preview
+      gateway timed out before a full 7-day plan finished generating —
+      unclear whether a real request now succeeds within that window or
+      still routinely times out with a cleaner error than before. Needs
+      that confirmed (and the timeout response shape, so the client can
+      handle it like recipe search's `504`) before trusting meal-plan
+      generation actually works. Blocks two already-built features that
+      can't be verified until this is fully confirmed (the meal-plan
+      shopping-gap and cuisine-filter tasks above).
 - [ ] Finish the privacy policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep
