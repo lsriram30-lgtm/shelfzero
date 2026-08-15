@@ -862,7 +862,8 @@ pace I just won't be able to work much next week <3
       `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
       cuisine filter to the Recipes screen (branch:
-      `feature/cuisine-filter`). Airo added a `cuisine` field per meal on
+      `feature/cuisine-filter`) — merged into `master`. Airo added a
+      `cuisine` field per meal on
       8/15, same pattern as the ingredients change. Recipes now shows a
       second filter row (cuisine, alongside the existing meal-type row),
       and the empty-state message was extended to name a cuisine mismatch
