@@ -11,7 +11,14 @@ import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill, TextField }
 import { spacing, typography } from "../../theme";
 import { RecipesStackParamList } from "../../navigation/types";
 import { Recipe } from "../../types";
-import { filterByMealType, filterByTitle, uniqueMealTypes } from "./recipesLogic";
+import {
+  buildRecipesEmptyMessage,
+  filterByCuisine,
+  filterByMealType,
+  filterByTitle,
+  uniqueCuisines,
+  uniqueMealTypes,
+} from "./recipesLogic";
 
 type RecipesNavigationProp = NativeStackNavigationProp<RecipesStackParamList, "Recipes">;
 
@@ -53,6 +60,7 @@ export function RecipesScreen() {
   const [favorites, setFavorites] = useState<Recipe[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
   const [mealTypeFilter, setMealTypeFilter] = useState<string | null>(null);
+  const [cuisineFilter, setCuisineFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   // Real search hits a slow (up to several seconds), Gemini-backed
   // catalog search - deliberately a separate, explicit action from the
@@ -122,7 +130,11 @@ export function RecipesScreen() {
     ...recipes.filter((r) => !favoriteIds.has(r.id)),
   ];
   const mealTypes = uniqueMealTypes(combined);
-  const filtered = filterByTitle(filterByMealType(combined, mealTypeFilter), query);
+  const cuisines = uniqueCuisines(combined);
+  const filtered = filterByTitle(
+    filterByCuisine(filterByMealType(combined, mealTypeFilter), cuisineFilter),
+    query
+  );
   const trimmedQuery = query.trim();
 
   return (
@@ -180,6 +192,23 @@ export function RecipesScreen() {
           ))}
         </View>
       ) : null}
+      {!searchResults && cuisines.length > 0 ? (
+        <View style={styles.filterRow}>
+          <Pill
+            label="All cuisines"
+            selected={cuisineFilter === null}
+            onPress={() => setCuisineFilter(null)}
+          />
+          {cuisines.map((cuisine) => (
+            <Pill
+              key={cuisine}
+              label={cuisine}
+              selected={cuisineFilter === cuisine}
+              onPress={() => setCuisineFilter(cuisine)}
+            />
+          ))}
+        </View>
+      ) : null}
       <FlatList
         data={searchResults ?? filtered}
         keyExtractor={(item) => item.id}
@@ -215,13 +244,7 @@ export function RecipesScreen() {
               <EmptyState
                 icon="restaurant-outline"
                 title="No matching recipes"
-                message={
-                  trimmedQuery && mealTypeFilter
-                    ? `No ${mealTypeFilter} recipes match "${trimmedQuery}".`
-                    : trimmedQuery
-                      ? `No recipes match "${trimmedQuery}".`
-                      : `No ${mealTypeFilter} recipes right now — try a different filter.`
-                }
+                message={buildRecipesEmptyMessage(trimmedQuery, mealTypeFilter, cuisineFilter)}
               />
             ) : (
               <EmptyState

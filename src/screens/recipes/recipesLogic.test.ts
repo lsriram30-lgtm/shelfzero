@@ -1,4 +1,11 @@
-import { filterByMealType, filterByTitle, uniqueMealTypes } from "./recipesLogic";
+import {
+  buildRecipesEmptyMessage,
+  filterByCuisine,
+  filterByMealType,
+  filterByTitle,
+  uniqueCuisines,
+  uniqueMealTypes,
+} from "./recipesLogic";
 import { Recipe } from "../../types";
 
 function recipe(overrides: Partial<Recipe>): Recipe {
@@ -52,6 +59,98 @@ describe("filterByMealType", () => {
 
   it("returns an empty array when nothing matches", () => {
     expect(filterByMealType(recipes, "Snack")).toEqual([]);
+  });
+});
+
+describe("uniqueCuisines", () => {
+  it("returns distinct cuisines in first-seen order", () => {
+    const recipes = [
+      recipe({ id: "1", cuisine: "Italian" }),
+      recipe({ id: "2", cuisine: "Thai" }),
+      recipe({ id: "3", cuisine: "Italian" }),
+      recipe({ id: "4", cuisine: "Mexican" }),
+    ];
+    expect(uniqueCuisines(recipes)).toEqual(["Italian", "Thai", "Mexican"]);
+  });
+
+  it("skips recipes with no cuisine", () => {
+    const recipes = [recipe({ id: "1", cuisine: undefined }), recipe({ id: "2", cuisine: "Thai" })];
+    expect(uniqueCuisines(recipes)).toEqual(["Thai"]);
+  });
+
+  it("returns an empty array when nothing has a cuisine", () => {
+    expect(uniqueCuisines([recipe({ cuisine: undefined })])).toEqual([]);
+  });
+});
+
+describe("filterByCuisine", () => {
+  const recipes = [
+    recipe({ id: "1", cuisine: "Italian" }),
+    recipe({ id: "2", cuisine: "Thai" }),
+    recipe({ id: "3", cuisine: "Mexican" }),
+    recipe({ id: "4", cuisine: undefined }),
+  ];
+
+  it("returns all recipes when cuisine is null", () => {
+    expect(filterByCuisine(recipes, null)).toEqual(recipes);
+  });
+
+  it("returns only recipes matching the given cuisine", () => {
+    expect(filterByCuisine(recipes, "Thai").map((r) => r.id)).toEqual(["2"]);
+  });
+
+  it("excludes recipes with no cuisine when a filter is active", () => {
+    expect(filterByCuisine(recipes, "Italian").map((r) => r.id)).toEqual(["1"]);
+  });
+
+  it("returns an empty array when nothing matches", () => {
+    expect(filterByCuisine(recipes, "Japanese")).toEqual([]);
+  });
+});
+
+describe("buildRecipesEmptyMessage", () => {
+  it("names the search query alone when no filter is active", () => {
+    expect(buildRecipesEmptyMessage("pasta", null, null)).toBe('No recipes match "pasta".');
+  });
+
+  it("names the meal type alone when there's a filter but no query", () => {
+    expect(buildRecipesEmptyMessage("", "Breakfast", null)).toBe(
+      "No Breakfast recipes right now — try a different filter."
+    );
+  });
+
+  it("names the cuisine alone when there's a filter but no query", () => {
+    expect(buildRecipesEmptyMessage("", null, "Thai")).toBe(
+      "No Thai recipes right now — try a different filter."
+    );
+  });
+
+  it("combines cuisine and meal type when both are active with no query", () => {
+    expect(buildRecipesEmptyMessage("", "Breakfast", "Thai")).toBe(
+      "No Thai Breakfast recipes right now — try a different filter."
+    );
+  });
+
+  it("combines cuisine, meal type, and query when all three are active", () => {
+    expect(buildRecipesEmptyMessage("pasta", "Dinner", "Italian")).toBe(
+      'No Italian Dinner recipes match "pasta".'
+    );
+  });
+
+  it("combines just the query and meal type when cuisine isn't active", () => {
+    expect(buildRecipesEmptyMessage("pasta", "Dinner", null)).toBe(
+      'No Dinner recipes match "pasta".'
+    );
+  });
+
+  it("combines just the query and cuisine when meal type isn't active", () => {
+    expect(buildRecipesEmptyMessage("pasta", null, "Italian")).toBe(
+      'No Italian recipes match "pasta".'
+    );
+  });
+
+  it("falls back to a generic message when nothing is active", () => {
+    expect(buildRecipesEmptyMessage("", null, null)).toBe("No recipes match these filters.");
   });
 });
 
