@@ -938,19 +938,23 @@ outside this repo.
 - [ ] Fix the `429` on `/api/meal-plan` — root cause diagnosed on 8/15:
       the OpenAI project behind `OPENAI_API_KEY` was on the free trial
       with $0.00 credit remaining (`insufficient_quota` on every
-      request). Rather than add billing, Airo switched the route from
-      OpenAI to Gemini 2.5 Flash on 8/15 (same fix pattern as
-      `/api/recipes`), preserving the structured `ingredients`/`cuisine`
-      fields. The OpenAI quota block is gone, but **not confirmed
-      working**: Airo added a 20-second timeout because the preview
-      gateway timed out before a full 7-day plan finished generating —
-      unclear whether a real request now succeeds within that window or
-      still routinely times out with a cleaner error than before. Needs
-      that confirmed (and the timeout response shape, so the client can
-      handle it like recipe search's `504`) before trusting meal-plan
-      generation actually works. Blocks two already-built features that
-      can't be verified until this is fully confirmed (the meal-plan
-      shopping-gap and cuisine-filter tasks above).
+      request). Rather than add billing, Airo switched the route to
+      Gemini 2.5 Flash on 8/15 (same fix as `/api/recipes`), preserving
+      the structured `ingredients`/`cuisine` fields — the OpenAI quota
+      block itself is gone. But a full 7-day/21-meal generation with all
+      the new structured fields is too slow for one request: even Airo's
+      own test couldn't get a successful response, and the handler now
+      hard-aborts at 20s with a documented `504`
+      (`{ error, code: "MEAL_PLAN_TIMEOUT" }`, same pattern as recipe
+      search). Airo's own assessment: generating fewer days per request
+      is the real fix, not a bigger timeout. Client-side implication:
+      "regenerate one day" already exists but currently works by
+      requesting a full 7-day plan and discarding six days
+      (`src/screens/mealPlannerLogic.ts`'s `replaceDayInPlan`) — it's
+      paying the same slow-generation cost for a single day, for no
+      reason. Needs a `days`-scoped request option from Airo before
+      that's fixable client-side. Blocks the meal-plan shopping-gap and
+      cuisine-filter tasks above from being verified either.
 - [ ] Finish the privacy policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep
