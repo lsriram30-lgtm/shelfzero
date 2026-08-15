@@ -874,7 +874,8 @@ pace I just won't be able to work much next week <3
       combined empty-message logic), suite at 205. Typecheck, tests, and
       an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
-      `429` on `/api/meal-plan` (branch: `feature/mealplan-day-scoped`).
+      `429` on `/api/meal-plan` (branch: `feature/mealplan-day-scoped`)
+      — merged into `master`.
       Multi-step diagnosis on 8/15: root cause was the OpenAI project
       behind `OPENAI_API_KEY` sitting on a fully-exhausted free trial
       ($0.00 credit, `insufficient_quota`). Ruled out GoDaddy's "Manage
