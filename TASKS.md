@@ -935,22 +935,18 @@ outside this repo.
       unit-tested against the documented `POST`/`GET /api/donations`
       contract, but never confirmed end-to-end — same no test
       account/device limitation as the other live-test items above.
-- [ ] Fix the `429` on `/api/meal-plan` — root cause fully confirmed via
-      Airo on 8/15: the OpenAI API itself returns `insufficient_quota` for
-      the specific OpenAI project tied to this app's `OPENAI_API_KEY` —
-      no available usage quota or billing authorization on that project.
-      Ruled out GoDaddy's "Manage my plan" as the cause first — checked
-      it directly, credits remain in all three buckets (Professional plan:
-      344/1300, monthly 277/300, add-on 67/1000) — Airo confirmed those
-      builder credits are a completely separate system and don't fund or
-      meter deployed runtime OpenAI calls at all. Airo can't view or
-      change the OpenAI account's billing directly. **Actual next step:**
-      whoever owns/set up `OPENAI_API_KEY` needs to log into
-      **platform.openai.com** directly (not GoDaddy) and check that
-      project's usage limits and billing status there. Blocks meal-plan
-      generation entirely, plus three already-built features that can't
-      be verified until this is fixed (meal-plan shopping gap, cuisine
-      filter, and generation itself).
+- [ ] Fix the `429` on `/api/meal-plan` — root cause fully diagnosed on
+      8/15: the OpenAI project behind `OPENAI_API_KEY` is still on the
+      **free trial**, with **$0.00 credit remaining** — confirmed via
+      Airo that the API error is `insufficient_quota`, and confirmed
+      directly on platform.openai.com that trial credit is fully used up.
+      (Ruled out GoDaddy's "Manage my plan" first — Airo confirmed those
+      builder credits are a separate system from the deployed app's
+      OpenAI billing.) **Fix:** add a payment method under Billing on
+      platform.openai.com to move off the trial's fixed credit pool onto
+      pay-as-you-go. Blocks meal-plan generation entirely, plus two
+      already-built features that can't be verified until this is fixed
+      (the meal-plan shopping-gap and cuisine-filter tasks above).
 - [ ] Finish the privacy policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep
