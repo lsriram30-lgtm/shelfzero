@@ -70,6 +70,7 @@ export interface Recipe {
   ingredients?: string[];
   steps?: string[];
   mealType?: string;
+  cuisine?: string;
 }
 
 export interface MealPlanRequest {
@@ -90,6 +91,7 @@ export interface MealPlanDay {
     title: string;
     description?: string;
     ingredients?: MealIngredient[];
+    cuisine?: string;
   }[];
 }
 

@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 38 / 40 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 39 / 40 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 40 |
 
 **Goal:** 40 tasks each (total) by end of day 8/15.
@@ -860,31 +860,26 @@ pace I just won't be able to work much next week <3
       feature doesn't work for anyone yet. Revisit once `429` is fixed.
       4 tests added, suite at 190. Typecheck, tests, and an
       `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      cuisine filter to the Recipes screen (branch:
+      `feature/cuisine-filter`). Airo added a `cuisine` field per meal on
+      8/15, same pattern as the ingredients change. Recipes now shows a
+      second filter row (cuisine, alongside the existing meal-type row),
+      and the empty-state message was extended to name a cuisine mismatch
+      too, not just meal-type — the TASKS.md note left when the meal-type
+      filter first shipped. **Same caveat as the last one:** Airo
+      couldn't verify this against a real generated plan either, still
+      blocked by `429`. 15 tests added (cuisine filter/list + the
+      combined empty-message logic), suite at 205. Typecheck, tests, and
+      an `expo export` bundle all pass.
 
 ### Not yet assigned
 
 #### Backend (Airo only)
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
-this repo.
-
-- [ ] Add a cuisine filter to the Recipes screen — right now onboarding
-      collects a cuisine preference, but it isn't used to filter or sort the
-      Recipes screen at all. Blocked on the "tag each meal with its cuisine"
-      task below: recipes have no cuisine field today, and guessing
-      one from title keywords would misclassify anything with a generic
-      name, so this is on hold until that data actually exists. When this
-      is built, also extend the empty-state logic to cover a cuisine
-      mismatch (not just meal-type) — right now `ListEmptyComponent` only
-      checks `mealTypeFilter` when deciding whether to show "No matching
-      recipes" vs. "No recipes yet," following the same precedent set when
-      the meal-type filter was added.
-- [ ] Have the meal-plan generator tag each meal with its cuisine (e.g.
-      "Italian," "Thai") in the `/api/meal-plan` response — a backend
-      change, the same way it already returns `title` and `description`.
-      Whatever generates a meal like "Pad Thai" already implicitly knows
-      its cuisine — it's just not returned today. Once it exists, a real
-      (non-guessed) cuisine filter becomes possible on the Recipes screen.
+this repo. Nothing outstanding right now — everything queued here has been
+sent to Airo and built once delivered.
 
 #### Claude Code (client-side)
 

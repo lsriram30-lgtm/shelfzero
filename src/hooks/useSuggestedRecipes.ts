@@ -30,6 +30,7 @@ export function useSuggestedRecipes() {
             title: meal.title,
             ingredients: meal.description ? [meal.description] : undefined,
             mealType: meal.label || undefined,
+            cuisine: meal.cuisine || undefined,
           });
         });
       });
