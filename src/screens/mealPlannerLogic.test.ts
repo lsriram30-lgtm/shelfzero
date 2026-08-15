@@ -1,4 +1,5 @@
 import {
+  buildGenerationFailureMessage,
   buildMealPlanPreferences,
   hasEnoughPantryItems,
   hasPantryChanged,
@@ -121,6 +122,19 @@ describe("missingIngredients", () => {
 
   it("returns an empty array when everything is already in the pantry", () => {
     expect(missingIngredients([{ name: "rice", inPantry: true }])).toEqual([]);
+  });
+});
+
+describe("buildGenerationFailureMessage", () => {
+  it("returns just the error message when nothing succeeded", () => {
+    expect(buildGenerationFailureMessage(0, 7, "Server timed out.")).toBe("Server timed out.");
+  });
+
+  it("names how many days succeeded and points at per-day regenerate", () => {
+    expect(buildGenerationFailureMessage(3, 7, "Server timed out.")).toBe(
+      "Generated 3 of 7 days before this failed: Server timed out. You can regenerate the " +
+        "missing days individually below."
+    );
   });
 });
 
