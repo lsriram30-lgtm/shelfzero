@@ -893,10 +893,16 @@ pace I just won't be able to work much next week <3
       "regenerate one day," which turned out to have been requesting a
       full 7-day plan and discarding six days this whole time — now
       correctly targets just that one day via `startDay`. 2 tests added
-      for the new failure-message builder, suite at 207. **Still
-      unverified end-to-end** — same no test account/device limitation
-      as the other live-test items; add this to that list once merged.
-      Typecheck, tests, and an `expo export` bundle all pass.
+      for the new failure-message builder, suite at 207. Typecheck,
+      tests, and an `expo export` bundle all pass. **Correction, found
+      8/16 while live-testing:** the client-side changes are real and
+      working as built (the day-scoped request shape, the fixed
+      regenerate-one-day bug), but the task title overstates what's
+      actually fixed — meal-plan generation itself is still broken.
+      Direct API testing found even a single day consistently times out
+      at ~20-21 seconds; the day-scoped fix's core assumption ("one day
+      is fast enough") turned out to be wrong. Real fix is a new backlog
+      item under Backend (Airo only).
 
 ### Not yet assigned
 
