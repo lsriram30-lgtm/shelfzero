@@ -903,8 +903,26 @@ pace I just won't be able to work much next week <3
 #### Backend (Airo only)
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
-this repo. Nothing outstanding right now — everything queued here has been
-sent to Airo and built once delivered.
+this repo.
+
+- [ ] Meal-plan generation is still fundamentally too slow, even at the
+      smallest chunk size. Confirmed via direct API testing on 8/16 (not
+      just app-level guessing): even a single day
+      (`{ days: 1, dayIndex: 0 }`) consistently times out at ~20-21
+      seconds — tried twice, both timed out. The whole premise of the
+      day-scoped fix, "one day should be fast enough," turned out to be
+      wrong. This isn't the publish-gap issue found the same day (see
+      the 8/16 note under "Human decision needed") — the day-scoped
+      routes work correctly (accept the parameters, correct behavior
+      otherwise), generation itself is just still too slow. Recipe
+      search has the same underlying symptom (route exists, still
+      `504`s). Needs a response from Airo on why even one day of
+      structured generation is this slow, and what actually fixes it —
+      not clear yet whether that's prompt/model tuning, further
+      chunking (half a day? one meal at a time?), or something else.
+      Once fixed, re-verify meal-plan generation end to end and confirm
+      the meal-plan shopping-gap and cuisine-filter tasks (both depend
+      on real generated output) actually work too.
 
 #### Claude Code (client-side)
 
@@ -919,14 +937,6 @@ Buildable in this repo with no backend involvement.
       `NewPantryItem` today).
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
-- [ ] Build the forgot-password / reset-password flow — no longer backend-blocked.
-      Airo confirmed on 8/14 that password reset is enabled and sends
-      ShelfZero-branded reset emails. `POST /api/auth/request-password-reset`
-      accepts `{ email, redirectTo: "/reset-password" }` and returns a generic
-      200; the emailed link's token plus the new password then get submitted to
-      `POST /api/auth/reset-password`. Needs a "Forgot password?" entry point on
-      sign-in, a request screen, and a reset screen that reads the token (deep
-      link off `redirectTo`) and submits the new password.
 
 #### Human decision needed
 
@@ -941,32 +951,32 @@ outside this repo.
       notified, nothing gets fulfilled. Needs a real organization/API
       identified before there's anything to integrate against.
 - [ ] Test the full app on an actual Android phone and an actual iPhone
+- [ ] **Update 8/16:** discovered via direct API testing (curl, a
+      throwaway test account, no app UI needed) that none of this
+      session's backend changes were actually live — Airo had built
+      everything correctly, it just hadn't been published. After the app
+      was published, re-tested directly and confirmed genuinely working
+      now: household roles (`role`/`householdRole` on `/api/me`),
+      donation backend (`GET`/`POST /api/donations`), password reset
+      (real success response), un-favorite (`DELETE /api/favorites/:id`
+      returns a real "not found" for a bad id, not a route-404), and
+      household leave (`POST /api/household/leave` correctly detaches
+      and nulls `householdId`). **Remaining open items below are updated
+      accordingly** — some are now fully confirmed and can be
+      un-flagged; check for a publish step first before assuming
+      something's still broken going forward.
 - [ ] Live-test household invitations end-to-end: invite someone, have
       them accept, then remove them from Profile's "Household members"
-      list. Confirms/fixes the unverified assumption on the remove-member
-      task above — the app reuses the accepted invite's `id` as the
-      member id for `DELETE /api/household/members/:id`, which was never
-      confirmed against a real invite.
-- [ ] Live-test the recipe search feature: search for something on the
-      Recipes screen and confirm real results actually come back (Airo's
-      own last check found even a `pasta` search exceeding 10 seconds).
-      Built and unit-tested, but never confirmed end-to-end against the
-      real Gemini-backed endpoint — no test account or device/simulator
-      available to do that from here.
-- [ ] Live-test the donation backend: donate an item, confirm it shows
-      up in donation history afterward, and (with a second household
-      member) confirm they can see the same record. Built and
-      unit-tested against the documented `POST`/`GET /api/donations`
-      contract, but never confirmed end-to-end — same no test
-      account/device limitation as the other live-test items above.
-- [ ] Live-test meal-plan generation: press "Generate 7-day plan" and
-      confirm all 7 days actually come back (not a `504` partway
-      through), then try "Regenerate" on a single day and confirm it
-      updates just that day. This is the one most worth checking first —
-      it's been through the most changes (OpenAI → Gemini, whole-week →
-      day-by-day) and unlocks confirming the meal-plan shopping-gap and
-      cuisine-filter tasks too, both of which depend on real generated
-      output.
+      list. Still not directly tested — confirms/fixes the unverified
+      assumption on the remove-member task above (does the accepted
+      invite's `id` double as the member id `DELETE
+      /api/household/members/:id` expects).
+- [ ] Live-test the donation backend with a second household member:
+      the endpoint itself is confirmed live and working (`GET
+      /api/donations` returned a real empty list for a fresh test
+      household on 8/16), but cross-member visibility (does a second
+      household member actually see a donation the first one recorded)
+      is still unconfirmed.
 - [ ] Finish the privacy policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep
