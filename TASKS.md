@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 40 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 41 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -887,6 +887,19 @@ pace I just won't be able to work much next week <3
       discarding the entire week every time; it now correctly requests
       just the one day asked for. 2 tests added, suite at 207.
       Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Use real
+      ingredient quantities on the Meal Planner (branch:
+      `feature/mealplan-ingredient-quantities`) — merged into `master`.
+      Each missing ingredient carries a real quantity (e.g. "2 cloves"),
+      but it was being discarded — "Missing: X, Y" only showed names,
+      and adding to the shopping list always used a flat quantity of 1
+      regardless of what the meal actually called for. Missing
+      ingredients now show their quantity (e.g. "Missing: Garlic (2
+      cloves)"), and adding to the shopping list parses the leading
+      number out of that free-text quantity (falling back to 1 when
+      there isn't one, e.g. "a pinch") instead of hardcoding 1. 6 tests
+      added, suite at 213. Typecheck, tests, and an `expo export` bundle
+      all pass.
 
 ### Not yet assigned
 

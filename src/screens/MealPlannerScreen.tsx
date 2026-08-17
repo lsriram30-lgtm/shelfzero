@@ -22,9 +22,11 @@ import { MealIngredient, MealPlanDay } from "../types";
 import {
   buildGenerationFailureMessage,
   buildMealPlanPreferences,
+  formatIngredientLabel,
   hasEnoughPantryItems,
   hasPantryChanged,
   missingIngredients,
+  parseIngredientQuantity,
   replaceDayInPlan,
   WEEKDAY_LABELS,
 } from "./mealPlannerLogic";
@@ -148,11 +150,12 @@ export function MealPlannerScreen() {
     setAddingMissingKey(key);
     try {
       for (const ingredient of missing) {
+        const qty = parseIngredientQuantity(ingredient.quantity);
         const existing = findMatchingUnchecked(shoppingItems, ingredient.name);
         if (existing) {
-          await updateQuantity(existing.id, existing.qty + 1);
+          await updateQuantity(existing.id, existing.qty + qty);
         } else {
-          await addItem({ name: ingredient.name, qty: 1 });
+          await addItem({ name: ingredient.name, qty });
         }
       }
       setAddedMissingKeys((prev) => new Set(prev).add(key));
@@ -253,7 +256,7 @@ export function MealPlannerScreen() {
                     {missing.length > 0 ? (
                       <View style={styles.missingWrapper}>
                         <Text style={[styles.missingText, { color: colors.textMuted }]}>
-                          Missing: {missing.map((ingredient) => ingredient.name).join(", ")}
+                          Missing: {missing.map(formatIngredientLabel).join(", ")}
                         </Text>
                         <CardHeaderLink
                           label={
