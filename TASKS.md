@@ -887,11 +887,6 @@ pace I just won't be able to work much next week <3
       discarding the entire week every time; it now correctly requests
       just the one day asked for. 2 tests added, suite at 207.
       Typecheck, tests, and an `expo export` bundle all pass.
-      (Meal-plan generation itself is still too slow to actually
-      complete — both "Generate 7-day plan" and "regenerate one day" hit
-      the same underlying timeout, since both call the same endpoint.
-      That's a separate, still-open problem, tracked under "Human
-      decision needed" below.)
 
 ### Not yet assigned
 
@@ -931,9 +926,10 @@ outside this repo.
       identified before there's anything to integrate against.
 - [ ] Test the full app on an actual Android phone and an actual iPhone
 - [ ] Meal-plan generation (and recipe search, same root cause) is still
-      too slow to work at all — needs GoDaddy Support, not Airo.
-      Confirmed via direct API testing on 8/16 that even the smallest
-      possible meal-plan request (one day,
+      too slow to work at all — needs GoDaddy Support, not Airo. Affects
+      both "Generate 7-day plan" and "regenerate one day," since both
+      hit the same endpoint. Confirmed via direct API testing on 8/16
+      that even the smallest possible meal-plan request (one day,
       `{ days: 1, dayIndex: 0 }`) times out at ~20-21 seconds; the
       day-scoped fix's core assumption ("one day is fast enough") was
       wrong. Airo diagnosed why: a single day still asks Gemini for 3
