@@ -1067,6 +1067,11 @@ Buildable in this repo with no backend involvement.
       holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
+- [ ] Draft a Terms of Service and link it from Profile, the same way
+      the Privacy Policy was handled — grounded in what the app actually
+      does, hosted somewhere real once a domain exists. Most app stores
+      expect both a privacy policy and terms once real accounts and data
+      are involved; only the privacy policy exists today.
 
 #### Human decision needed
 
@@ -1074,6 +1079,15 @@ Not code — needs a person to research, decide, or check something
 outside this repo.
 
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
+- [ ] Prepare actual App Store / Play Store listing assets — screenshots,
+      store description, category, age rating, promotional text. Build
+      profiles and the account-deletion requirement are handled, but
+      none of the actual listing content exists yet — this is a
+      separate step from having a build that's technically submittable.
+- [ ] Set up a real support channel/contact (email or URL). Apple
+      requires one for the App Store listing; nothing like this exists
+      yet — right now there's no way for a real user to reach anyone if
+      something breaks.
 - [ ] Identify a real donation partner (food bank, nonprofit, etc.) to
       actually integrate with. Airo confirmed on 8/14 that donation
       records are now real and persisted, but partner selection is still
@@ -1127,6 +1141,13 @@ outside this repo.
       submission. GitHub Pages was tried and isn't available on the
       current plan (repo is private); would need either a public repo, a
       paid GitHub plan, or a different static host.
+- [ ] **Needs both Laasya and Laya:** decide whether GoDaddy's Airo AI
+      Builder is meant to be the permanent backend, or a bridge to
+      something else once the app grows. It's been treated as
+      production infrastructure all along — real accounts, real user
+      data — but it's an AI-assisted builder tool, not a dedicated
+      production backend service. Worth a deliberate joint decision
+      rather than just continuing on it by default.
 
 ---
 
