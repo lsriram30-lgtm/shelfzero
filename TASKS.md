@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 48 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 49 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -1002,6 +1002,19 @@ pace I just won't be able to work much next week <3
       translate over there without a name lookup the app doesn't have.
       Shopping list rows now show "Added by X" as a small caption under
       the item name, only when present. Typecheck, tests, and an
+      `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Sort
+      recipes by match score (branch: `feature/sort-recipes-by-match`)
+      — merged into `master`. The "X% match" pill was purely
+      decorative — recipes were shown in whatever order the meal-plan
+      API happened to return them (day/meal order), so a 95% match
+      could sit below a 40% one with nothing to indicate it. Now
+      sorted descending by match score, with favorites still kept
+      first regardless of score (unchanged) since they're already
+      favorited, and recipes with no score (favorites, which come from
+      a separate endpoint that doesn't include one) sorting after
+      every scored recipe rather than being scattered by an assumed
+      value. 4 tests added, suite at 222. Typecheck, tests, and an
       `expo export` bundle all pass.
 
 ### Not yet assigned

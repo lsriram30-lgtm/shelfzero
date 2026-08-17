@@ -3,6 +3,7 @@ import {
   filterByCuisine,
   filterByMealType,
   filterByTitle,
+  sortByMatchScore,
   uniqueCuisines,
   uniqueMealTypes,
 } from "./recipesLogic";
@@ -15,6 +16,37 @@ function recipe(overrides: Partial<Recipe>): Recipe {
     ...overrides,
   };
 }
+
+describe("sortByMatchScore", () => {
+  it("sorts descending by match score", () => {
+    const recipes = [
+      recipe({ id: "1", matchScore: 40 }),
+      recipe({ id: "2", matchScore: 95 }),
+      recipe({ id: "3", matchScore: 70 }),
+    ];
+    expect(sortByMatchScore(recipes).map((r) => r.id)).toEqual(["2", "3", "1"]);
+  });
+
+  it("sorts recipes with no score after every scored recipe", () => {
+    const recipes = [
+      recipe({ id: "1", matchScore: undefined }),
+      recipe({ id: "2", matchScore: 50 }),
+    ];
+    expect(sortByMatchScore(recipes).map((r) => r.id)).toEqual(["2", "1"]);
+  });
+
+  it("preserves relative order among recipes that all lack a score", () => {
+    const recipes = [recipe({ id: "1" }), recipe({ id: "2" }), recipe({ id: "3" })];
+    expect(sortByMatchScore(recipes).map((r) => r.id)).toEqual(["1", "2", "3"]);
+  });
+
+  it("does not mutate the original array", () => {
+    const recipes = [recipe({ id: "1", matchScore: 10 }), recipe({ id: "2", matchScore: 90 })];
+    const before = [...recipes];
+    sortByMatchScore(recipes);
+    expect(recipes).toEqual(before);
+  });
+});
 
 describe("uniqueMealTypes", () => {
   it("returns distinct meal types in first-seen order", () => {

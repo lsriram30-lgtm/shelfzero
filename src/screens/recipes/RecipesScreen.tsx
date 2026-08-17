@@ -16,6 +16,7 @@ import {
   filterByCuisine,
   filterByMealType,
   filterByTitle,
+  sortByMatchScore,
   uniqueCuisines,
   uniqueMealTypes,
 } from "./recipesLogic";
@@ -135,7 +136,7 @@ export function RecipesScreen() {
   const favoriteIds = new Set(favorites.map((f) => f.id));
   const combined = [
     ...favorites,
-    ...recipes.filter((r) => !favoriteIds.has(r.id)),
+    ...sortByMatchScore(recipes.filter((r) => !favoriteIds.has(r.id))),
   ];
   const mealTypes = uniqueMealTypes(combined);
   const cuisines = uniqueCuisines(combined);
