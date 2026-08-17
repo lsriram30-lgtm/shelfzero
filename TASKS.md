@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 50 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 51 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -1031,6 +1031,18 @@ pace I just won't be able to work much next week <3
       same wording instead of two copies that could drift. 3 tests
       added, suite at 225. Typecheck, tests, and an `expo export` bundle
       all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix
+      `suggestCategory` to match plurals (branch:
+      `feature/suggest-category-plurals`) — merged into `master`. The
+      keyword list is singular-only ("egg", not "eggs"), so a plural
+      item name fell through to no suggestion at all, in both Pantry's
+      own auto-suggest and the shopping-list grouping that reuses it.
+      Added a small, deliberately-not-a-real-stemmer `singularize` that
+      reverses the common English plural endings ("eggs" → "egg",
+      "tomatoes" → "tomato", "berries" → "berry") before matching,
+      rather than duplicating every keyword in its plural form. 5 tests
+      added, suite at 230. Typecheck, tests, and an `expo export` bundle
+      all pass.
 
 ### Not yet assigned
 
@@ -1043,14 +1055,6 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] `suggestCategory`'s keyword list only has singular forms ("egg",
-      not "eggs"), so a plural item name falls through to
-      "Uncategorized"/no suggestion when it should obviously match.
-      Found while adding shopping-list category grouping (which reuses
-      this same function) — affects pantry's "suggest a category from
-      the name" feature too, not just new. Needs either plural variants
-      added to the keyword list, or matching on a stemmed/normalized
-      form instead of exact words.
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend. Decided 8/16:
