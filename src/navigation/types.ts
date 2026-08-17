@@ -30,6 +30,7 @@ export type HouseholdStackParamList = {
   EditProfile: undefined;
   InviteFlow: undefined;
   Donate: undefined;
+  DonationHistory: undefined;
 };
 
 export type MainTabParamList = {
