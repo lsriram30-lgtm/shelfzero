@@ -152,11 +152,44 @@ export function ProfileScreen() {
             {(profile?.householdAdults ?? 1) + (profile?.householdKids ?? 0)} in household
             {profile?.householdKids ? ` (${profile.householdKids} kids)` : ""}
           </Text>
+          {profile?.cuisinePrefs && profile.cuisinePrefs.length > 0 ? (
+            <View style={styles.pillSection}>
+              <Text style={[styles.pillSectionLabel, { color: colors.textMuted }]}>Cuisines</Text>
+              <View style={styles.pillRow}>
+                {profile.cuisinePrefs.map((pref) => (
+                  <Pill key={pref} label={pref} />
+                ))}
+              </View>
+            </View>
+          ) : null}
           {profile?.dietaryPrefs && profile.dietaryPrefs.length > 0 ? (
-            <View style={styles.pillRow}>
-              {profile.dietaryPrefs.map((pref) => (
-                <Pill key={pref} label={pref} />
-              ))}
+            <View style={styles.pillSection}>
+              <Text style={[styles.pillSectionLabel, { color: colors.textMuted }]}>Dietary</Text>
+              <View style={styles.pillRow}>
+                {profile.dietaryPrefs.map((pref) => (
+                  <Pill key={pref} label={pref} />
+                ))}
+              </View>
+            </View>
+          ) : null}
+          {profile?.allergies && profile.allergies.length > 0 ? (
+            <View style={styles.pillSection}>
+              <Text style={[styles.pillSectionLabel, { color: colors.textMuted }]}>Allergies</Text>
+              <View style={styles.pillRow}>
+                {profile.allergies.map((allergy) => (
+                  <Pill key={allergy} label={allergy} />
+                ))}
+              </View>
+            </View>
+          ) : null}
+          {profile?.goals && profile.goals.length > 0 ? (
+            <View style={styles.pillSection}>
+              <Text style={[styles.pillSectionLabel, { color: colors.textMuted }]}>Goals</Text>
+              <View style={styles.pillRow}>
+                {profile.goals.map((goal) => (
+                  <Pill key={goal} label={goal} />
+                ))}
+              </View>
             </View>
           ) : null}
         </Card>
@@ -268,6 +301,13 @@ const styles = StyleSheet.create({
   },
   detailMuted: {
     ...typography.caption,
+  },
+  pillSection: {
+    marginTop: spacing.sm,
+  },
+  pillSectionLabel: {
+    ...typography.label,
+    marginBottom: spacing.xs,
   },
   pillRow: {
     flexDirection: "row",
