@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 45 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 46 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -950,6 +950,30 @@ pace I just won't be able to work much next week <3
       for cuisine, dietary, allergies, and goals — cuisine wasn't shown
       on Profile at all before this either, only dietary was. Typecheck,
       tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Group the
+      shopping list by category (branch:
+      `feature/shopping-list-grouped-by-category`) — merged into
+      `master`. Pantry already groups items by category with
+      collapsible sections; the shopping list was just a flat list, no
+      easier to shop than a plain notes app. `ShoppingListItem` has no
+      category field of its own, so reused Pantry's existing
+      keyword-based category guesser (`suggestCategory`, already built
+      for pantry's "suggest a category from the name" feature) to
+      classify shopping list items the same way, purely for display —
+      nothing new is sent to or stored on the backend. Grouped
+      alphabetically, matching how Pantry orders its own category
+      groups. Deliberately not collapsible like Pantry's groups — a
+      shopping list is normally short enough that always-expanded
+      sections are more useful than another tap to open every aisle.
+      Extracted the per-item row (checkbox, quantity stepper, remove,
+      selection-mode variant) into its own `ShoppingRow` component so
+      the grouped and previously-flat render share the exact same row
+      logic rather than duplicating it. **Found along the way, not
+      fixed:** `suggestCategory`'s keyword list has "egg" (singular)
+      but not "eggs" (plural), so an item literally named "Eggs" falls
+      through to "Uncategorized" — pre-existing, affects pantry
+      auto-suggest too, out of scope here. 5 tests added, suite at 218.
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -962,6 +986,14 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
+- [ ] `suggestCategory`'s keyword list only has singular forms ("egg",
+      not "eggs"), so a plural item name falls through to
+      "Uncategorized"/no suggestion when it should obviously match.
+      Found while adding shopping-list category grouping (which reuses
+      this same function) — affects pantry's "suggest a category from
+      the name" feature too, not just new. Needs either plural variants
+      added to the keyword list, or matching on a stemmed/normalized
+      form instead of exact words.
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend. Decided 8/16:

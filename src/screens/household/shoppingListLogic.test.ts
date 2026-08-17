@@ -1,6 +1,7 @@
 import {
   findMatchingUnchecked,
   formatShoppingListForShare,
+  groupShoppingListByCategory,
   toggleSelectAll,
   toggleSelection,
 } from "./shoppingListLogic";
@@ -35,6 +36,39 @@ describe("findMatchingUnchecked", () => {
     const uncheckedMilk = { name: "Milk", checked: false };
     const items = [{ name: "Milk", checked: true }, uncheckedMilk];
     expect(findMatchingUnchecked(items, "Milk")).toBe(uncheckedMilk);
+  });
+});
+
+describe("groupShoppingListByCategory", () => {
+  it("groups items into the same categories Pantry would suggest for them", () => {
+    const items = [{ name: "Milk" }, { name: "Chicken Breast" }, { name: "Cheese" }];
+    expect(groupShoppingListByCategory(items)).toEqual([
+      { category: "Dairy", items: [{ name: "Milk" }, { name: "Cheese" }] },
+      { category: "Meat", items: [{ name: "Chicken Breast" }] },
+    ]);
+  });
+
+  it("sorts categories alphabetically", () => {
+    const items = [{ name: "Bread" }, { name: "Apple" }];
+    const result = groupShoppingListByCategory(items);
+    expect(result.map((g) => g.category)).toEqual(["Bakery", "Produce"]);
+  });
+
+  it("falls back to Uncategorized for a name with no keyword match", () => {
+    expect(groupShoppingListByCategory([{ name: "Xyzzy" }])).toEqual([
+      { category: "Uncategorized", items: [{ name: "Xyzzy" }] },
+    ]);
+  });
+
+  it("returns an empty array for an empty list", () => {
+    expect(groupShoppingListByCategory([])).toEqual([]);
+  });
+
+  it("preserves each item's relative order within its category", () => {
+    const first = { name: "Milk" };
+    const second = { name: "Cheese" };
+    const result = groupShoppingListByCategory([first, second]);
+    expect(result[0].items).toEqual([first, second]);
   });
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -29,11 +29,101 @@ import { sendTestNotification } from "../../notifications/expiryNotifications";
 import {
   findMatchingUnchecked,
   formatShoppingListForShare,
+  groupShoppingListByCategory,
   toggleSelectAll,
   toggleSelection,
 } from "./shoppingListLogic";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
+
+function ShoppingRow({
+  item,
+  selectionMode,
+  selected,
+  onToggle,
+  onChangeQuantity,
+  onRemove,
+  pendingQuantityIds,
+}: {
+  item: ShoppingListItem;
+  selectionMode: boolean;
+  selected: boolean;
+  onToggle: () => void;
+  onChangeQuantity: (item: ShoppingListItem, qty: number) => void;
+  onRemove: (id: string) => void;
+  pendingQuantityIds: Set<string>;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.shoppingRow, { borderColor: colors.border }]}>
+      <Pressable
+        style={styles.shoppingCheck}
+        onPress={onToggle}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: selectionMode ? selected : item.checked }}
+      >
+        <Ionicons
+          name={(selectionMode ? selected : item.checked) ? "checkbox" : "square-outline"}
+          size={20}
+          color={
+            selectionMode
+              ? selected
+                ? colors.danger
+                : colors.textMuted
+              : item.checked
+                ? colors.primary
+                : colors.textMuted
+          }
+        />
+        <Text
+          style={[
+            styles.shoppingLabel,
+            {
+              color: item.checked ? colors.textMuted : colors.text,
+              textDecorationLine: item.checked ? "line-through" : "none",
+            },
+          ]}
+        >
+          {item.name}
+        </Text>
+      </Pressable>
+      {!selectionMode ? (
+        <View style={styles.shoppingActions}>
+          <View style={styles.quantityStepper}>
+            <Pressable
+              onPress={() => onChangeQuantity(item, item.qty - 1)}
+              disabled={item.qty <= 1 || pendingQuantityIds.has(item.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`Decrease quantity of ${item.name}`}
+            >
+              <Ionicons
+                name="remove-circle-outline"
+                size={20}
+                color={item.qty <= 1 ? colors.border : colors.primary}
+              />
+            </Pressable>
+            <Text style={[styles.quantityValue, { color: colors.text }]}>{item.qty}</Text>
+            <Pressable
+              onPress={() => onChangeQuantity(item, item.qty + 1)}
+              disabled={pendingQuantityIds.has(item.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`Increase quantity of ${item.name}`}
+            >
+              <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+            </Pressable>
+          </View>
+          <Pressable
+            onPress={() => onRemove(item.id)}
+            accessibilityRole="button"
+            accessibilityLabel={`Remove ${item.name} from shopping list`}
+          >
+            <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+          </Pressable>
+        </View>
+      ) : null}
+    </View>
+  );
+}
 
 export function HouseholdHubScreen() {
   const { colors } = useTheme();
@@ -121,6 +211,10 @@ export function HouseholdHubScreen() {
   const pendingInvites = invites.filter((invite) => invite.status === "pending");
   const checkedCount = shoppingItems.filter((item) => item.checked).length;
   const allChecked = shoppingItems.length > 0 && checkedCount === shoppingItems.length;
+  const groupedShoppingItems = useMemo(
+    () => groupShoppingListByCategory(shoppingItems),
+    [shoppingItems]
+  );
 
   const handleClearChecked = () => {
     confirmDestructiveAction({
@@ -409,82 +503,29 @@ export function HouseholdHubScreen() {
               Your shopping list is empty.
             </Text>
           ) : (
-            shoppingItems.map((item) => {
-              const selected = selectedIds.has(item.id);
-              return (
-                <View key={item.id} style={[styles.shoppingRow, { borderColor: colors.border }]}>
-                  <Pressable
-                    style={styles.shoppingCheck}
-                    onPress={() =>
+            groupedShoppingItems.map(({ category, items }) => (
+              <View key={category}>
+                <Text style={[styles.shoppingCategoryLabel, { color: colors.textMuted }]}>
+                  {category}
+                </Text>
+                {items.map((item) => (
+                  <ShoppingRow
+                    key={item.id}
+                    item={item}
+                    selectionMode={selectionMode}
+                    selected={selectedIds.has(item.id)}
+                    onToggle={() =>
                       selectionMode
                         ? handleToggleItemSelected(item.id)
                         : toggleChecked(item.id, !item.checked)
                     }
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: selectionMode ? selected : item.checked }}
-                  >
-                    <Ionicons
-                      name={(selectionMode ? selected : item.checked) ? "checkbox" : "square-outline"}
-                      size={20}
-                      color={
-                        selectionMode
-                          ? selected
-                            ? colors.danger
-                            : colors.textMuted
-                          : item.checked
-                            ? colors.primary
-                            : colors.textMuted
-                      }
-                    />
-                    <Text
-                      style={[
-                        styles.shoppingLabel,
-                        {
-                          color: item.checked ? colors.textMuted : colors.text,
-                          textDecorationLine: item.checked ? "line-through" : "none",
-                        },
-                      ]}
-                    >
-                      {item.name}
-                    </Text>
-                  </Pressable>
-                  {!selectionMode ? (
-                    <View style={styles.shoppingActions}>
-                      <View style={styles.quantityStepper}>
-                        <Pressable
-                          onPress={() => handleChangeQuantity(item, item.qty - 1)}
-                          disabled={item.qty <= 1 || pendingQuantityIds.has(item.id)}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Decrease quantity of ${item.name}`}
-                        >
-                          <Ionicons
-                            name="remove-circle-outline"
-                            size={20}
-                            color={item.qty <= 1 ? colors.border : colors.primary}
-                          />
-                        </Pressable>
-                        <Text style={[styles.quantityValue, { color: colors.text }]}>{item.qty}</Text>
-                        <Pressable
-                          onPress={() => handleChangeQuantity(item, item.qty + 1)}
-                          disabled={pendingQuantityIds.has(item.id)}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Increase quantity of ${item.name}`}
-                        >
-                          <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
-                        </Pressable>
-                      </View>
-                      <Pressable
-                        onPress={() => removeItem(item.id)}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Remove ${item.name} from shopping list`}
-                      >
-                        <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
-                      </Pressable>
-                    </View>
-                  ) : null}
-                </View>
-              );
-            })
+                    onChangeQuantity={handleChangeQuantity}
+                    onRemove={removeItem}
+                    pendingQuantityIds={pendingQuantityIds}
+                  />
+                ))}
+              </View>
+            ))
           )}
           {clearedItems ? (
             <View style={[styles.undoBanner, { borderColor: colors.border }]}>
@@ -619,6 +660,10 @@ const styles = StyleSheet.create({
   },
   shoppingAddButton: {
     paddingHorizontal: spacing.lg,
+  },
+  shoppingCategoryLabel: {
+    ...typography.label,
+    marginTop: spacing.md,
   },
   shoppingRow: {
     flexDirection: "row",
