@@ -17,6 +17,16 @@ export function filterByMealType(recipes: Recipe[], mealType: string | null): Re
   return recipes.filter((recipe) => recipe.mealType === mealType);
 }
 
+// The match-score pill was purely decorative before this - recipes were
+// shown in whatever order the meal-plan API happened to return them, so a
+// 95% match could sit below a 40% one. Recipes with no score (e.g.
+// favorites, which come from a separate endpoint that doesn't include
+// one) sort after every scored recipe, preserving their existing
+// relative order rather than being scattered by an assumed score.
+export function sortByMatchScore(recipes: Recipe[]): Recipe[] {
+  return [...recipes].sort((a, b) => (b.matchScore ?? -1) - (a.matchScore ?? -1));
+}
+
 export function uniqueCuisines(recipes: Recipe[]): string[] {
   const seen = new Set<string>();
   const cuisines: string[] = [];
