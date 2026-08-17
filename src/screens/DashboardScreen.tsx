@@ -11,6 +11,9 @@ import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { syncExpiryReminders } from "../notifications/expiryNotifications";
 import { buildExpiringSoonBriefing, computeHealth, soonToExpire } from "./dashboardLogic";
+import { daysUntil, formatExpiryLabel } from "./pantry/pantryLogic";
+
+const MAX_EXPIRING_SHOWN = 3;
 
 type DashboardNavigationProp = BottomTabNavigationProp<MainTabParamList, "Dashboard">;
 
@@ -31,7 +34,8 @@ export function DashboardScreen() {
   const greeting = profile?.name ? `Hi ${profile.name.split(" ")[0]}` : "Welcome back";
   const briefing = buildExpiringSoonBriefing(expiringSoon.length);
 
-  const recommendedMeal = expiringSoon[0];
+  const visibleExpiring = expiringSoon.slice(0, MAX_EXPIRING_SHOWN);
+  const remainingExpiringCount = expiringSoon.length - visibleExpiring.length;
 
   return (
     <Screen>
@@ -75,14 +79,24 @@ export function DashboardScreen() {
           </Card>
         )}
 
-        {recommendedMeal ? (
+        {visibleExpiring.length > 0 ? (
           <Card style={styles.card}>
             <Pill label="USE IT UP" tone="highlight" />
-            <Text style={[styles.cardTitle, { color: colors.text }]}>{recommendedMeal.name}</Text>
-            <Text style={[styles.cardBody, { color: colors.textMuted }]}>
-              Expires {new Date(recommendedMeal.expiresAt!).toLocaleDateString()} — check Recipes
-              for ways to use it.
-            </Text>
+            {visibleExpiring.map((item) => (
+              <View key={item.id} style={styles.expiringRow}>
+                <Text style={[styles.expiringName, { color: colors.text }]} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={[styles.expiringDays, { color: colors.textMuted }]}>
+                  {formatExpiryLabel(daysUntil(item.expiresAt) ?? 0)}
+                </Text>
+              </View>
+            ))}
+            {remainingExpiringCount > 0 ? (
+              <Text style={[styles.cardBody, { color: colors.textMuted }]}>
+                +{remainingExpiringCount} more expiring soon
+              </Text>
+            ) : null}
             <Button
               label="Find a recipe"
               variant="outline"
@@ -152,9 +166,19 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.xl,
     marginTop: spacing.lg,
   },
-  cardTitle: {
-    ...typography.h2,
+  expiringRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: spacing.sm,
+    gap: spacing.sm,
+  },
+  expiringName: {
+    ...typography.bodyMedium,
+    flexShrink: 1,
+  },
+  expiringDays: {
+    ...typography.caption,
   },
   cardBody: {
     ...typography.body,

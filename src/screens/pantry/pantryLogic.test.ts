@@ -4,6 +4,7 @@ import {
   filterByDietaryPrefs,
   filterByName,
   filterCategoriesByDietaryPrefs,
+  formatExpiryLabel,
   groupByCategory,
   sortByExpiry,
   suggestCategory,
@@ -100,6 +101,22 @@ describe("daysUntil", () => {
 
   it("returns 0 for today", () => {
     expect(daysUntil("2026-01-10T00:00:00.000Z")).toBe(0);
+  });
+});
+
+describe("formatExpiryLabel", () => {
+  it("says Expired for a negative count", () => {
+    expect(formatExpiryLabel(-1)).toBe("Expired");
+    expect(formatExpiryLabel(-5)).toBe("Expired");
+  });
+
+  it("says Expires today for exactly 0", () => {
+    expect(formatExpiryLabel(0)).toBe("Expires today");
+  });
+
+  it("says Nd left for a positive count", () => {
+    expect(formatExpiryLabel(1)).toBe("1d left");
+    expect(formatExpiryLabel(5)).toBe("5d left");
   });
 });
 

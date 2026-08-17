@@ -9,7 +9,7 @@ import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button, TextField }
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
-import { groupByCategory, sortByExpiry, daysUntil, filterByName } from "./pantryLogic";
+import { groupByCategory, sortByExpiry, daysUntil, filterByName, formatExpiryLabel } from "./pantryLogic";
 
 type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
 type PantryRouteProp = RouteProp<PantryStackParamList, "Pantry">;
@@ -21,9 +21,8 @@ function ExpiryTag({ expiresAt }: { expiresAt: string | null }) {
   if (days === null) return null;
 
   const tone = days <= 3 ? colors.danger : days <= 7 ? colors.warning : colors.textMuted;
-  const label = days < 0 ? "Expired" : days === 0 ? "Expires today" : `${days}d left`;
 
-  return <Text style={[styles.expiryTag, { color: tone }]}>{label}</Text>;
+  return <Text style={[styles.expiryTag, { color: tone }]}>{formatExpiryLabel(days)}</Text>;
 }
 
 function PantryRow({

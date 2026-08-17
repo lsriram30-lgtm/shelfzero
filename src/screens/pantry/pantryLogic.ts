@@ -24,6 +24,12 @@ export function daysUntil(dateStr: string | null): number | null {
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / DAY_MS);
 }
 
+export function formatExpiryLabel(days: number): string {
+  if (days < 0) return "Expired";
+  if (days === 0) return "Expires today";
+  return `${days}d left`;
+}
+
 export function filterByName(items: PantryItem[], query: string): PantryItem[] {
   const trimmed = query.trim().toLowerCase();
   if (!trimmed) return items;
