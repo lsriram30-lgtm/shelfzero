@@ -1,12 +1,14 @@
 import React, { useRef, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import TextRecognition from "@react-native-ml-kit/text-recognition";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
 import { scanApi } from "../../api/scan";
+import { scannedItemToPantryItem } from "./scanLogic";
 import { Screen, Header, Button, Pill, Card } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { NewPantryItem } from "../../types";
@@ -29,42 +31,35 @@ export function ScanScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
-  const barcodeLocked = useRef(false);
 
   const reset = () => {
     setState("idle");
     setReviewItems([]);
     setErrorMessage("");
-    barcodeLocked.current = false;
   };
 
   const handleCaptureReceipt = async () => {
     if (!cameraRef.current) return;
     setState("processing");
     try {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true, quality: 0.85 });
-      const result = await scanApi.process({
-        type: "receipt",
-        imageBase64: photo?.base64 ?? undefined,
-      });
-      setReviewItems(result.items ?? []);
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.85 });
+      if (!photo?.uri) throw new Error("Couldn't capture that photo. Please try again.");
+
+      // The backend can't read a photo directly - it's a receipt-line text
+      // parser, not an image reader - so text has to be extracted
+      // on-device first and sent as text/lines instead of the image itself.
+      const { text } = await TextRecognition.recognize(photo.uri);
+      if (!text.trim()) {
+        throw new Error(
+          "Couldn't read any text from that photo. Try better lighting or getting closer."
+        );
+      }
+
+      const result = await scanApi.process({ text });
+      setReviewItems((result.items ?? []).map(scannedItemToPantryItem));
       setState("review");
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Couldn't process that receipt.");
-      setState("error");
-    }
-  };
-
-  const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
-    if (barcodeLocked.current) return;
-    barcodeLocked.current = true;
-    setState("processing");
-    try {
-      const scanResult = await scanApi.process({ type: "barcode", code: result.data });
-      setReviewItems(scanResult.items ?? []);
-      setState("review");
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Couldn't identify that barcode.");
       setState("error");
     }
   };
@@ -132,11 +127,12 @@ export function ScanScreen() {
         <Pill label="Barcode" selected={mode === "barcode"} onPress={() => { setMode("barcode"); reset(); }} />
       </View>
 
-      {state === "idle" ? (
+      {state === "idle" && mode === "barcode" ? (
         <View style={styles.noticeWrapper}>
           <Text style={[styles.noticeText, { color: colors.warning }]}>
-            Scanning isn't working yet — the server can't read a photo or
-            barcode directly right now, so a scan attempt here will fail.
+            Barcode scanning isn't working yet — the server can look up
+            item names from receipt text, but not from a barcode number,
+            so a scan attempt here will fail.
           </Text>
           <Button
             label="Add item manually instead"
@@ -147,23 +143,13 @@ export function ScanScreen() {
         </View>
       ) : null}
 
-      {state === "idle" ? (
+      {state === "idle" && mode === "receipt" ? (
         <View style={styles.cameraWrapper}>
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing="back"
-            autofocus="on"
-            enableTorch={torchOn}
-            barcodeScannerSettings={
-              mode === "barcode" ? { barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e", "code128"] } : undefined
-            }
-            onBarcodeScanned={mode === "barcode" ? handleBarcodeScanned : undefined}
-          />
+          <CameraView ref={cameraRef} style={styles.camera} facing="back" autofocus="on" enableTorch={torchOn} />
           <View style={styles.frameOverlay} pointerEvents="box-none">
             <View style={[styles.frame, { borderColor: colors.surface }]} pointerEvents="none" />
             <Text style={[styles.overlayHint, { color: colors.surface }]} pointerEvents="none">
-              {mode === "receipt" ? "Fit the receipt in frame" : "Center the barcode in frame"}
+              Fit the receipt in frame
             </Text>
             <Pressable
               style={[styles.torchButton, { backgroundColor: colors.overlay }]}
@@ -174,11 +160,9 @@ export function ScanScreen() {
               <Ionicons name={torchOn ? "flash" : "flash-off"} size={20} color={colors.surface} />
             </Pressable>
           </View>
-          {mode === "receipt" ? (
-            <View style={styles.captureRow}>
-              <Button label="Capture receipt" onPress={handleCaptureReceipt} />
-            </View>
-          ) : null}
+          <View style={styles.captureRow}>
+            <Button label="Capture receipt" onPress={handleCaptureReceipt} />
+          </View>
         </View>
       ) : null}
 

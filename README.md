@@ -12,14 +12,18 @@ This machine did not have Node.js installed when this scaffold was generated, so
 none of the commands below have been run yet. Before doing anything else:
 
 1. Install Node.js LTS (20.x or newer) — https://nodejs.org, or via `winget install OpenJS.NodeJS.LTS`.
-2. Install the Expo Go app on your phone (iOS/Android) if you want to test on a
-   physical device, or set up an iOS Simulator / Android emulator.
+2. **As of 8/16, plain Expo Go no longer works** — the app now includes a native
+   dependency (`@react-native-ml-kit/text-recognition`, for on-device receipt
+   OCR), so it needs a custom dev client instead. Build one once with
+   `npx eas-cli build --profile development` (profile already defined in
+   `eas.json`) and install it on your phone, or set up an iOS Simulator /
+   Android emulator and build for that instead.
 
 ## Getting started
 
 ```bash
 npm install
-npm start        # opens Expo dev tools — scan the QR code with Expo Go
+npx expo start --dev-client   # opens Expo dev tools — open the link with the dev client, not Expo Go
 npm run ios      # or: run on iOS simulator (macOS only)
 npm run android  # or: run on Android emulator
 ```
