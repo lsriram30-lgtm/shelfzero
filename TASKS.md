@@ -969,20 +969,6 @@ outside this repo.
       re-verify meal-plan generation end to end and confirm the
       meal-plan shopping-gap and cuisine-filter tasks (both depend on
       real generated output) actually work too.
-- [ ] **Update 8/16:** discovered via direct API testing (curl, a
-      throwaway test account, no app UI needed) that none of this
-      session's backend changes were actually live — Airo had built
-      everything correctly, it just hadn't been published. After the app
-      was published, re-tested directly and confirmed genuinely working
-      now: household roles (`role`/`householdRole` on `/api/me`),
-      donation backend (`GET`/`POST /api/donations`), password reset
-      (real success response), un-favorite (`DELETE /api/favorites/:id`
-      returns a real "not found" for a bad id, not a route-404), and
-      household leave (`POST /api/household/leave` correctly detaches
-      and nulls `householdId`). **Remaining open items below are updated
-      accordingly** — some are now fully confirmed and can be
-      un-flagged; check for a publish step first before assuming
-      something's still broken going forward.
 - [ ] Live-test household invitations end-to-end: invite someone, have
       them accept, then remove them from Profile's "Household members"
       list. Still not directly tested — confirms/fixes the unverified
