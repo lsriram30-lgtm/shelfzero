@@ -299,6 +299,7 @@ export function HouseholdHubScreen() {
                   <Text style={[styles.inviteName, { color: colors.text }]}>{invite.name}</Text>
                   <Text style={[styles.inviteMeta, { color: colors.textMuted }]}>
                     {invite.role} · pending
+                    {invite.contact_type !== "link" ? ` · ${invite.contact}` : ""}
                   </Text>
                 </View>
                 <View style={styles.inviteActions}>
