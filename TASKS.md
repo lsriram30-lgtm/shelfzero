@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 46 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 47 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -973,6 +973,23 @@ pace I just won't be able to work much next week <3
       through to "Uncategorized" — pre-existing, affects pantry
       auto-suggest too, out of scope here. 5 tests added, suite at 218.
       Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add meal
+      plan history (branch: `feature/mealplan-history`) — merged into
+      `master`. Generating a new week overwrote the only cached plan —
+      no way to look back at what you ate 2 weeks ago. Meal Planner
+      wasn't in its own navigation stack before (just a bare tab
+      screen), so gave it one (`MealPlannerStackNavigator`, matching how
+      Pantry/Recipes/Household already work) with a new History screen
+      alongside the existing one. A history icon in the header opens a
+      list of past weeks (date, day count), tap to expand and see that
+      week's meals read-only — no regenerate/shopping-list actions from
+      history, deliberately, to keep this scoped to browsing rather than
+      re-opening every interaction the current week already has.
+      Snapshots are saved only on a genuinely complete 7-day generation
+      (not single-day regenerates or "keep as is," which would've
+      cluttered history with near-duplicates of the same week), capped
+      at 12 entries so storage doesn't grow unbounded. Typecheck, tests,
+      and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
