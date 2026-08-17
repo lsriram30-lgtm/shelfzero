@@ -866,34 +866,23 @@ pace I just won't be able to work much next week <3
       shipped. 15 tests added, suite at 205. Typecheck, tests, and an
       `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
-      `429` on `/api/meal-plan` (branch: `feature/mealplan-day-scoped`)
-      — merged into `master`. Root cause, diagnosed 8/15: the OpenAI
-      account behind this app's API key had fully used up its free trial
-      credit — confirmed unrelated to GoDaddy's own "Manage my plan"
-      credits, which is a separate system. Rather than add OpenAI
-      billing, Airo switched meal-plan generation to Gemini instead —
-      that fixed the quota problem, but uncovered a new one: a full
-      7-day plan (21 meals) was too slow to generate in a single request
-      and timed out, even in Airo's own testing. Airo then added a way
-      to request just one day at a time. "Generate 7-day plan" now makes
-      7 quick single-day requests and stitches them together (with a
-      "Generating day N of 7…" progress message) instead of one slow
-      request for the whole week; if a day fails partway through, the
-      days that already succeeded aren't lost. This also turned up and
-      fixed a real bug in "regenerate one day" — it had been silently
-      requesting the entire week and discarding six of the seven days
-      this whole time; it now correctly regenerates just the one day
-      asked for. 2 tests added, suite at 207. Typecheck, tests, and an
-      `expo export` bundle all pass.
-
-      **Correction, found 8/16 while live-testing:** the code above is
-      real and works as described, but the task title oversold what
-      actually got fixed — meal-plan generation itself is still broken.
-      Testing directly against the live API found that even a single
-      day consistently times out (~20-21 seconds), so the assumption
-      behind the fix — that one day would be fast enough — turned out to
-      be wrong. The real fix is now its own task under Backend (Airo
-      only).
+      OpenAI quota error on `/api/meal-plan` (branch:
+      `feature/mealplan-day-scoped`) — merged into `master`. The OpenAI
+      account behind this app's API key had used up its free trial
+      credit, so every request 429'd; Airo switched meal-plan generation
+      to Gemini instead, clearing the quota error. Airo also added a way
+      to request one day of a plan at a time, so "Generate 7-day plan"
+      now makes 7 quick single-day requests and stitches them together
+      (with a "Generating day N of 7…" progress message) instead of one
+      slow whole-week request — a day that fails partway through doesn't
+      lose the days that already succeeded. This also caught a real bug
+      in "regenerate one day," which had been silently requesting and
+      discarding the entire week every time; it now correctly
+      regenerates just the one day asked for. 2 tests added, suite at
+      207. Typecheck, tests, and an `expo export` bundle all pass.
+      (Meal-plan generation is still too slow to actually complete —
+      that's a separate, still-open problem, tracked under "Human
+      decision needed" below.)
 
 ### Not yet assigned
 
@@ -908,12 +897,14 @@ Buildable in this repo with no backend involvement.
 
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
-      scan can ever succeed against the current backend; it needs an
-      actual text-recognition step (e.g. ML Kit) before calling
-      `/api/scan`, plus fixing the response mapping (`quantity` comes
-      back as a string, there's no `unit` field, neither matches
-      `NewPantryItem` today). **Blocked on a decision below** (dev
-      client vs. cloud OCR) before this can actually be built.
+      scan can ever succeed against the current backend. Decided 8/16:
+      real OCR (ML Kit) over a cloud API — free, no new API key/billing,
+      matches the original scope — even though it means the app's first
+      native dependency, so plain Expo Go can no longer run any part of
+      the app; testing needs a custom dev client build instead (the
+      `eas.json` `development` profile already exists for this).
+      **Already built on `feature/receipt-ocr`, not yet merged** —
+      holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 
@@ -923,17 +914,6 @@ Not code — needs a person to research, decide, or check something
 outside this repo.
 
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
-- [ ] Decide how to do receipt-scanning OCR: a real OCR library (e.g. ML
-      Kit) is the most accurate and free, but it's native code, which
-      plain Expo Go can't run — testing would need a custom dev client
-      build instead (the `eas.json` `development` profile already exists
-      for this from earlier work, so the infrastructure's there, but it
-      changes the day-to-day "scan a QR code into Expo Go" workflow
-      documented at the bottom of this file). The alternative is a
-      cloud OCR API (e.g. Google Cloud Vision) called over plain HTTP —
-      stays Expo-Go-compatible, but needs its own API key/billing and
-      isn't actually "on-device" as originally scoped. Blocks the
-      on-device-OCR task above until decided.
 - [ ] Identify a real donation partner (food bank, nonprofit, etc.) to
       actually integrate with. Airo confirmed on 8/14 that donation
       records are now real and persisted, but partner selection is still
@@ -941,9 +921,10 @@ outside this repo.
       notified, nothing gets fulfilled. Needs a real organization/API
       identified before there's anything to integrate against.
 - [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Meal-plan generation is still too slow to work at all — needs
-      GoDaddy Support, not Airo. Confirmed via direct API testing on
-      8/16 that even the smallest possible request (one day,
+- [ ] Meal-plan generation (and recipe search, same root cause) is still
+      too slow to work at all — needs GoDaddy Support, not Airo.
+      Confirmed via direct API testing on 8/16 that even the smallest
+      possible meal-plan request (one day,
       `{ days: 1, dayIndex: 0 }`) times out at ~20-21 seconds; the
       day-scoped fix's core assumption ("one day is fast enough") was
       wrong. Airo diagnosed why: a single day still asks Gemini for 3
@@ -952,14 +933,15 @@ outside this repo.
       of structured output per call. The app's 20-second timeout is
       app-level, not a hard platform ceiling, but Airo's own read is
       that raising it alone would just delay the failure rather than
-      fix the underlying slowness. Recipe search has the same symptom
-      (route works, still times out). Airo said it's reached the edge
-      of what it can diagnose here and pointed to **GoDaddy Support**
+      fix the underlying slowness. Recipe search's `504`s are the exact
+      same symptom (route works, generation itself is too slow), so this
+      one task covers both. Airo said it's reached the edge of what it
+      can diagnose here and pointed to **GoDaddy Support**
       (help.godaddy.com) for further help — no ticket was auto-opened,
       so this needs a person to actually go file one. Once resolved,
-      re-verify meal-plan generation end to end and confirm the
-      meal-plan shopping-gap and cuisine-filter tasks (both depend on
-      real generated output) actually work too.
+      re-verify both meal-plan generation and recipe search end to end,
+      and confirm the meal-plan shopping-gap and cuisine-filter tasks
+      (both depend on real generated output) actually work too.
 - [ ] Live-test household invitations end-to-end: invite someone, have
       them accept, then remove them from Profile's "Household members"
       list. Still not directly tested — confirms/fixes the unverified
