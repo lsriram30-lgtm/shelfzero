@@ -24,6 +24,11 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
+export type MealPlannerStackParamList = {
+  MealPlannerHome: undefined;
+  MealPlanHistory: undefined;
+};
+
 export type HouseholdStackParamList = {
   HouseholdHub: undefined;
   Profile: undefined;
@@ -37,7 +42,7 @@ export type MainTabParamList = {
   Dashboard: undefined;
   PantryTab: NavigatorScreenParams<PantryStackParamList>;
   RecipesTab: NavigatorScreenParams<RecipesStackParamList>;
-  MealPlanner: undefined;
+  MealPlanner: NavigatorScreenParams<MealPlannerStackParamList>;
   HouseholdTab: NavigatorScreenParams<HouseholdStackParamList>;
 };
 

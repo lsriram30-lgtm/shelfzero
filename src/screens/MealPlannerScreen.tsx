@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { usePantry } from "../hooks/usePantry";
 import { useShoppingList } from "../hooks/useShoppingList";
@@ -31,12 +34,24 @@ import {
   WEEKDAY_LABELS,
 } from "./mealPlannerLogic";
 import { findMatchingUnchecked } from "./household/shoppingListLogic";
-import { CachedMealPlan, getCachedMealPlan, setCachedMealPlan } from "../utils/mealPlanCache";
+import {
+  CachedMealPlan,
+  getCachedMealPlan,
+  saveMealPlanToHistory,
+  setCachedMealPlan,
+} from "../utils/mealPlanCache";
+import { MealPlannerStackParamList } from "../navigation/types";
 
 const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
 
+type MealPlannerNavigationProp = NativeStackNavigationProp<
+  MealPlannerStackParamList,
+  "MealPlannerHome"
+>;
+
 export function MealPlannerScreen() {
   const { colors } = useTheme();
+  const navigation = useNavigation<MealPlannerNavigationProp>();
   const { items: pantryItems } = usePantry();
   const { items: shoppingItems, addItem, updateQuantity } = useShoppingList();
   const { profile } = useOnboarding();
@@ -93,7 +108,12 @@ export function MealPlannerScreen() {
       }
       setDays(generatedDays);
       setCachedPantryNames(currentPantryNames);
-      setCachedMealPlan({ days: generatedDays, pantryItemNames: currentPantryNames }, currentEmail);
+      const toCache = { days: generatedDays, pantryItemNames: currentPantryNames };
+      setCachedMealPlan(toCache, currentEmail);
+      // Only a genuinely complete week (the loop above ran with no
+      // exception - a partial failure jumps to catch instead) is worth
+      // its own history entry.
+      saveMealPlanToHistory(toCache, currentEmail);
     } catch (err) {
       if (generatedDays.length > 0) setDays(generatedDays);
       setError(
@@ -171,7 +191,20 @@ export function MealPlannerScreen() {
 
   return (
     <Screen>
-      <Header title="Meal planner" subtitle="A 7-day plan built from your pantry" />
+      <Header
+        title="Meal planner"
+        subtitle="A 7-day plan built from your pantry"
+        right={
+          <Pressable
+            onPress={() => navigation.navigate("MealPlanHistory")}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="View meal plan history"
+          >
+            <Ionicons name="time-outline" size={22} color={colors.primary} />
+          </Pressable>
+        }
+      />
       <ScrollView contentContainerStyle={styles.content}>
         <Button
           label={loading ? "Generating…" : days.length > 0 ? "Regenerate plan" : "Generate 7-day plan"}

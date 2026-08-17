@@ -111,7 +111,7 @@ export function DashboardScreen() {
             <Button
               label="Meal plan"
               variant="outline"
-              onPress={() => navigation.navigate("MealPlanner")}
+              onPress={() => navigation.navigate("MealPlanner", { screen: "MealPlannerHome" })}
               style={styles.actionButton}
             />
             <Button

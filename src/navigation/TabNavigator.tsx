@@ -6,7 +6,7 @@ import { useTheme } from "../context/ThemeContext";
 import { DashboardScreen } from "../screens/DashboardScreen";
 import { PantryStackNavigator } from "./PantryStackNavigator";
 import { RecipesStackNavigator } from "./RecipesStackNavigator";
-import { MealPlannerScreen } from "../screens/MealPlannerScreen";
+import { MealPlannerStackNavigator } from "./MealPlannerStackNavigator";
 import { HouseholdStackNavigator } from "./HouseholdStackNavigator";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -40,7 +40,11 @@ export function TabNavigator() {
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="PantryTab" component={PantryStackNavigator} options={{ title: "Pantry" }} />
       <Tab.Screen name="RecipesTab" component={RecipesStackNavigator} options={{ title: "Recipes" }} />
-      <Tab.Screen name="MealPlanner" component={MealPlannerScreen} options={{ title: "Meal Plan" }} />
+      <Tab.Screen
+        name="MealPlanner"
+        component={MealPlannerStackNavigator}
+        options={{ title: "Meal Plan" }}
+      />
       <Tab.Screen
         name="HouseholdTab"
         component={HouseholdStackNavigator}
