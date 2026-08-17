@@ -848,61 +848,55 @@ pace I just won't be able to work much next week <3
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add an
       "add ingredients to shopping list" action on a planned meal (branch:
       `feature/mealplan-shopping-gap`) — merged into `master`. Airo added
-      a structured
-      `ingredients` array per meal (`name`, `quantity`, `inPantry`) on
-      8/14 — the `inPantry` flag means no client-side diffing needed. Each
-      meal now shows "Missing: X, Y" plus an "Add missing to shopping
-      list" link, reusing the existing duplicate-merges-into-a-quantity-
-      bump logic. **Can't be verified even in principle right now:** Airo
-      couldn't confirm this against a real plan either, since generation
-      is fully blocked by the existing `429` issue — unlike the other
-      live-test items, this isn't a "no test account" gap, the underlying
-      feature doesn't work for anyone yet. Revisit once `429` is fixed.
-      4 tests added, suite at 190. Typecheck, tests, and an
-      `expo export` bundle all pass.
+      a structured `ingredients` array per meal (name, quantity, and
+      whether it's already in the pantry) on 8/14, so the app no longer
+      has to guess what's missing itself. Each meal now shows "Missing:
+      X, Y" plus an "Add missing to shopping list" link, reusing the
+      existing logic that bumps a matching item's quantity instead of
+      adding a duplicate row. Couldn't be tested against a real generated
+      plan — meal-plan generation was completely broken by the `429` bug
+      (see below) at the time. 4 tests added, suite at 190. Typecheck,
+      tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
       cuisine filter to the Recipes screen (branch:
       `feature/cuisine-filter`) — merged into `master`. Airo added a
-      `cuisine` field per meal on
-      8/15, same pattern as the ingredients change. Recipes now shows a
-      second filter row (cuisine, alongside the existing meal-type row),
-      and the empty-state message was extended to name a cuisine mismatch
-      too, not just meal-type — the TASKS.md note left when the meal-type
-      filter first shipped. **Same caveat as the last one:** Airo
-      couldn't verify this against a real generated plan either, still
-      blocked by `429`. 15 tests added (cuisine filter/list + the
-      combined empty-message logic), suite at 205. Typecheck, tests, and
-      an `expo export` bundle all pass.
+      `cuisine` field to each meal on 8/15, the same way as the
+      ingredients change above. Recipes now has a second filter row for
+      cuisine, next to the existing meal-type row, and "no matching
+      recipes" now explains a cuisine mismatch too, not just a meal-type
+      one — closing out a note left when the meal-type filter first
+      shipped. Same caveat as above: couldn't be tested against a real
+      plan while `429` was blocking generation. 15 tests added, suite at
+      205. Typecheck, tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
       `429` on `/api/meal-plan` (branch: `feature/mealplan-day-scoped`)
-      — merged into `master`.
-      Multi-step diagnosis on 8/15: root cause was the OpenAI project
-      behind `OPENAI_API_KEY` sitting on a fully-exhausted free trial
-      ($0.00 credit, `insufficient_quota`). Ruled out GoDaddy's "Manage
-      my plan" first (separate system, unrelated). Rather than add
-      OpenAI billing, Airo switched the route to Gemini 2.5 Flash —
-      quota block gone, but a full 7-day/21-meal request turned out too
-      slow for one call (even Airo's own test timed out; handler now
-      hard-aborts at 20s with a documented `504`). Airo then added
-      `days`/`dayIndex`/`startDay` so a request can target one specific
-      day instead of the whole week. Client now rebuilds "Generate 7-day
-      plan" as 7 fast sequential single-day requests stitched together
-      (with a "Generating day N of 7…" progress caption) instead of one
-      slow whole-week request; a mid-week failure keeps whatever days
-      already succeeded rather than discarding them. Also fixed
-      "regenerate one day," which turned out to have been requesting a
-      full 7-day plan and discarding six days this whole time — now
-      correctly targets just that one day via `startDay`. 2 tests added
-      for the new failure-message builder, suite at 207. Typecheck,
-      tests, and an `expo export` bundle all pass. **Correction, found
-      8/16 while live-testing:** the client-side changes are real and
-      working as built (the day-scoped request shape, the fixed
-      regenerate-one-day bug), but the task title overstates what's
-      actually fixed — meal-plan generation itself is still broken.
-      Direct API testing found even a single day consistently times out
-      at ~20-21 seconds; the day-scoped fix's core assumption ("one day
-      is fast enough") turned out to be wrong. Real fix is a new backlog
-      item under Backend (Airo only).
+      — merged into `master`. Root cause, diagnosed 8/15: the OpenAI
+      account behind this app's API key had fully used up its free trial
+      credit — confirmed unrelated to GoDaddy's own "Manage my plan"
+      credits, which is a separate system. Rather than add OpenAI
+      billing, Airo switched meal-plan generation to Gemini instead —
+      that fixed the quota problem, but uncovered a new one: a full
+      7-day plan (21 meals) was too slow to generate in a single request
+      and timed out, even in Airo's own testing. Airo then added a way
+      to request just one day at a time. "Generate 7-day plan" now makes
+      7 quick single-day requests and stitches them together (with a
+      "Generating day N of 7…" progress message) instead of one slow
+      request for the whole week; if a day fails partway through, the
+      days that already succeeded aren't lost. This also turned up and
+      fixed a real bug in "regenerate one day" — it had been silently
+      requesting the entire week and discarding six of the seven days
+      this whole time; it now correctly regenerates just the one day
+      asked for. 2 tests added, suite at 207. Typecheck, tests, and an
+      `expo export` bundle all pass.
+
+      **Correction, found 8/16 while live-testing:** the code above is
+      real and works as described, but the task title oversold what
+      actually got fixed — meal-plan generation itself is still broken.
+      Testing directly against the live API found that even a single
+      day consistently times out (~20-21 seconds), so the assumption
+      behind the fix — that one day would be fast enough — turned out to
+      be wrong. The real fix is now its own task under Backend (Airo
+      only).
 
 ### Not yet assigned
 
