@@ -877,11 +877,13 @@ pace I just won't be able to work much next week <3
       slow whole-week request — a day that fails partway through doesn't
       lose the days that already succeeded. This also caught a real bug
       in "regenerate one day," which had been silently requesting and
-      discarding the entire week every time; it now correctly
-      regenerates just the one day asked for. 2 tests added, suite at
-      207. Typecheck, tests, and an `expo export` bundle all pass.
-      (Meal-plan generation is still too slow to actually complete —
-      that's a separate, still-open problem, tracked under "Human
+      discarding the entire week every time; it now correctly requests
+      just the one day asked for. 2 tests added, suite at 207.
+      Typecheck, tests, and an `expo export` bundle all pass.
+      (Meal-plan generation itself is still too slow to actually
+      complete — both "Generate 7-day plan" and "regenerate one day" hit
+      the same underlying timeout, since both call the same endpoint.
+      That's a separate, still-open problem, tracked under "Human
       decision needed" below.)
 
 ### Not yet assigned
