@@ -1,10 +1,12 @@
 import {
   buildGenerationFailureMessage,
   buildMealPlanPreferences,
+  formatIngredientLabel,
   hasEnoughPantryItems,
   hasPantryChanged,
   MIN_PANTRY_ITEMS_FOR_PLAN,
   missingIngredients,
+  parseIngredientQuantity,
   replaceDayInPlan,
 } from "./mealPlannerLogic";
 import { MealPlanDay, OnboardingProfile } from "../types";
@@ -122,6 +124,41 @@ describe("missingIngredients", () => {
 
   it("returns an empty array when everything is already in the pantry", () => {
     expect(missingIngredients([{ name: "rice", inPantry: true }])).toEqual([]);
+  });
+});
+
+describe("parseIngredientQuantity", () => {
+  it("parses a plain number", () => {
+    expect(parseIngredientQuantity("3")).toBe(3);
+  });
+
+  it("parses the leading number out of a unit string", () => {
+    expect(parseIngredientQuantity("2 cloves")).toBe(2);
+    expect(parseIngredientQuantity("1 lb")).toBe(1);
+    expect(parseIngredientQuantity("1.5 cups")).toBe(1.5);
+  });
+
+  it("falls back to 1 when there's no leading number", () => {
+    expect(parseIngredientQuantity("a pinch")).toBe(1);
+    expect(parseIngredientQuantity("")).toBe(1);
+    expect(parseIngredientQuantity(undefined)).toBe(1);
+  });
+
+  it("falls back to 1 for a zero or negative leading number", () => {
+    expect(parseIngredientQuantity("0 cups")).toBe(1);
+    expect(parseIngredientQuantity("-1 cups")).toBe(1);
+  });
+});
+
+describe("formatIngredientLabel", () => {
+  it("includes the quantity in parentheses when present", () => {
+    expect(formatIngredientLabel({ name: "garlic", quantity: "2 cloves" })).toBe(
+      "garlic (2 cloves)"
+    );
+  });
+
+  it("falls back to just the name when there's no quantity", () => {
+    expect(formatIngredientLabel({ name: "salt" })).toBe("salt");
   });
 });
 

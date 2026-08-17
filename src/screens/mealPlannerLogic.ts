@@ -56,6 +56,22 @@ export function missingIngredients(
   return ingredients.filter((ingredient) => ingredient.inPantry === false);
 }
 
+// Ingredient quantities are free-text like "2 cloves" or "1 lb" - only the
+// leading number is usable as a shopping-list qty, the rest ("cloves",
+// "lb") is display-only context, shown separately via
+// formatIngredientLabel below.
+export function parseIngredientQuantity(quantity: string | undefined): number {
+  if (!quantity) return 1;
+  const match = quantity.match(/^\s*(\d+(?:\.\d+)?)/);
+  if (!match) return 1;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+export function formatIngredientLabel(ingredient: MealIngredient): string {
+  return ingredient.quantity ? `${ingredient.name} (${ingredient.quantity})` : ingredient.name;
+}
+
 // Building a week out of 7 sequential single-day requests means a
 // mid-week failure shouldn't discard the days that already succeeded -
 // this summarizes what happened so the partial result and the failure
