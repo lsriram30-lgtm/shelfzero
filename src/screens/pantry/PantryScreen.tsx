@@ -40,6 +40,10 @@ function PantryRow({
     <Pressable
       style={[styles.row, { borderColor: colors.border }, first ? styles.rowNoBorder : null]}
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.name}, ${item.quantity} ${item.unit}${
+        item.notes ? ", has notes" : ""
+      }`}
     >
       <View style={styles.rowMain}>
         <Text style={[styles.rowTitle, { color: colors.text }]}>{item.name}</Text>
@@ -48,6 +52,9 @@ function PantryRow({
         </Text>
       </View>
       <View style={styles.rowEnd}>
+        {item.notes ? (
+          <Ionicons name="document-text-outline" size={14} color={colors.textMuted} />
+        ) : null}
         <ExpiryTag expiresAt={item.expiresAt} />
         <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
       </View>

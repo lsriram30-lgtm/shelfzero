@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 42 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 43 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -912,6 +912,17 @@ pace I just won't be able to work much next week <3
       useful now that donations are shared across the household, not
       just local to whoever donated. Typecheck, tests, and an
       `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Show pantry
+      item notes in the Pantry list (branch:
+      `feature/pantry-notes-display`) — merged into `master`. Notes were
+      editable and saved (Add/Edit Item's notes field) but never shown
+      anywhere in the actual pantry list — a note like "buy organic"
+      just silently vanished from view until you reopened that specific
+      item's edit screen. Added a small note icon next to items that
+      have one (in both the category and expiry-sort views, which share
+      the same row component), plus an accessibility label mentioning
+      it for screen readers. Typecheck, tests, and an `expo export`
+      bundle all pass.
 
 ### Not yet assigned
 
