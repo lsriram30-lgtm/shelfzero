@@ -61,7 +61,7 @@ export function RecipeDetailScreen() {
 
   return (
     <Screen>
-      <Header title={recipe.title} />
+      <Header title={recipe.title} subtitle={recipe.cuisine} />
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.servingsCard}>
           <Text style={[styles.servingsLabel, { color: colors.textMuted }]}>Servings</Text>

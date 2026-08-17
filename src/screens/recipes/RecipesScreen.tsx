@@ -24,12 +24,15 @@ type RecipesNavigationProp = NativeStackNavigationProp<RecipesStackParamList, "R
 
 function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }) {
   const { colors } = useTheme();
+  const label = [recipe.title, recipe.cuisine, recipe.isFavorite ? "favorited" : null]
+    .filter(Boolean)
+    .join(", ");
   return (
     <Pressable
       style={styles.tile}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={recipe.isFavorite ? `${recipe.title}, favorited` : recipe.title}
+      accessibilityLabel={label}
     >
       <Card style={styles.tileCard}>
         {recipe.isFavorite ? (
@@ -43,6 +46,11 @@ function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }
         <Text style={[styles.tileTitle, { color: colors.text }]} numberOfLines={2}>
           {recipe.title}
         </Text>
+        {recipe.cuisine ? (
+          <Text style={[styles.tileCuisine, { color: colors.textMuted }]} numberOfLines={1}>
+            {recipe.cuisine}
+          </Text>
+        ) : null}
         {typeof recipe.matchScore === "number" ? (
           <View style={styles.matchScoreWrapper}>
             <Pill label={`${recipe.matchScore}% match`} tone="highlight" />
@@ -307,6 +315,10 @@ const styles = StyleSheet.create({
   },
   tileTitle: {
     ...typography.bodyMedium,
+  },
+  tileCuisine: {
+    ...typography.caption,
+    marginTop: spacing.xs / 2,
   },
   matchScoreWrapper: {
     marginTop: spacing.xs,
