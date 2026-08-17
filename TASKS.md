@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 41 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 42 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -900,6 +900,18 @@ pace I just won't be able to work much next week <3
       there isn't one, e.g. "a pinch") instead of hardcoding 1. 6 tests
       added, suite at 213. Typecheck, tests, and an `expo export` bundle
       all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      donation history screen (branch: `feature/donation-history-list`)
+      — merged into `master`. Donation history was real backend data
+      (since the donation-backend task) but only ever used to compute a
+      running count — "You've donated 5 items so far" — with no way to
+      see what was actually donated, when, or to which partner. Added a
+      "View history" link on the donate card (shown once there's at
+      least one donation) that opens a list of past donations with
+      partner, date, and item names, with pull-to-refresh — genuinely
+      useful now that donations are shared across the household, not
+      just local to whoever donated. Typecheck, tests, and an
+      `expo export` bundle all pass.
 
 ### Not yet assigned
 

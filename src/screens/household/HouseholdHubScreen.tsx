@@ -496,7 +496,17 @@ export function HouseholdHubScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Donate surplus</Text>
+          <CardHeader
+            title="Donate surplus"
+            action={
+              totalItemsDonated > 0 ? (
+                <CardHeaderLink
+                  label="View history"
+                  onPress={() => navigation.navigate("DonationHistory")}
+                />
+              ) : undefined
+            }
+          />
           <Text style={[styles.empty, { color: colors.textMuted }]}>
             {totalItemsDonated > 0
               ? `You've donated ${totalItemsDonated} item${

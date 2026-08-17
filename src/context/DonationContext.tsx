@@ -8,6 +8,7 @@ interface DonationContextValue {
   totalItemsDonated: number;
   isLoading: boolean;
   recordDonation: (record: Omit<DonationRecord, "id" | "date">) => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 const DonationContext = createContext<DonationContextValue | undefined>(undefined);
@@ -51,7 +52,7 @@ export function DonationProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ history, totalItemsDonated, isLoading, recordDonation }),
+    () => ({ history, totalItemsDonated, isLoading, recordDonation, refresh }),
     [history, totalItemsDonated, isLoading]
   );
 

@@ -6,6 +6,7 @@ import { ProfileScreen } from "../screens/household/ProfileScreen";
 import { EditProfileScreen } from "../screens/household/EditProfileScreen";
 import { InviteFlowScreen } from "../screens/household/InviteFlowScreen";
 import { DonateScreen } from "../screens/household/DonateScreen";
+import { DonationHistoryScreen } from "../screens/household/DonationHistoryScreen";
 
 const Stack = createNativeStackNavigator<HouseholdStackParamList>();
 
@@ -25,6 +26,7 @@ export function HouseholdStackNavigator() {
         component={DonateScreen}
         options={{ presentation: "modal" }}
       />
+      <Stack.Screen name="DonationHistory" component={DonationHistoryScreen} />
     </Stack.Navigator>
   );
 }
