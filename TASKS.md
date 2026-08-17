@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 51 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 52 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -1043,6 +1043,24 @@ pace I just won't be able to work much next week <3
       rather than duplicating every keyword in its plural form. 5 tests
       added, suite at 230. Typecheck, tests, and an `expo export` bundle
       all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Draft a
+      Terms of Service and link it from Profile (branch:
+      `feature/terms-of-service`) — merged into `master`. Same treatment
+      as the Privacy Policy — a real draft grounded in what the app
+      actually does (not generic boilerplate), hosted as a Claude
+      Artifact matching the Privacy Policy's exact design for
+      consistency between the two. Covers acceptance, account/age
+      requirements, household data-sharing responsibilities, third-party
+      AI/backend dependencies, and — the section that actually matters
+      most for a food-tracking app — an explicit disclaimer that expiry
+      tracking and AI-generated suggestions aren't a food-safety
+      guarantee and don't replace using your own judgment, especially
+      for allergies. Also fixed a stale claim found in the Privacy
+      Policy while there: it still said account deletion was "on our
+      roadmap and not yet available," which was true when drafted but
+      isn't anymore — updated to describe the real, already-shipped
+      delete flow. Typecheck, tests, and an `expo export` bundle all
+      pass.
 
 ### Not yet assigned
 
@@ -1067,11 +1085,6 @@ Buildable in this repo with no backend involvement.
       holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
-- [ ] Draft a Terms of Service and link it from Profile, the same way
-      the Privacy Policy was handled — grounded in what the app actually
-      does, hosted somewhere real once a domain exists. Most app stores
-      expect both a privacy policy and terms once real accounts and data
-      are involved; only the privacy policy exists today.
 
 #### Human decision needed
 
