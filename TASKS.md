@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 49 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 50 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -1016,6 +1016,21 @@ pace I just won't be able to work much next week <3
       every scored recipe rather than being scattered by an assumed
       value. 4 tests added, suite at 222. Typecheck, tests, and an
       `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Show more
+      than one expiring item on the Dashboard (branch:
+      `feature/dashboard-expiring-list`) — merged into `master`.
+      Dashboard already computed every item expiring within 3 days, but
+      the "USE IT UP" card only ever showed the single soonest one — the
+      rest were reduced to an abstract count in the health-ring caption
+      ("3 items expiring soon"), with no way to see which items without
+      leaving the screen. Now shows up to 3, each with a real "Xd
+      left"/"Expires today"/"Expired" label, plus "+N more expiring
+      soon" when there are more than that. Extracted that label
+      formatting (previously only inline in Pantry's `ExpiryTag`) into
+      a shared, tested `formatExpiryLabel` so both screens use the exact
+      same wording instead of two copies that could drift. 3 tests
+      added, suite at 225. Typecheck, tests, and an `expo export` bundle
+      all pass.
 
 ### Not yet assigned
 
