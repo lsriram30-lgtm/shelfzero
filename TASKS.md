@@ -856,15 +856,22 @@ pace I just won't be able to work much next week <3
       adding a duplicate row. 4 tests added, suite at 190. Typecheck,
       tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
-      cuisine filter to the Recipes screen (branch:
-      `feature/cuisine-filter`) — merged into `master`. Airo added a
-      `cuisine` field to each meal on 8/15, the same way as the
-      ingredients change above. Recipes now has a second filter row for
-      cuisine, next to the existing meal-type row, and "no matching
-      recipes" now explains a cuisine mismatch too, not just a meal-type
-      one — closing out a note left when the meal-type filter first
-      shipped. 15 tests added, suite at 205. Typecheck, tests, and an
-      `expo export` bundle all pass.
+      cuisine filter to the Recipes screen (branches:
+      `feature/cuisine-filter`, `feature/recipe-cuisine-display`) —
+      merged into `master`. Airo added a `cuisine` field to each meal on
+      8/15, the same way as the ingredients change above. Recipes now
+      has a second filter row for cuisine, next to the existing
+      meal-type row, and "no matching recipes" now explains a cuisine
+      mismatch too, not just a meal-type one — closing out a note left
+      when the meal-type filter first shipped. 15 tests added, suite at
+      205. **Follow-up, 8/16:** cuisine was usable to filter by but never
+      actually shown anywhere, so a Thai-filtered grid gave no visual
+      confirmation any given card was actually Thai — same gap the
+      meal-type filter has always had (it's never displayed as text
+      either), just more noticeable now that a second filter exists.
+      Added it as a small caption on recipe tiles and as the Recipe
+      Detail screen's subtitle. Typecheck, tests, and an `expo export`
+      bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
       OpenAI quota error on `/api/meal-plan` (branch:
       `feature/mealplan-day-scoped`) — merged into `master`. The OpenAI
