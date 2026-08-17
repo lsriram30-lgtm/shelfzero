@@ -198,6 +198,28 @@ describe("suggestCategory", () => {
   it("does not mistake watermelon for a beverage via the word 'water'", () => {
     expect(suggestCategory("Watermelon")).toBe("Produce");
   });
+
+  it("matches a simple plural ('eggs' -> 'egg')", () => {
+    expect(suggestCategory("Eggs")).toBe("Dairy");
+  });
+
+  it("matches an -oes plural ('tomatoes' -> 'tomato')", () => {
+    expect(suggestCategory("Tomatoes")).toBe("Produce");
+  });
+
+  it("matches an -ies plural ('berries' -> 'berry')", () => {
+    expect(suggestCategory("Berries")).toBe("Produce");
+  });
+
+  it("does not mangle a word that just happens to end in 's'", () => {
+    // "grapes" -> singularized to "grape", a real keyword - regression
+    // guard against over-aggressively stripping trailing s in general.
+    expect(suggestCategory("Grapes")).toBe("Produce");
+  });
+
+  it("does not singularize a word ending in a double s", () => {
+    expect(suggestCategory("Swiss")).toBeNull();
+  });
 });
 
 describe("filterByDietaryPrefs", () => {

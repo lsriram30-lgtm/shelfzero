@@ -132,10 +132,23 @@ export function filterByAllergies<T extends { name: string; dietTags?: string[] 
   });
 }
 
+// CATEGORY_KEYWORDS is singular-only ("egg", not "eggs") - this reverses
+// common English plural endings on the input so "Eggs"/"Tomatoes"/
+// "Berries" still match, without having to duplicate every keyword in
+// its plural form. Deliberately simple (not a real stemmer): covers the
+// common cases in a grocery list, not every irregular plural.
+function singularize(word: string): string {
+  if (word.endsWith("ies") && word.length > 3) return word.slice(0, -3) + "y"; // berries -> berry
+  if (word.endsWith("oes")) return word.slice(0, -2); // tomatoes -> tomato
+  if (/(ch|sh|x|s)es$/.test(word)) return word.slice(0, -2); // dishes -> dish
+  if (word.endsWith("s") && !word.endsWith("ss")) return word.slice(0, -1); // eggs -> egg
+  return word;
+}
+
 export function suggestCategory(name: string): string | null {
   const trimmed = name.trim().toLowerCase();
   if (!trimmed) return null;
-  const words = trimmed.split(/\s+/);
+  const words = trimmed.split(/\s+/).map(singularize);
 
   // Multi-word keywords (e.g. "peanut butter", "ice cream") take priority
   // over single-word matches, since they'd otherwise lose to a category
