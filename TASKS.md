@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 47 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 48 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -990,6 +990,19 @@ pace I just won't be able to work much next week <3
       cluttered history with near-duplicates of the same week), capped
       at 12 entries so storage doesn't grow unbounded. Typecheck, tests,
       and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Show who
+      added a shopping list item (branch:
+      `feature/shopping-list-added-by`) — merged into `master`.
+      Confirmed live via a throwaway test account that
+      `GET /api/shopping-list` already returns `addedBy` as a real
+      display name (e.g. "Test Claude"), not just an id — the client
+      type just didn't have the field at all, so it was silently
+      dropped. Worth checking before building: pantry's own `addedBy`
+      is a raw user id, not a name, so this same treatment doesn't
+      translate over there without a name lookup the app doesn't have.
+      Shopping list rows now show "Added by X" as a small caption under
+      the item name, only when present. Typecheck, tests, and an
+      `expo export` bundle all pass.
 
 ### Not yet assigned
 
