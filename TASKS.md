@@ -921,7 +921,8 @@ Buildable in this repo with no backend involvement.
       actual text-recognition step (e.g. ML Kit) before calling
       `/api/scan`, plus fixing the response mapping (`quantity` comes
       back as a string, there's no `unit` field, neither matches
-      `NewPantryItem` today).
+      `NewPantryItem` today). **Blocked on a decision below** (dev
+      client vs. cloud OCR) before this can actually be built.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
       and professional overall
 
@@ -931,6 +932,17 @@ Not code — needs a person to research, decide, or check something
 outside this repo.
 
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
+- [ ] Decide how to do receipt-scanning OCR: a real OCR library (e.g. ML
+      Kit) is the most accurate and free, but it's native code, which
+      plain Expo Go can't run — testing would need a custom dev client
+      build instead (the `eas.json` `development` profile already exists
+      for this from earlier work, so the infrastructure's there, but it
+      changes the day-to-day "scan a QR code into Expo Go" workflow
+      documented at the bottom of this file). The alternative is a
+      cloud OCR API (e.g. Google Cloud Vision) called over plain HTTP —
+      stays Expo-Go-compatible, but needs its own API key/billing and
+      isn't actually "on-device" as originally scoped. Blocks the
+      on-device-OCR task above until decided.
 - [ ] Identify a real donation partner (food bank, nonprofit, etc.) to
       actually integrate with. Airo confirmed on 8/14 that donation
       records are now real and persisted, but partner selection is still
