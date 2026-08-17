@@ -48,6 +48,32 @@ const DIETARY_OPTIONS = [
 ];
 const ALL_DIETARY_OPTIONS = new Set(DIETARY_OPTIONS);
 
+// Same options as AllergiesStep/GoalsStep in onboarding - kept in sync
+// manually since there's no shared constants module for onboarding step
+// option lists today.
+const ALLERGY_OPTIONS = [
+  "Peanuts",
+  "Tree nuts",
+  "Shellfish",
+  "Fish",
+  "Eggs",
+  "Milk",
+  "Soy",
+  "Wheat",
+  "Sesame",
+  "None",
+];
+const ALL_ALLERGY_OPTIONS = new Set(ALLERGY_OPTIONS);
+
+const GOAL_OPTIONS = [
+  "Reduce food waste",
+  "Save money",
+  "Eat healthier",
+  "Cook more often",
+  "Plan meals ahead",
+  "Simplify grocery shopping",
+];
+
 export function EditProfileScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<EditProfileNavigationProp>();
@@ -59,10 +85,13 @@ export function EditProfileScreen() {
   const [householdKids, setHouseholdKids] = useState(profile?.householdKids ?? 0);
   const [cuisinePrefs, setCuisinePrefs] = useState<string[]>(profile?.cuisinePrefs ?? []);
   const [dietaryPrefs, setDietaryPrefs] = useState<string[]>(profile?.dietaryPrefs ?? []);
+  const [allergies, setAllergies] = useState<string[]>(profile?.allergies ?? []);
+  const [goals, setGoals] = useState<string[]>(profile?.goals ?? []);
   const [saving, setSaving] = useState(false);
 
   const customCuisines = cuisinePrefs.filter((c) => !ALL_CUISINE_OPTIONS.has(c));
   const customDietary = dietaryPrefs.filter((p) => !ALL_DIETARY_OPTIONS.has(p));
+  const customAllergies = allergies.filter((a) => !ALL_ALLERGY_OPTIONS.has(a));
 
   const canSave = name.trim().length > 0 && location.trim().length > 0;
 
@@ -78,6 +107,8 @@ export function EditProfileScreen() {
         householdKids,
         cuisinePrefs,
         dietaryPrefs,
+        allergies,
+        goals,
       });
       navigation.goBack();
     } catch (err) {
@@ -174,6 +205,31 @@ export function EditProfileScreen() {
             onAdd={(value) => setDietaryPrefs((prev) => [...prev, value])}
             onRemove={(value) => setDietaryPrefs((prev) => toggleValue(prev, value))}
             placeholder="e.g. FODMAP-friendly, Halal, Kosher…"
+          />
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Allergies</Text>
+          <PillGrid
+            options={ALLERGY_OPTIONS}
+            selected={allergies}
+            onToggle={(option) => setAllergies((prev) => toggleValue(prev, option))}
+          />
+          <CustomOptionField
+            customValues={customAllergies}
+            allSelected={allergies}
+            onAdd={(value) => setAllergies((prev) => [...prev, value])}
+            onRemove={(value) => setAllergies((prev) => toggleValue(prev, value))}
+            placeholder="e.g. Kiwi, Mustard, Sulfites…"
+          />
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Your goals</Text>
+          <PillGrid
+            options={GOAL_OPTIONS}
+            selected={goals}
+            onToggle={(option) => setGoals((prev) => toggleValue(prev, option))}
           />
         </Card>
 

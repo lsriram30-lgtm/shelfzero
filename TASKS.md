@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 44 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 45 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -934,6 +934,22 @@ pace I just won't be able to work much next week <3
       just a "link" placeholder rather than a real value — those still
       show as before. Typecheck, tests, and an `expo export` bundle all
       pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make the
+      full onboarding profile viewable and editable after signup (branch:
+      `feature/full-onboarding-profile-editable`) — merged into
+      `master`. Cuisine and dietary preferences already got this
+      treatment; allergies and goals never did — collected once during
+      onboarding, then permanently locked in, with no way to view or fix
+      them short of a full "Reset app." Allergies specifically matter
+      functionally, not just informationally — they already filter
+      recipe/quick-add suggestions elsewhere in the app, so a mistake
+      made during onboarding (or a new allergy since) had no fix short
+      of nuking the whole profile. Added Allergies and Goals cards to
+      Edit Profile (reusing the same options/components as their
+      onboarding steps) and, on Profile itself, labeled pill sections
+      for cuisine, dietary, allergies, and goals — cuisine wasn't shown
+      on Profile at all before this either, only dietary was. Typecheck,
+      tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
