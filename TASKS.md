@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 43 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 44 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -923,6 +923,17 @@ pace I just won't be able to work much next week <3
       the same row component), plus an accessibility label mentioning
       it for screen readers. Typecheck, tests, and an `expo export`
       bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Show the
+      contact used for a pending invite (branch:
+      `feature/invite-contact-display`) — merged into `master`. Pending
+      invites only ever showed a name and role ("Adult · pending") —
+      with two pending invites, there was no way to tell which was sent
+      to which email/phone without opening the copy-link flow. Now shows
+      the actual contact too (e.g. "Adult · pending ·
+      jane@email.com"), except for link-type invites, where `contact` is
+      just a "link" placeholder rather than a real value — those still
+      show as before. Typecheck, tests, and an `expo export` bundle all
+      pass.
 
 ### Not yet assigned
 
