@@ -75,17 +75,24 @@ function ShoppingRow({
                 : colors.textMuted
           }
         />
-        <Text
-          style={[
-            styles.shoppingLabel,
-            {
-              color: item.checked ? colors.textMuted : colors.text,
-              textDecorationLine: item.checked ? "line-through" : "none",
-            },
-          ]}
-        >
-          {item.name}
-        </Text>
+        <View style={styles.shoppingTextColumn}>
+          <Text
+            style={[
+              styles.shoppingLabel,
+              {
+                color: item.checked ? colors.textMuted : colors.text,
+                textDecorationLine: item.checked ? "line-through" : "none",
+              },
+            ]}
+          >
+            {item.name}
+          </Text>
+          {item.addedBy ? (
+            <Text style={[styles.shoppingAddedBy, { color: colors.textMuted }]}>
+              Added by {item.addedBy}
+            </Text>
+          ) : null}
+        </View>
       </Pressable>
       {!selectionMode ? (
         <View style={styles.shoppingActions}>
@@ -678,9 +685,15 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     flexShrink: 1,
   },
+  shoppingTextColumn: {
+    flexShrink: 1,
+  },
   shoppingLabel: {
     ...typography.body,
     flexShrink: 1,
+  },
+  shoppingAddedBy: {
+    ...typography.caption,
   },
   shoppingActions: {
     flexDirection: "row",

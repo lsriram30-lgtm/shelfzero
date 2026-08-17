@@ -28,6 +28,7 @@ export interface ShoppingListItem {
   checked: boolean;
   qty: number;
   notes?: string | null;
+  addedBy?: string;
   createdAt: string;
   updatedAt: string;
 }
