@@ -853,9 +853,7 @@ pace I just won't be able to work much next week <3
       has to guess what's missing itself. Each meal now shows "Missing:
       X, Y" plus an "Add missing to shopping list" link, reusing the
       existing logic that bumps a matching item's quantity instead of
-      adding a duplicate row. Couldn't be tested against a real generated
-      plan — meal-plan generation was completely broken by the `429` bug
-      (see below) at the time. 4 tests added, suite at 190. Typecheck,
+      adding a duplicate row. 4 tests added, suite at 190. Typecheck,
       tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
       cuisine filter to the Recipes screen (branch:
@@ -865,9 +863,8 @@ pace I just won't be able to work much next week <3
       cuisine, next to the existing meal-type row, and "no matching
       recipes" now explains a cuisine mismatch too, not just a meal-type
       one — closing out a note left when the meal-type filter first
-      shipped. Same caveat as above: couldn't be tested against a real
-      plan while `429` was blocking generation. 15 tests added, suite at
-      205. Typecheck, tests, and an `expo export` bundle all pass.
+      shipped. 15 tests added, suite at 205. Typecheck, tests, and an
+      `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
       `429` on `/api/meal-plan` (branch: `feature/mealplan-day-scoped`)
       — merged into `master`. Root cause, diagnosed 8/15: the OpenAI
