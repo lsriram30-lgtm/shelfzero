@@ -951,9 +951,8 @@ pace I just won't be able to work much next week <3
       on Profile at all before this either, only dietary was. Typecheck,
       tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Group the
-      shopping list by category (branch:
-      `feature/shopping-list-grouped-by-category`) — merged into
-      `master`. Pantry already groups items by category with
+      shopping list by category (committed directly to `master`).
+      Pantry already groups items by category with
       collapsible sections; the shopping list was just a flat list, no
       easier to shop than a plain notes app. `ShoppingListItem` has no
       category field of its own, so reused Pantry's existing
