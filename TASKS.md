@@ -911,25 +911,6 @@ pace I just won't be able to work much next week <3
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
-- [ ] Meal-plan generation is still fundamentally too slow, even at the
-      smallest chunk size. Confirmed via direct API testing on 8/16 (not
-      just app-level guessing): even a single day
-      (`{ days: 1, dayIndex: 0 }`) consistently times out at ~20-21
-      seconds — tried twice, both timed out. The whole premise of the
-      day-scoped fix, "one day should be fast enough," turned out to be
-      wrong. This isn't the publish-gap issue found the same day (see
-      the 8/16 note under "Human decision needed") — the day-scoped
-      routes work correctly (accept the parameters, correct behavior
-      otherwise), generation itself is just still too slow. Recipe
-      search has the same underlying symptom (route exists, still
-      `504`s). Needs a response from Airo on why even one day of
-      structured generation is this slow, and what actually fixes it —
-      not clear yet whether that's prompt/model tuning, further
-      chunking (half a day? one meal at a time?), or something else.
-      Once fixed, re-verify meal-plan generation end to end and confirm
-      the meal-plan shopping-gap and cuisine-filter tasks (both depend
-      on real generated output) actually work too.
-
 #### Claude Code (client-side)
 
 Buildable in this repo with no backend involvement.
@@ -957,6 +938,25 @@ outside this repo.
       notified, nothing gets fulfilled. Needs a real organization/API
       identified before there's anything to integrate against.
 - [ ] Test the full app on an actual Android phone and an actual iPhone
+- [ ] Meal-plan generation is still too slow to work at all — needs
+      GoDaddy Support, not Airo. Confirmed via direct API testing on
+      8/16 that even the smallest possible request (one day,
+      `{ days: 1, dayIndex: 0 }`) times out at ~20-21 seconds; the
+      day-scoped fix's core assumption ("one day is fast enough") was
+      wrong. Airo diagnosed why: a single day still asks Gemini for 3
+      complete meals in one call, each with description, cuisine,
+      pantry/extra lists, and structured ingredients — genuinely a lot
+      of structured output per call. The app's 20-second timeout is
+      app-level, not a hard platform ceiling, but Airo's own read is
+      that raising it alone would just delay the failure rather than
+      fix the underlying slowness. Recipe search has the same symptom
+      (route works, still times out). Airo said it's reached the edge
+      of what it can diagnose here and pointed to **GoDaddy Support**
+      (help.godaddy.com) for further help — no ticket was auto-opened,
+      so this needs a person to actually go file one. Once resolved,
+      re-verify meal-plan generation end to end and confirm the
+      meal-plan shopping-gap and cuisine-filter tasks (both depend on
+      real generated output) actually work too.
 - [ ] **Update 8/16:** discovered via direct API testing (curl, a
       throwaway test account, no app UI needed) that none of this
       session's backend changes were actually live — Airo had built
