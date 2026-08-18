@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 52 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 53 / 50 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
 
 **Goal:** 50 tasks each (total) by end of day 8/22.
@@ -1061,6 +1061,14 @@ pace I just won't be able to work much next week <3
       isn't anymore — updated to describe the real, already-shipped
       delete flow. Typecheck, tests, and an `expo export` bundle all
       pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Show the
+      signed-in account email on Profile (branch:
+      `feature/show-account-email`) — merged into `master`. You sign in
+      with an email, but nothing in the app ever showed it back to you
+      afterward — `useAuth()` already exposed `currentEmail`, it just
+      wasn't used anywhere. Now shows "Signed in as x@example.com" in
+      Profile's "About you" card. Typecheck, tests, and an
+      `expo export` bundle all pass.
 
 ### Not yet assigned
 
