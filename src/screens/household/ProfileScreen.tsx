@@ -22,7 +22,7 @@ export function ProfileScreen() {
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile, resetOnboarding } = useOnboarding();
   const { invites, removeMember } = useInvites();
-  const { signOut } = useAuth();
+  const { signOut, currentEmail } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [leavingHousehold, setLeavingHousehold] = useState(false);
   // Defaults to false (not just "unknown") so the remove-member action
@@ -153,6 +153,11 @@ export function ProfileScreen() {
             {(profile?.householdAdults ?? 1) + (profile?.householdKids ?? 0)} in household
             {profile?.householdKids ? ` (${profile.householdKids} kids)` : ""}
           </Text>
+          {currentEmail ? (
+            <Text style={[styles.detailMuted, { color: colors.textMuted }]}>
+              Signed in as {currentEmail}
+            </Text>
+          ) : null}
           {profile?.cuisinePrefs && profile.cuisinePrefs.length > 0 ? (
             <View style={styles.pillSection}>
               <Text style={[styles.pillSectionLabel, { color: colors.textMuted }]}>Cuisines</Text>
