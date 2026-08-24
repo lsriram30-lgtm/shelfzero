@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CommonActions, RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../context/ThemeContext";
@@ -78,9 +78,9 @@ export function ResetPasswordScreen() {
   }
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header title="Reset your password" subtitle="Choose a new password" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField
           label="New password"
           placeholder="Choose a password"
@@ -104,7 +104,7 @@ export function ResetPasswordScreen() {
           loading={submitting}
           style={styles.submitButton}
         />
-      </View>
+      </ScrollView>
     </Screen>
   );
 }

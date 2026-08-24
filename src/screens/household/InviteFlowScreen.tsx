@@ -76,9 +76,9 @@ export function InviteFlowScreen() {
   };
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header title="Invite to household" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {step === "choose" ? (
           <View style={styles.methodList}>
             <Text style={[styles.stepLabel, { color: colors.textMuted }]}>

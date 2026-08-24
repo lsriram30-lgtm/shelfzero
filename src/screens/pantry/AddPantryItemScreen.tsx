@@ -228,7 +228,7 @@ export function AddPantryItemScreen() {
   };
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header
         title={isEditing ? "Edit item" : "Add item"}
         subtitle={isEditing ? "Update the details or remove it" : "Enter the details manually"}

@@ -30,7 +30,7 @@ export function OnboardingStepLayout({
   const { colors } = useTheme();
 
   return (
-    <Screen style={styles.container}>
+    <Screen style={styles.container} avoidKeyboard>
       <View style={styles.progressTrack}>
         {Array.from({ length: totalSteps }).map((_, i) => (
           <View

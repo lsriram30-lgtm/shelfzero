@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Linking from "expo-linking";
@@ -63,9 +63,9 @@ export function ForgotPasswordScreen() {
   }
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header title="Forgot password?" subtitle="We'll email you a link to reset it" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField
           label="Email"
           placeholder="name@email.com"
@@ -89,7 +89,7 @@ export function ForgotPasswordScreen() {
           onPress={() => navigation.navigate("SignIn")}
           style={styles.switchButton}
         />
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
