@@ -1147,6 +1147,21 @@ pace I just won't be able to work much next week <3
       and found it was already fully built and wired up in Profile — no
       work needed there. Typecheck, tests, and an `expo export` bundle
       all pass.
+- [ ] Warn before losing unsaved form changes (branch:
+      `feature/unsaved-changes-warning`, not yet merged). Add/Edit Pantry
+      Item and Edit Profile had no "discard changes?" prompt — an
+      accidental swipe-back or Android back-button tap silently lost
+      whatever was typed, with no in-screen Cancel button as an alternate
+      warning point either. Added a shared `useUnsavedChangesGuard` hook
+      (`src/hooks/`) that intercepts React Navigation's `beforeRemove`
+      event when the form has changed from its initial values (covers
+      swipe-back, the hardware back button, and any other programmatic
+      navigation away, not just a dedicated Cancel button) and confirms
+      before discarding; a returned `allowLeave()` is called right before
+      the `goBack()` that follows a successful save or delete, so the
+      guard doesn't second-guess an already-confirmed action. Deliberately
+      scoped to these two screens for now, not every screen with a
+      `TextField`.
 
 ### Not yet assigned
 

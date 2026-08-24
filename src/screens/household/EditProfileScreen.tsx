@@ -11,6 +11,7 @@ import { CustomOptionField } from "../onboarding/CustomOptionField";
 import { toggleValue } from "../onboarding/toggleValue";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
+import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
 type EditProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "EditProfile">;
 
@@ -89,6 +90,29 @@ export function EditProfileScreen() {
   const [goals, setGoals] = useState<string[]>(profile?.goals ?? []);
   const [saving, setSaving] = useState(false);
 
+  // Captured once, from the same first-render values the state above
+  // initialized from.
+  const [initialSnapshot] = useState({
+    name,
+    location,
+    householdAdults,
+    householdKids,
+    cuisinePrefs,
+    dietaryPrefs,
+    allergies,
+    goals,
+  });
+  const isDirty =
+    name !== initialSnapshot.name ||
+    location !== initialSnapshot.location ||
+    householdAdults !== initialSnapshot.householdAdults ||
+    householdKids !== initialSnapshot.householdKids ||
+    cuisinePrefs !== initialSnapshot.cuisinePrefs ||
+    dietaryPrefs !== initialSnapshot.dietaryPrefs ||
+    allergies !== initialSnapshot.allergies ||
+    goals !== initialSnapshot.goals;
+  const allowLeave = useUnsavedChangesGuard(navigation, isDirty);
+
   const customCuisines = cuisinePrefs.filter((c) => !ALL_CUISINE_OPTIONS.has(c));
   const customDietary = dietaryPrefs.filter((p) => !ALL_DIETARY_OPTIONS.has(p));
   const customAllergies = allergies.filter((a) => !ALL_ALLERGY_OPTIONS.has(a));
@@ -110,6 +134,7 @@ export function EditProfileScreen() {
         allergies,
         goals,
       });
+      allowLeave();
       navigation.goBack();
     } catch (err) {
       Alert.alert(
