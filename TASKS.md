@@ -36,8 +36,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 53 / 50 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 50 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 54 / 60 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
 
@@ -1070,6 +1070,19 @@ pace I just won't be able to work much next week <3
       wasn't used anywhere. Now shows "Signed in as x@example.com" in
       Profile's "About you" card. Typecheck, tests, and an
       `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Refine the
+      app's icon visuals and general look so it feels more polished and
+      professional (branch: `feature/icon-polish`) — merged into
+      `master`. Found a stale color bug along the way: the icon, Android
+      adaptive-icon background, and splash screen were still on the old
+      pre-accessibility-audit primary `#818263` instead of the current
+      `#707156`, so the app icon didn't actually match the in-app brand
+      color anymore. Fixed that and added a subtle grounding shadow under
+      the basket mark plus a cleaner weave-line color (the theme's
+      `border` token instead of a translucent primary overlay). That's
+      the extent of what's doable without an image-generation tool or a
+      real designer — a genuinely new icon concept/illustration is out of
+      scope here. Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -1092,15 +1105,6 @@ Buildable in this repo with no backend involvement.
       `eas.json` `development` profile already exists for this).
       **Already built on `feature/receipt-ocr`, not yet merged** —
       holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
-- [ ] Refine the app's icon visuals and general look so it feels more polished
-      and professional overall. **Already built on `feature/icon-polish`, not
-      yet merged** — fixed a stale color bug found along the way (the icon,
-      Android adaptive-icon background, and splash screen were still on the
-      old pre-accessibility-audit primary `#818263` instead of the current
-      `#707156`) and added a subtle grounding shadow under the basket mark
-      plus a cleaner weave-line color. That's the extent of what's doable
-      without an image-generation tool or a real designer — a genuinely new
-      icon concept/illustration is out of scope here.
 
 #### Human decision needed
 
