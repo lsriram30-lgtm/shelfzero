@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
 import { initialOnboardingDraft, OnboardingDraft } from "./onboardingDraft";
+import {
+  clearOnboardingDraft,
+  getOnboardingDraft,
+  saveOnboardingDraft,
+} from "../../utils/onboardingDraftCache";
 import { AccountStep } from "./steps/AccountStep";
 import { NameLocationStep } from "./steps/NameLocationStep";
 import { HouseholdSizeStep } from "./steps/HouseholdSizeStep";
@@ -16,22 +21,69 @@ const STEP_COUNT = 8;
 
 export function OnboardingScreen() {
   const { completeOnboarding } = useOnboarding();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, currentEmail } = useAuth();
   // Already signed in (e.g. resuming onboarding after a restart) — skip
   // straight past the account step, no need to sign in again.
   const firstStep = isSignedIn ? 1 : 0;
   const [stepIndex, setStepIndex] = useState(firstStep);
   const [draft, setDraft] = useState<OnboardingDraft>(initialOnboardingDraft);
   const [submitting, setSubmitting] = useState(false);
+  // Gates autosaving until the resume-load below has had its chance to run,
+  // so that effect doesn't stomp a real cached draft with the blank initial
+  // one before it's even read.
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  // Set as soon as the user does anything, so a slow-resolving resume-load
+  // can never clobber input the user already typed after mount.
+  const interactedRef = useRef(false);
 
-  const update = (patch: Partial<OnboardingDraft>) => setDraft((prev) => ({ ...prev, ...patch }));
-  const goNext = () => setStepIndex((i) => Math.min(STEP_COUNT - 1, i + 1));
-  const goBack = () => setStepIndex((i) => Math.max(firstStep, i - 1));
+  // Resume an in-progress questionnaire after the app was killed mid-flow.
+  // Only runs once per mount: currentEmail is already stable by the time
+  // this screen exists (RootNavigator holds off until AuthContext finishes
+  // loading), and a fresh account created during this same session has no
+  // prior draft to resume anyway.
+  useEffect(() => {
+    if (!isSignedIn) {
+      setDraftLoaded(true);
+      return;
+    }
+    let cancelled = false;
+    getOnboardingDraft(currentEmail).then((cached) => {
+      if (cancelled) return;
+      if (cached && !interactedRef.current) {
+        setDraft(cached.draft);
+        setStepIndex(cached.stepIndex);
+      }
+      setDraftLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!draftLoaded || !isSignedIn) return;
+    saveOnboardingDraft(draft, stepIndex, currentEmail);
+  }, [draft, stepIndex, draftLoaded, isSignedIn, currentEmail]);
+
+  const update = (patch: Partial<OnboardingDraft>) => {
+    interactedRef.current = true;
+    setDraft((prev) => ({ ...prev, ...patch }));
+  };
+  const goNext = () => {
+    interactedRef.current = true;
+    setStepIndex((i) => Math.min(STEP_COUNT - 1, i + 1));
+  };
+  const goBack = () => {
+    interactedRef.current = true;
+    setStepIndex((i) => Math.max(firstStep, i - 1));
+  };
 
   const handleFinish = async () => {
     setSubmitting(true);
     try {
       await completeOnboarding(draft);
+      await clearOnboardingDraft(currentEmail);
     } catch (err) {
       Alert.alert(
         "Couldn't finish setup",
@@ -49,7 +101,13 @@ export function OnboardingScreen() {
   // an inconsistent "signed in but not onboarded" state.
   const handleSignedIn = async () => {
     await completeOnboarding(initialOnboardingDraft);
+    await clearOnboardingDraft(currentEmail);
   };
+
+  // Resuming after a restart: hold off rendering the (still-blank) draft
+  // for the one frame it takes to check for a cached one, so there's no
+  // flash of empty fields before they snap to the resumed answers.
+  if (isSignedIn && !draftLoaded) return null;
 
   switch (stepIndex) {
     case 0:
