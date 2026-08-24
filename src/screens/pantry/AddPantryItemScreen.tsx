@@ -17,6 +17,7 @@ import {
 } from "./pantryLogic";
 import { getCachedMealPlan } from "../../utils/mealPlanCache";
 import { hapticWarning } from "../../utils/haptics";
+import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
@@ -91,6 +92,33 @@ export function AddPantryItemScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [isInCurrentPlan, setIsInCurrentPlan] = useState(false);
+
+  // Captured once, from the same first-render values the state above
+  // initialized from - not autoAddEnabled, which loads in asynchronously
+  // after mount for an existing item and would cause a false "dirty" the
+  // moment its real value arrives.
+  const [initialSnapshot] = useState({
+    name,
+    category,
+    customCategory,
+    quantity,
+    unit,
+    customUnit,
+    expiryParts,
+    notes,
+  });
+  const isDirty =
+    name !== initialSnapshot.name ||
+    category !== initialSnapshot.category ||
+    customCategory !== initialSnapshot.customCategory ||
+    quantity !== initialSnapshot.quantity ||
+    unit !== initialSnapshot.unit ||
+    customUnit !== initialSnapshot.customUnit ||
+    notes !== initialSnapshot.notes ||
+    expiryParts.month !== initialSnapshot.expiryParts.month ||
+    expiryParts.day !== initialSnapshot.expiryParts.day ||
+    expiryParts.year !== initialSnapshot.expiryParts.year;
+  const allowLeave = useUnsavedChangesGuard(navigation, isDirty);
 
   useEffect(() => {
     if (!editingItem) return;
@@ -187,6 +215,7 @@ export function AddPantryItemScreen() {
           await setAutoAddOptOut(created.id, true);
         }
       }
+      allowLeave();
       navigation.goBack();
     } catch (err) {
       Alert.alert(
@@ -213,6 +242,7 @@ export function AddPantryItemScreen() {
           setDeleting(true);
           try {
             await removeItem(editingItem.id);
+            allowLeave();
             navigation.goBack();
           } catch (err) {
             Alert.alert(
