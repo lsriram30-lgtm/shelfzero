@@ -5,7 +5,17 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
-import { Screen, Header, Card, EmptyState, ErrorState, Pill, Button, TextField } from "../../components";
+import {
+  Screen,
+  Header,
+  Card,
+  EmptyState,
+  ErrorState,
+  Pill,
+  Button,
+  TextField,
+  Skeleton,
+} from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
@@ -101,6 +111,36 @@ function CategoryGroup({
         </View>
       ) : null}
     </Card>
+  );
+}
+
+function PantryRowSkeleton({ first }: { first?: boolean }) {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.row, { borderColor: colors.border }, first ? styles.rowNoBorder : null]}>
+      <View style={styles.rowMain}>
+        <Skeleton width={120} height={14} style={{ marginBottom: spacing.xs }} />
+        <Skeleton width={70} height={11} />
+      </View>
+      <Skeleton width={44} height={11} />
+    </View>
+  );
+}
+
+function PantrySkeleton() {
+  return (
+    <>
+      {[3, 2].map((rowCount, groupIndex) => (
+        <Card key={groupIndex} style={styles.groupCard}>
+          <View style={styles.groupHeader}>
+            <Skeleton width={100} height={16} />
+          </View>
+          {Array.from({ length: rowCount }).map((_, i) => (
+            <PantryRowSkeleton key={i} first={i === 0} />
+          ))}
+        </Card>
+      ))}
+    </>
   );
 }
 
@@ -246,7 +286,9 @@ export function PantryScreen() {
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
       >
-        {error && items.length === 0 && !loading ? (
+        {loading && items.length === 0 ? (
+          <PantrySkeleton />
+        ) : error && items.length === 0 && !loading ? (
           <ErrorState onRetry={refresh} />
         ) : items.length === 0 && !loading ? (
           <EmptyState

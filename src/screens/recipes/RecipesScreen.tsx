@@ -7,7 +7,17 @@ import { useTheme } from "../../context/ThemeContext";
 import { useSuggestedRecipes } from "../../hooks/useSuggestedRecipes";
 import { favoritesApi } from "../../api/favorites";
 import { recipesApi } from "../../api/recipes";
-import { Screen, Header, Card, Button, EmptyState, ErrorState, Pill, TextField } from "../../components";
+import {
+  Screen,
+  Header,
+  Card,
+  Button,
+  EmptyState,
+  ErrorState,
+  Pill,
+  TextField,
+  Skeleton,
+} from "../../components";
 import { spacing, typography } from "../../theme";
 import { RecipesStackParamList } from "../../navigation/types";
 import { Recipe } from "../../types";
@@ -59,6 +69,31 @@ function RecipeTile({ recipe, onPress }: { recipe: Recipe; onPress: () => void }
         ) : null}
       </Card>
     </Pressable>
+  );
+}
+
+function RecipeTileSkeleton() {
+  return (
+    <View style={styles.tile}>
+      <Card style={styles.tileCard}>
+        <Skeleton width="90%" height={14} style={{ marginBottom: spacing.xs }} />
+        <Skeleton width="60%" height={14} style={{ marginBottom: spacing.sm }} />
+        <Skeleton width="45%" height={11} />
+      </Card>
+    </View>
+  );
+}
+
+function RecipesSkeleton() {
+  return (
+    <View style={styles.grid}>
+      {[0, 1, 2].map((row) => (
+        <View key={row} style={styles.skeletonRow}>
+          <RecipeTileSkeleton />
+          <RecipeTileSkeleton />
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -234,7 +269,9 @@ export function RecipesScreen() {
           />
         }
         ListEmptyComponent={
-          !loading && !searching ? (
+          loading && !searchResults && !searching ? (
+            <RecipesSkeleton />
+          ) : !loading && !searching ? (
             searchResults ? (
               <EmptyState
                 icon="restaurant-outline"
@@ -298,6 +335,10 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxxl,
   },
   column: {
+    gap: spacing.md,
+  },
+  skeletonRow: {
+    flexDirection: "row",
     gap: spacing.md,
   },
   tile: {
