@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OnboardingProfile } from "../types";
 import { useAuth } from "./AuthContext";
 import { storageKeyFor } from "../utils/onboardingStorageKey";
+import { clearOnboardingDraft } from "../utils/onboardingDraftCache";
 
 interface OnboardingContextValue {
   profile: OnboardingProfile | null;
@@ -53,6 +54,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   const resetOnboarding = async () => {
     setProfile(null);
     await AsyncStorage.removeItem(storageKeyFor(currentEmail)).catch(() => {});
+    await clearOnboardingDraft(currentEmail);
   };
 
   const value = useMemo(

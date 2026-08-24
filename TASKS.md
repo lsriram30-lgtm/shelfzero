@@ -1095,6 +1095,15 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
+- [ ] Persist onboarding progress mid-flow, so killing the app partway
+      through the questionnaire doesn't lose every answer so far. **Already
+      built on `feature/onboarding-progress-persistence`, not yet merged.**
+      Autosaves the draft answers and current step to AsyncStorage
+      (account-scoped, same pattern as the pantry/meal-plan caches) on
+      every change from the account-creation step onward, and resumes into
+      it on relaunch instead of starting over. Cleared on a successful
+      finish, and on "Reset app"/"Delete account" so a fresh restart
+      doesn't resume into old answers. No backend involved.
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend. Decided 8/16:
