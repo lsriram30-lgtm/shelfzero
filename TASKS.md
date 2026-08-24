@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 54 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 55 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1083,6 +1083,18 @@ pace I just won't be able to work much next week <3
       the extent of what's doable without an image-generation tool or a
       real designer — a genuinely new icon concept/illustration is out of
       scope here. Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Persist
+      onboarding progress mid-flow (branch:
+      `feature/onboarding-progress-persistence`) — merged into `master`.
+      Killing the app partway through the questionnaire lost every answer
+      so far — draft state only ever lived in `useState`. Now autosaves
+      the draft answers and current step to AsyncStorage (account-scoped,
+      same pattern as the pantry/meal-plan caches) on every change from
+      the account-creation step onward, and resumes into it on relaunch
+      instead of restarting the whole questionnaire. Cleared on a
+      successful finish, and on "Reset app"/"Delete account" so a fresh
+      restart doesn't resume into stale answers. No backend involved.
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -1095,15 +1107,6 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Persist onboarding progress mid-flow, so killing the app partway
-      through the questionnaire doesn't lose every answer so far. **Already
-      built on `feature/onboarding-progress-persistence`, not yet merged.**
-      Autosaves the draft answers and current step to AsyncStorage
-      (account-scoped, same pattern as the pantry/meal-plan caches) on
-      every change from the account-creation step onward, and resumes into
-      it on relaunch instead of starting over. Cleared on a successful
-      finish, and on "Reset app"/"Delete account" so a fresh restart
-      doesn't resume into old answers. No backend involved.
 - [ ] Add on-device OCR to receipt scanning — see the correction note on
       the "Improve receipt scanning" task above. Without this, no photo
       scan can ever succeed against the current backend. Decided 8/16:
