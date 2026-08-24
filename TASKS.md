@@ -1093,7 +1093,14 @@ Buildable in this repo with no backend involvement.
       **Already built on `feature/receipt-ocr`, not yet merged** —
       holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
 - [ ] Refine the app's icon visuals and general look so it feels more polished
-      and professional overall
+      and professional overall. **Already built on `feature/icon-polish`, not
+      yet merged** — fixed a stale color bug found along the way (the icon,
+      Android adaptive-icon background, and splash screen were still on the
+      old pre-accessibility-audit primary `#818263` instead of the current
+      `#707156`) and added a subtle grounding shadow under the basket mark
+      plus a cleaner weave-line color. That's the extent of what's doable
+      without an image-generation tool or a real designer — a genuinely new
+      icon concept/illustration is out of scope here.
 
 #### Human decision needed
 
