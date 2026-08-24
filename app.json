@@ -21,7 +21,7 @@
       "package": "com.shelfzero.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#818263"
+        "backgroundColor": "#707156"
       },
       "permissions": [
         "CAMERA"
@@ -54,7 +54,7 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#818263"
+          "backgroundColor": "#707156"
         }
       ]
     ]
