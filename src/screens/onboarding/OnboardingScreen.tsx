@@ -8,6 +8,7 @@ import {
   getOnboardingDraft,
   saveOnboardingDraft,
 } from "../../utils/onboardingDraftCache";
+import { hapticSuccess } from "../../utils/haptics";
 import { AccountStep } from "./steps/AccountStep";
 import { NameLocationStep } from "./steps/NameLocationStep";
 import { HouseholdSizeStep } from "./steps/HouseholdSizeStep";
@@ -84,6 +85,7 @@ export function OnboardingScreen() {
     try {
       await completeOnboarding(draft);
       await clearOnboardingDraft(currentEmail);
+      hapticSuccess();
     } catch (err) {
       Alert.alert(
         "Couldn't finish setup",
