@@ -122,7 +122,7 @@ export function EditProfileScreen() {
   };
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header title="Edit profile" subtitle="Update your info any time" />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Card style={styles.card}>

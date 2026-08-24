@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../../context/ThemeContext";
@@ -64,9 +64,9 @@ export function SignUpScreen() {
   };
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header title="Create an account" subtitle="Set up your household" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextField label="Full Name" placeholder="First and last name" value={name} onChangeText={setName} />
         <TextField
           label="Email"
@@ -114,7 +114,7 @@ export function SignUpScreen() {
           onPress={() => navigation.navigate("SignIn")}
           style={styles.switchButton}
         />
-      </View>
+      </ScrollView>
     </Screen>
   );
 }

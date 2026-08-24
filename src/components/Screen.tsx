@@ -1,15 +1,34 @@
 import React from "react";
-import { StyleSheet, View, ViewProps } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, View, ViewProps } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 
-export function Screen({ style, children, ...rest }: ViewProps) {
+interface ScreenProps extends ViewProps {
+  // Opt-in: most screens are lists (often FlatList-based) that manage
+  // their own scrolling, so this doesn't wrap every screen by default —
+  // only form screens with fields need the keyboard pushed out of the way.
+  avoidKeyboard?: boolean;
+}
+
+export function Screen({ style, children, avoidKeyboard, ...rest }: ScreenProps) {
   const { colors } = useTheme();
+  const content = (
+    <View style={[styles.container, style]} {...rest}>
+      {children}
+    </View>
+  );
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={["top"]}>
-      <View style={[styles.container, style]} {...rest}>
-        {children}
-      </View>
+      {avoidKeyboard ? (
+        <KeyboardAvoidingView
+          style={styles.safe}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          {content}
+        </KeyboardAvoidingView>
+      ) : (
+        content
+      )}
     </SafeAreaView>
   );
 }

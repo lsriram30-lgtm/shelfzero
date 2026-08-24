@@ -359,7 +359,7 @@ export function HouseholdHubScreen() {
   };
 
   return (
-    <Screen>
+    <Screen avoidKeyboard>
       <Header
         title="Household"
         subtitle="Members, shopping, and sharing"
@@ -376,6 +376,7 @@ export function HouseholdHubScreen() {
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        keyboardShouldPersistTaps="handled"
       >
         <Card style={styles.card}>
           <CardHeader
