@@ -1,12 +1,22 @@
 import React, { useEffect, useMemo } from "react";
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../context/ThemeContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useNotificationPreferences } from "../context/NotificationPreferencesContext";
 import { usePantry } from "../hooks/usePantry";
-import { Card, Header, ProgressRing, Button, Screen, EmptyState, ErrorState, Pill } from "../components";
+import {
+  Card,
+  Header,
+  ProgressRing,
+  Button,
+  Screen,
+  EmptyState,
+  ErrorState,
+  Pill,
+  Skeleton,
+} from "../components";
 import { spacing, typography } from "../theme";
 import { MainTabParamList } from "../navigation/types";
 import { syncExpiryReminders } from "../notifications/expiryNotifications";
@@ -53,7 +63,9 @@ export function DashboardScreen() {
 
         {loading && items.length === 0 ? (
           <Card style={styles.ringCard}>
-            <ActivityIndicator color={colors.primary} />
+            <Skeleton width={140} height={140} radius={70} />
+            <Skeleton width={200} height={12} />
+            <Skeleton width={160} height={16} />
           </Card>
         ) : error && items.length === 0 ? (
           <Card style={styles.ringCard}>

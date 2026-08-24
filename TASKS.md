@@ -1109,6 +1109,18 @@ pace I just won't be able to work much next week <3
       scoped to destructive confirmations plus the few most
       frequent/satisfying interactions, not sprinkled across every button
       in the app. Typecheck, tests, and an `expo export` bundle all pass.
+- [ ] Add skeleton loading states (branch: `feature/skeleton-loading`, not
+      yet merged). Dashboard, Pantry, and Recipes each just went blank
+      (Pantry, Recipes) or showed a bare `ActivityIndicator` (Dashboard)
+      during their initial load, with nothing hinting at the shape of what
+      was coming. Added a shared pulsing placeholder primitive
+      (`src/components/Skeleton.tsx`, plain `Animated` — no new dependency)
+      and screen-specific composites shaped like the real content: a
+      ring+text placeholder for Dashboard's health card, category-group/row
+      shapes for Pantry, and a 2-column tile grid for Recipes. Only wired
+      into the genuinely-blank initial-load case in each screen — pull-to-
+      refresh on an already-populated list keeps showing the existing
+      items with its own spinner, unchanged.
 
 ### Not yet assigned
 
