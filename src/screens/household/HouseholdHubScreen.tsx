@@ -24,6 +24,7 @@ import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
+import { hapticTap } from "../../utils/haptics";
 import { ShoppingListItem } from "../../types";
 import { sendTestNotification } from "../../notifications/expiryNotifications";
 import {
@@ -521,11 +522,12 @@ export function HouseholdHubScreen() {
                     item={item}
                     selectionMode={selectionMode}
                     selected={selectedIds.has(item.id)}
-                    onToggle={() =>
+                    onToggle={() => {
+                      hapticTap();
                       selectionMode
                         ? handleToggleItemSelected(item.id)
-                        : toggleChecked(item.id, !item.checked)
-                    }
+                        : toggleChecked(item.id, !item.checked);
+                    }}
                     onChangeQuantity={handleChangeQuantity}
                     onRemove={removeItem}
                     pendingQuantityIds={pendingQuantityIds}

@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { hapticWarning } from "./haptics";
 
 export function confirmDestructiveAction({
   title,
@@ -15,6 +16,13 @@ export function confirmDestructiveAction({
 }) {
   Alert.alert(title, message, [
     { text: cancelLabel, style: "cancel" },
-    { text: confirmLabel, style: "destructive", onPress: onConfirm },
+    {
+      text: confirmLabel,
+      style: "destructive",
+      onPress: () => {
+        hapticWarning();
+        onConfirm();
+      },
+    },
   ]);
 }

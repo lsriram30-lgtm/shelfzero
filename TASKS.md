@@ -1095,6 +1095,18 @@ pace I just won't be able to work much next week <3
       successful finish, and on "Reset app"/"Delete account" so a fresh
       restart doesn't resume into stale answers. No backend involved.
       Typecheck, tests, and an `expo export` bundle all pass.
+- [ ] Add haptic feedback on key actions (branch: `feature/haptic-feedback`,
+      not yet merged). Installed `expo-haptics` and added a small shared
+      wrapper (`src/utils/haptics.ts`, best-effort — a missing tap is never
+      worth surfacing as an error). Wired a warning tap into the shared
+      `confirmDestructiveAction` dialog (covers Reset app, Delete account,
+      remove member, leave household, cancel invite, clear-checked, and
+      bulk-delete in one place) and into the pantry item delete confirm
+      (a separate hand-rolled dialog, not on that shared helper); a light
+      tap on the shopping list's check/select toggle; and a success tap
+      when onboarding finishes. Deliberately scoped to destructive
+      confirmations plus the few most frequent/satisfying interactions,
+      not sprinkled across every button in the app.
 
 ### Not yet assigned
 

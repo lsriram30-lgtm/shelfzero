@@ -16,6 +16,7 @@ import {
   suggestCategory,
 } from "./pantryLogic";
 import { getCachedMealPlan } from "../../utils/mealPlanCache";
+import { hapticWarning } from "../../utils/haptics";
 
 const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
@@ -208,6 +209,7 @@ export function AddPantryItemScreen() {
         text: "Remove",
         style: "destructive",
         onPress: async () => {
+          hapticWarning();
           setDeleting(true);
           try {
             await removeItem(editingItem.id);
