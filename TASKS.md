@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 56 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 57 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1109,8 +1109,9 @@ pace I just won't be able to work much next week <3
       scoped to destructive confirmations plus the few most
       frequent/satisfying interactions, not sprinkled across every button
       in the app. Typecheck, tests, and an `expo export` bundle all pass.
-- [ ] Add skeleton loading states (branch: `feature/skeleton-loading`, not
-      yet merged). Dashboard, Pantry, and Recipes each just went blank
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add skeleton
+      loading states (branch: `feature/skeleton-loading`) — merged into
+      `master`. Dashboard, Pantry, and Recipes each just went blank
       (Pantry, Recipes) or showed a bare `ActivityIndicator` (Dashboard)
       during their initial load, with nothing hinting at the shape of what
       was coming. Added a shared pulsing placeholder primitive
@@ -1120,7 +1121,8 @@ pace I just won't be able to work much next week <3
       shapes for Pantry, and a 2-column tile grid for Recipes. Only wired
       into the genuinely-blank initial-load case in each screen — pull-to-
       refresh on an already-populated list keeps showing the existing
-      items with its own spinner, unchanged.
+      items with its own spinner, unchanged. Typecheck, tests, and an
+      `expo export` bundle all pass.
 
 ### Not yet assigned
 
