@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 57 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 58 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1123,28 +1123,30 @@ pace I just won't be able to work much next week <3
       refresh on an already-populated list keeps showing the existing
       items with its own spinner, unchanged. Typecheck, tests, and an
       `expo export` bundle all pass.
-- [ ] Add keyboard-avoiding behavior to forms (branch:
-      `feature/keyboard-avoiding-forms`, not yet merged). No screen in the
-      app used `KeyboardAvoidingView` at all — confirmed by grep — so on
-      forms with several fields the keyboard could cover the active field
-      or the Save/Continue/Sign-up button, especially on iOS and smaller
-      phones. Added an opt-in `avoidKeyboard` prop to the shared `Screen`
-      component (default off, since most screens are lists — often
-      FlatList-based — that manage their own scrolling and shouldn't get
-      an extra wrapper) and turned it on for every actual form screen:
-      the shared onboarding step layout (covers account creation and
-      name/location in one place), Add/Edit Pantry Item, Edit Profile,
-      Invite, Household Hub (its inline "add to shopping list" field),
-      and Sign In/Sign Up/Forgot Password/Reset Password. The three
-      auth screens that had no scroll container at all (Sign In, Sign
-      Up, Forgot Password's form state) were also converted from a
-      plain `View` to a `ScrollView` with `keyboardShouldPersistTaps=
-      "handled"`, matching the pattern already used elsewhere, so
-      there's still a way to reach the button if the fields alone don't
-      fit above the keyboard. Along the way: checked the recently-added
-      dark-mode Light/Dark/System toggle (originally on this batch's
-      proposed list) and found it was already fully built and wired up
-      in Profile — no work needed there.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add
+      keyboard-avoiding behavior to forms (branch:
+      `feature/keyboard-avoiding-forms`) — merged into `master`. No
+      screen in the app used `KeyboardAvoidingView` at all — confirmed by
+      grep — so on forms with several fields the keyboard could cover the
+      active field or the Save/Continue/Sign-up button, especially on iOS
+      and smaller phones. Added an opt-in `avoidKeyboard` prop to the
+      shared `Screen` component (default off, since most screens are
+      lists — often FlatList-based — that manage their own scrolling and
+      shouldn't get an extra wrapper) and turned it on for every actual
+      form screen: the shared onboarding step layout (covers account
+      creation and name/location in one place), Add/Edit Pantry Item,
+      Edit Profile, Invite, Household Hub (its inline "add to shopping
+      list" field), and Sign In/Sign Up/Forgot Password/Reset Password.
+      The three auth screens that had no scroll container at all (Sign
+      In, Sign Up, Forgot Password's form state) were also converted from
+      a plain `View` to a `ScrollView` with `keyboardShouldPersistTaps=
+      "handled"`, matching the pattern already used elsewhere, so there's
+      still a way to reach the button if the fields alone don't fit above
+      the keyboard. Along the way: checked the recently-added dark-mode
+      Light/Dark/System toggle (originally on this batch's proposed list)
+      and found it was already fully built and wired up in Profile — no
+      work needed there. Typecheck, tests, and an `expo export` bundle
+      all pass.
 
 ### Not yet assigned
 
