@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 58 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 59 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1147,9 +1147,10 @@ pace I just won't be able to work much next week <3
       and found it was already fully built and wired up in Profile — no
       work needed there. Typecheck, tests, and an `expo export` bundle
       all pass.
-- [ ] Warn before losing unsaved form changes (branch:
-      `feature/unsaved-changes-warning`, not yet merged). Add/Edit Pantry
-      Item and Edit Profile had no "discard changes?" prompt — an
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Warn before
+      losing unsaved form changes (branch:
+      `feature/unsaved-changes-warning`) — merged into `master`. Add/Edit
+      Pantry Item and Edit Profile had no "discard changes?" prompt — an
       accidental swipe-back or Android back-button tap silently lost
       whatever was typed, with no in-screen Cancel button as an alternate
       warning point either. Added a shared `useUnsavedChangesGuard` hook
@@ -1161,7 +1162,7 @@ pace I just won't be able to work much next week <3
       the `goBack()` that follows a successful save or delete, so the
       guard doesn't second-guess an already-confirmed action. Deliberately
       scoped to these two screens for now, not every screen with a
-      `TextField`.
+      `TextField`. Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
