@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 55 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 56 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1095,18 +1095,20 @@ pace I just won't be able to work much next week <3
       successful finish, and on "Reset app"/"Delete account" so a fresh
       restart doesn't resume into stale answers. No backend involved.
       Typecheck, tests, and an `expo export` bundle all pass.
-- [ ] Add haptic feedback on key actions (branch: `feature/haptic-feedback`,
-      not yet merged). Installed `expo-haptics` and added a small shared
-      wrapper (`src/utils/haptics.ts`, best-effort — a missing tap is never
-      worth surfacing as an error). Wired a warning tap into the shared
-      `confirmDestructiveAction` dialog (covers Reset app, Delete account,
-      remove member, leave household, cancel invite, clear-checked, and
-      bulk-delete in one place) and into the pantry item delete confirm
-      (a separate hand-rolled dialog, not on that shared helper); a light
-      tap on the shopping list's check/select toggle; and a success tap
-      when onboarding finishes. Deliberately scoped to destructive
-      confirmations plus the few most frequent/satisfying interactions,
-      not sprinkled across every button in the app.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add haptic
+      feedback on key actions (branch: `feature/haptic-feedback`) —
+      merged into `master`. Installed `expo-haptics` and added a small
+      shared wrapper (`src/utils/haptics.ts`, best-effort — a missing tap
+      is never worth surfacing as an error). Wired a warning tap into the
+      shared `confirmDestructiveAction` dialog (covers Reset app, Delete
+      account, remove member, leave household, cancel invite,
+      clear-checked, and bulk-delete in one place) and into the pantry
+      item delete confirm (a separate hand-rolled dialog, not on that
+      shared helper); a light tap on the shopping list's check/select
+      toggle; and a success tap when onboarding finishes. Deliberately
+      scoped to destructive confirmations plus the few most
+      frequent/satisfying interactions, not sprinkled across every button
+      in the app. Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
