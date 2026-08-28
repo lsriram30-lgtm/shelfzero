@@ -43,7 +43,10 @@
       ]
     },
     "extra": {
-      "apiBaseUrl": "https://rs1ilxb2il.c24.airoapp.ai"
+      "apiBaseUrl": "https://rs1ilxb2il.c24.airoapp.ai",
+      "eas": {
+        "projectId": "f003dbc0-9595-4d33-8bb9-f3bee0d1911b"
+      }
     },
     "plugins": [
       "expo-secure-store",
@@ -57,6 +60,7 @@
           "backgroundColor": "#707156"
         }
       ]
-    ]
+    ],
+    "owner": "laasyass-team"
   }
 }
