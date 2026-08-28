@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 60 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 59 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1163,34 +1163,6 @@ pace I just won't be able to work much next week <3
       guard doesn't second-guess an already-confirmed action. Deliberately
       scoped to these two screens for now, not every screen with a
       `TextField`. Typecheck, tests, and an `expo export` bundle all pass.
-- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add on-device
-      OCR to receipt scanning (branch: `feature/receipt-ocr`) — merged
-      into `master`. No photo scan could ever succeed before — the
-      backend is a receipt-line *text* parser, not an image reader. Real
-      OCR (not a cloud API) was the right call over a cloud alternative —
-      free, no new API key/billing to manage, and matches the original
-      scope — but it means the app now has native code
-      (`@react-native-ml-kit/text-recognition`) for the first time, so
-      plain Expo Go can no longer run *any* part of the app; testing now
-      needs a one-time custom dev client build via `eas.json`'s existing
-      `development` profile. Updated both `TASKS.md`'s and `README.md`'s
-      "how to open the app" instructions accordingly. Capture receipt →
-      extract text on-device → send as `{ text }` to `/api/scan`
-      (previously sent the raw photo, which the backend can't read).
-      Also fixed the response mapping — real shape is `{success,
-      itemCount, items: [{id, rawText, name, quantity: string, category,
-      expiresAt, confidence, selected}]}`, not the guessed
-      `NewPantryItem[]`; `quantity` parses to a number (falls back to 1
-      if unparseable), `unit` defaults to `"count"` since the backend
-      doesn't return one at all. Left barcode mode as an honest "not
-      working" notice rather than attempting it — confirmed
-      backend-unsupported regardless of payload shape (see the earlier
-      correction note on the receipt-scanning-reliability task). 6 tests
-      added for the new mapping function, suite at 213. **Not verified
-      end-to-end** — needs an actual dev client build to test on a real
-      device, which can't be done from here; typecheck, tests, and an
-      `expo export` bundle all pass, but none of those catch
-      native-linking issues the way they would for pure-JS work.
 
 ### Not yet assigned
 
@@ -1202,6 +1174,17 @@ this repo.
 #### Claude Code (client-side)
 
 Buildable in this repo with no backend involvement.
+
+- [ ] Add on-device OCR to receipt scanning — see the correction note on
+      the "Improve receipt scanning" task above. Without this, no photo
+      scan can ever succeed against the current backend. Decided 8/16:
+      real OCR (ML Kit) over a cloud API — free, no new API key/billing,
+      matches the original scope — even though it means the app's first
+      native dependency, so plain Expo Go can no longer run any part of
+      the app; testing needs a custom dev client build instead (the
+      `eas.json` `development` profile already exists for this).
+      **Already built on `feature/receipt-ocr`, not yet merged** —
+      holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
 
 #### Human decision needed
 
@@ -1283,26 +1266,16 @@ outside this repo.
 
 ## How to open the app on your phone
 
-**Changed as of 8/16:** plain Expo Go no longer works for this app. Adding real
-on-device OCR (`@react-native-ml-kit/text-recognition`, for receipt scanning)
-means the app now includes native code Expo Go doesn't have built in — this
-affects opening the *whole* app, not just the Scan screen. A one-time custom
-dev client build is needed instead:
+The app runs from a developer's computer while it's being built (this is normal for
+apps still in progress — it's not live in the App Store yet). To open it:
 
-1. Whoever has the project open on their computer runs
-   `npx eas-cli build --profile development` (the `development` profile
-   already exists in `eas.json`) and installs the resulting build on your
-   phone — same as a TestFlight/internal-testing install, not the App Store.
-2. After that, run `npx expo start --dev-client` instead of `npm start`, and
-   open the link from the dev client app installed in step 1, instead of
-   Expo Go.
-3. The dev client only needs to be reinstalled if a *native* dependency
-   changes (rare) — everyday JS/UI changes still just need the dev server
-   restarted, same as before.
+1. Install the **Expo Go** app from the App Store or Google Play.
+2. Ask whoever has the project open on their computer to run `npm start` and share the
+   link it prints (it looks like `exp://something.exp.direct` or `exp://192.168.x.x:8081`).
+3. Open Expo Go, tap **"Enter URL manually"**, and paste that link.
 
-This link changes each time the dev server is restarted, so there's no single
-permanent link to bookmark yet — that only happens once the app is published
-to the app stores.
+This link changes each time the app is restarted, so there's no single permanent link
+to bookmark yet — that only happens once the app is published to the app stores.
 
 ## Beginner glossary
 

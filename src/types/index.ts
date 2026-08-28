@@ -109,21 +109,9 @@ export interface MealPlanResponse {
   days: MealPlanDay[];
 }
 
-export interface ScannedItem {
-  id: string;
-  rawText: string;
-  name: string;
-  quantity: string;
-  category: string;
-  expiresAt: string;
-  confidence: number;
-  selected: boolean;
-}
-
 export interface ScanResult {
-  success: boolean;
-  itemCount: number;
-  items: ScannedItem[];
+  items: NewPantryItem[];
+  raw?: unknown;
 }
 
 export interface OnboardingProfile {
