@@ -1189,7 +1189,12 @@ pace I just won't be able to work much next week <3
       end-to-end** — needs an actual dev client build to test on a real
       device; typecheck, tests, and an `expo export` bundle all pass, but
       none of those catch native-linking issues the way they would for
-      pure-JS work.
+      pure-JS work. Also, while investigating the Expo-Go-vs-dev-client
+      tradeoff for this task, found and fixed several stale claims in
+      README.md's "Known gaps / assumptions" section left over from
+      earlier merged tasks (donate/notification placeholders, missing
+      icon assets, no EAS project linked) — small enough to fold in here
+      rather than its own task.
 
 ### Not yet assigned
 

@@ -58,24 +58,26 @@ Every backend endpoint from the reference doc has a typed wrapper in `src/api/`:
 
 ## Known gaps / assumptions
 
-- **No recipe list/search endpoint exists yet.** The Recipes screen derives
-  suggested recipes by calling `POST /api/meal-plan` with current pantry item
-  names and flattening the returned meals into recipe cards
-  (`src/hooks/useSuggestedRecipes.ts`). Swap this for a real `/api/recipes`
-  call once the backend adds one. Recipe detail data is passed through
-  navigation params rather than re-fetched by ID, since there's no
+- **Recipe suggestions still derive from meal-plan, not a browsable catalog.**
+  The Recipes screen's suggested list calls `POST /api/meal-plan` with
+  current pantry item names and flattens the returned meals into recipe
+  cards (`src/hooks/useSuggestedRecipes.ts`). A real `GET /api/recipes?q=`
+  search endpoint exists and powers the explicit "Search all recipes"
+  action, but there's still no general catalog endpoint to swap the
+  suggestions list onto, and recipe detail data is passed through
+  navigation params rather than re-fetched by ID, since there's still no
   `GET /api/recipes/:id`.
-- **Donate and notification preferences aren't backed by any endpoint** in the
-  reference doc. The Household Hub screen shows a "Coming soon" donate card
-  and local-only (non-persisted) notification toggles as placeholders.
+- **Donations are backed by a real endpoint** (household-scoped
+  `POST`/`GET /api/donations`, `src/api/donations.ts`). Notification
+  preferences (expiry/invite toggles) have no backend endpoint — they're
+  persisted locally per-account via AsyncStorage
+  (`NotificationPreferencesContext`) and gate real local notification
+  scheduling, not just placeholder UI state.
 - **Manual "Add item" flow** (`src/screens/pantry/AddPantryItemScreen.tsx`) is
   fully wired to `POST /api/pantry` — name, category, quantity, unit, expiry
   (with quick shortcuts), and notes.
 - Onboarding profile and theme preference are persisted locally via
   `AsyncStorage` only (no backend endpoint for user profile was provided).
-- App icon/splash image assets are not included — `app.json` omits an `icon`
-  path so `expo start` doesn't fail on a missing file. Add real assets to
-  `assets/` and reference them in `app.json` when you have brand artwork.
 
 ## Deep linking
 
@@ -104,10 +106,9 @@ npm run build:preview      # internal testing build
 npm run build:production   # TestFlight / App Store build
 ```
 
-**Before the first build:** no Expo/EAS project is linked yet — `app.json`
-has no `extra.eas.projectId`. Whoever has (or creates) an Expo account needs
-to run `eas login` then `eas init` once to link this repo to a real EAS
-project; that writes the project ID into `app.json` automatically.
+The EAS project is already linked (`app.json`'s `extra.eas.projectId`, under
+the `laasyass-team` account) — `eas login` with an account that has access
+to that team is all that's needed before building.
 
 ### Distribution method for beta testing
 
