@@ -1207,6 +1207,24 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
+- [ ] Extend the unsaved-changes-warning guard beyond Add/Edit Pantry Item
+      and Edit Profile. `feature/unsaved-changes-warning` deliberately
+      scoped `useUnsavedChangesGuard` to just those two screens, "not
+      every screen with a `TextField`" — Invite, Household Hub's inline
+      add-to-shopping-list field, the onboarding steps, and the auth
+      screens (Sign In/Sign Up/Forgot Password) still have no such guard.
+- [ ] Cover onboarding's embedded account-creation step with "Forgot
+      password?". The password-reset task only added it to the
+      standalone Sign In screen — onboarding's `AccountStep` has no
+      navigator to push a request/reset screen from, so it was
+      deliberately left as a smaller followup rather than restructuring
+      onboarding for it.
+- [ ] Fix the remaining dark-mode contrast edge case on Pantry Stats.
+      The WCAG contrast redesign got every category bar to 3:1 except
+      one: dark mode's secondary-colored bar against its track still
+      measures ~2.15:1, accepted at the time as an honestly-documented
+      exception rather than blocking that task on it.
+
 #### Human decision needed
 
 Not code — needs a person to research, decide, or check something
