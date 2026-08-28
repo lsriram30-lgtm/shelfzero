@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 59 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 60 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1163,6 +1163,33 @@ pace I just won't be able to work much next week <3
       guard doesn't second-guess an already-confirmed action. Deliberately
       scoped to these two screens for now, not every screen with a
       `TextField`. Typecheck, tests, and an `expo export` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add on-device
+      OCR to receipt scanning — code complete on `feature/receipt-ocr`,
+      **not merged into `master`** (see the human-decision task below).
+      No photo scan could ever succeed before — the backend is a
+      receipt-line *text* parser, not an image reader. Real OCR (not a
+      cloud API) was the right call over a cloud alternative — free, no
+      new API key/billing to manage, and matches the original scope —
+      but it means the app would gain native code
+      (`@react-native-ml-kit/text-recognition`) for the first time, so
+      plain Expo Go could no longer run *any* part of the app; testing
+      would need a one-time custom dev client build via `eas.json`'s
+      existing `development` profile. Capture receipt → extract text
+      on-device → send as `{ text }` to `/api/scan` (previously sent the
+      raw photo, which the backend can't read). Also fixed the response
+      mapping — real shape is `{success, itemCount, items: [{id, rawText,
+      name, quantity: string, category, expiresAt, confidence,
+      selected}]}`, not the guessed `NewPantryItem[]`; `quantity` parses
+      to a number (falls back to 1 if unparseable), `unit` defaults to
+      `"count"` since the backend doesn't return one at all. Left barcode
+      mode as an honest "not working" notice rather than attempting it —
+      confirmed backend-unsupported regardless of payload shape (see the
+      earlier correction note on the receipt-scanning-reliability task).
+      6 tests added for the new mapping function. **Not verified
+      end-to-end** — needs an actual dev client build to test on a real
+      device; typecheck, tests, and an `expo export` bundle all pass, but
+      none of those catch native-linking issues the way they would for
+      pure-JS work.
 
 ### Not yet assigned
 
@@ -1175,22 +1202,18 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Add on-device OCR to receipt scanning — see the correction note on
-      the "Improve receipt scanning" task above. Without this, no photo
-      scan can ever succeed against the current backend. Decided 8/16:
-      real OCR (ML Kit) over a cloud API — free, no new API key/billing,
-      matches the original scope — even though it means the app's first
-      native dependency, so plain Expo Go can no longer run any part of
-      the app; testing needs a custom dev client build instead (the
-      `eas.json` `development` profile already exists for this).
-      **Already built on `feature/receipt-ocr`, not yet merged** —
-      holding until that Expo-Go-vs-dev-client tradeoff is confirmed.
-
 #### Human decision needed
 
 Not code — needs a person to research, decide, or check something
 outside this repo.
 
+- [ ] Decide when to merge `feature/receipt-ocr` (on-device OCR for
+      receipt scanning) into `master`. The code is complete — see the
+      completed entry above — but merging trades away Expo Go for the
+      *entire* app in exchange for working receipt scans, and testing it
+      on a physical device needs either a paid Apple Developer Program
+      membership ($99/year, for iOS) or an Android device (no paid
+      account needed there). Merge once that tradeoff is worth making.
 - [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
 - [ ] Prepare actual App Store / Play Store listing assets — screenshots,
       store description, category, age rating, promotional text. Build
