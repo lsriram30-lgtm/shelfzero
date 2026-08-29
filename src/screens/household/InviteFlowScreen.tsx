@@ -9,6 +9,7 @@ import { spacing, typography } from "../../theme";
 import { ContactType } from "../../types";
 import { inviteLink } from "../../utils/inviteLink";
 import { isValidEmail, isValidPhone } from "../../utils/validation";
+import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
 type FlowStep = "choose" | "details" | "sent";
 
@@ -26,6 +27,15 @@ export function InviteFlowScreen() {
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
   const [sentToken, setSentToken] = useState<string | null>(null);
+
+  // Once the invite is sent, there's nothing left to lose - leaving the
+  // "sent" confirmation step shouldn't be second-guessed. ROLES[0] is the
+  // untouched default, so picking a non-default role counts as a change
+  // even before a name is typed, same as the category/unit pattern in
+  // AddPantryItemScreen.
+  const isDirty =
+    step === "details" && (name.trim().length > 0 || contact.trim().length > 0 || role !== ROLES[0]);
+  const allowLeave = useUnsavedChangesGuard(navigation, isDirty);
 
   const needsContact = contactType !== "link";
   const contactFormatValid =
@@ -129,7 +139,14 @@ export function InviteFlowScreen() {
               onPress={handleCopy}
               style={styles.copyButton}
             />
-            <Button label="Done" onPress={() => navigation.goBack()} style={styles.doneButton} />
+            <Button
+              label="Done"
+              onPress={() => {
+                allowLeave();
+                navigation.goBack();
+              }}
+              style={styles.doneButton}
+            />
           </Card>
         ) : null}
       </ScrollView>

@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 60 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 61 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1195,6 +1195,37 @@ pace I just won't be able to work much next week <3
       earlier merged tasks (donate/notification placeholders, missing
       icon assets, no EAS project linked) — small enough to fold in here
       rather than its own task.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Extend the
+      unsaved-changes-warning guard beyond Add/Edit Pantry Item and Edit
+      Profile — code complete on
+      `feature/unsaved-changes-guard-extension`, not yet merged. Added
+      `useUnsavedChangesGuard` to Invite (dirty once a name, contact, or
+      non-default role is entered on the details step; resets once the
+      invite is actually sent, so swiping back from the "Invite sent"
+      confirmation never prompts) and to Sign In, Sign Up, and Forgot
+      Password (dirty once any field has content; Forgot Password stops
+      guarding once the reset email is sent, since its "check your email"
+      view has nothing left to discard). Deliberately skipped two of the
+      four call-outs from the backlog note: Household Hub's inline
+      "add to shopping list" field is a one-line draft submitted
+      immediately by its own Add button/return key, and the surrounding
+      screen has a dozen unrelated reasons to navigate away — wiring the
+      guard there would pop a "Discard changes?" alert on almost any exit
+      from Household Hub over a few characters that are trivial to
+      retype, a worse experience than the gap it would close. The
+      onboarding steps don't fit the hook's design at all: step-to-step
+      movement inside `OnboardingScreen` is local `stepIndex` state, not
+      React Navigation actions, so there's no `beforeRemove` event for
+      the hook to attach to between steps; the fields-with-a-draft steps
+      (name/location through goals/recap) already autosave to
+      AsyncStorage via `onboardingDraftCache.ts` on every change and
+      resume automatically after a restart, so a "Discard changes?"
+      prompt would also be inaccurate on top of unwireable. `AccountStep`
+      (step 0's email/password) isn't covered by that autosave, but it's
+      the sole screen in its branch of the root stack with nothing
+      beneath it to pop back to — hardware back there exits the app
+      rather than firing a `beforeRemove` this hook could intercept.
+      Typecheck, tests, and an `expo export` bundle all pass.
 
 ### Not yet assigned
 
@@ -1207,12 +1238,6 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Extend the unsaved-changes-warning guard beyond Add/Edit Pantry Item
-      and Edit Profile. `feature/unsaved-changes-warning` deliberately
-      scoped `useUnsavedChangesGuard` to just those two screens, "not
-      every screen with a `TextField`" — Invite, Household Hub's inline
-      add-to-shopping-list field, the onboarding steps, and the auth
-      screens (Sign In/Sign Up/Forgot Password) still have no such guard.
 - [ ] Cover onboarding's embedded account-creation step with "Forgot
       password?". The password-reset task only added it to the
       standalone Sign In screen — onboarding's `AccountStep` has no

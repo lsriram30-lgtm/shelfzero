@@ -8,6 +8,7 @@ import { Screen, Header, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { AuthStackParamList } from "../../navigation/types";
 import { isValidEmail } from "../../utils/validation";
+import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
 type SignInNavigationProp = NativeStackNavigationProp<AuthStackParamList, "SignIn">;
 
@@ -20,6 +21,12 @@ export function SignInScreen() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Fields always start empty here, so "any content typed" is dirty. A
+  // successful sign-in swaps the whole navigator (Auth -> Main) rather than
+  // popping this screen, so there's no beforeRemove to bypass on success.
+  const isDirty = email.length > 0 || password.length > 0;
+  useUnsavedChangesGuard(navigation, isDirty);
 
   const emailFormatValid = email.trim().length === 0 || isValidEmail(email);
   const emailError =

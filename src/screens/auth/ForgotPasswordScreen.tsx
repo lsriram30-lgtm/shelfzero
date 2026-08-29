@@ -9,6 +9,7 @@ import { Screen, Header, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { AuthStackParamList } from "../../navigation/types";
 import { isValidEmail } from "../../utils/validation";
+import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
 type ForgotPasswordNavigationProp = NativeStackNavigationProp<AuthStackParamList, "ForgotPassword">;
 
@@ -20,6 +21,13 @@ export function ForgotPasswordScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  // Once the reset link has been sent there's nothing left to lose, so
+  // stop guarding - the "sent" view has no field to discard, and both of
+  // its own navigations are explicit "I'm done here" taps rather than
+  // ones that should be second-guessed.
+  const isDirty = !sent && email.length > 0;
+  useUnsavedChangesGuard(navigation, isDirty);
 
   const emailFormatValid = email.trim().length === 0 || isValidEmail(email);
   const emailError =
