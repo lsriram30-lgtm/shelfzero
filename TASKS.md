@@ -1278,6 +1278,10 @@ pace I just won't be able to work much next week <3
 
 ### Not yet assigned
 
+**Priority key:** ![MVP](https://img.shields.io/badge/MVP-red) must be
+done before the app store submission — ![Later](https://img.shields.io/badge/Later-green)
+can wait until after launch.
+
 #### Backend (Airo only)
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
@@ -1287,46 +1291,57 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Add quick +/- quantity steppers to Pantry list rows, mirroring the
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add quick +/-
+      quantity steppers to Pantry list rows, mirroring the
       shopping list's existing quantity stepper. Right now bumping a
       pantry item's quantity by 1 requires opening the full Edit Item
       screen.
-- [ ] Merge duplicate pantry item names into a quantity bump when adding
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Merge duplicate
+      pantry item names into a quantity bump when adding
       a new item, the same way the shopping list already dedupes
       (`feature/laya-batch5`). Adding "Milk" while "Milk" is already in
       the pantry currently creates a second row instead of bumping the
       existing one.
-- [ ] Add an "undo" after deleting a pantry item, matching the existing
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add an "undo"
+      after deleting a pantry item, matching the existing
       "N items cleared — Undo" pattern already used on the shopping
       list (clear-checked and bulk-delete). Pantry delete currently has
       a confirm dialog but no way to recover from an accidental delete.
-- [ ] Add a single "Clear filters" action to the Recipes screen for when
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a single
+      "Clear filters" action to the Recipes screen for when
       both the meal-type and cuisine filter rows have an active
       selection, instead of deselecting each pill individually.
-- [ ] Show a real last-synced timestamp on the pantry/dashboard
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Show a real
+      last-synced timestamp on the pantry/dashboard
       offline-cache banner ("Showing last synced data"). It's currently
       a static message with no indication of how stale the cached data
       actually is.
-- [ ] Audit the screens added after the original loading/empty/error-state
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Audit the
+      screens added after the original loading/empty/error-state
       pass (Donation History, Meal Plan History) for the same
       treatment. Donation History currently only has a pull-to-refresh
       spinner — no distinct initial-load or error state.
-- [ ] Add a "share pantry list" action, mirroring the shopping list's
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a "share
+      pantry list" action, mirroring the shopping list's
       existing native-share-sheet action, so the full pantry can be
       sent as plain text the same way the shopping list already can.
-- [ ] Remember the last-used sort/filter choice on Pantry
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Remember the
+      last-used sort/filter choice on Pantry
       (category vs. expiry-date sort) and Recipes (meal-type/cuisine
       filters) across app restarts instead of resetting to the default
       every time the screen mounts.
-- [ ] Add swipe-to-delete (or swipe-to-edit) gesture on Pantry and
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add
+      swipe-to-delete (or swipe-to-edit) gesture on Pantry and
       Shopping List rows as a faster alternative to opening Edit or
       tapping the trash icon for every removal.
-- [ ] Add a shortcut from the Dashboard's expiring-items card straight
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a shortcut
+      from the Dashboard's expiring-items card straight
       into Donate, prefilled with those items, instead of requiring a
       user to re-pick the same expiring items from scratch on the
       Donate screen. Ties directly to the app's stated purpose (less
       food thrown out).
-- [ ] Set the iOS export-compliance flag (`ios.infoPlist.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Set the iOS
+      export-compliance flag (`ios.infoPlist.
       ITSAppUsesNonExemptEncryption: false` in `app.json`). Standard for
       an app that only uses HTTPS with no custom encryption, but nothing
       sets it today — without it, App Store Connect stops on a manual
@@ -1337,31 +1352,42 @@ Buildable in this repo with no backend involvement.
 Not code — needs a person to research, decide, or check something
 outside this repo.
 
-- [ ] Decide when to merge `feature/receipt-ocr` (on-device OCR for
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Decide when to
+      merge `feature/receipt-ocr` (on-device OCR for
       receipt scanning) into `master`. The code is complete — see the
       completed entry above — but merging trades away Expo Go for the
       *entire* app in exchange for working receipt scans, and testing it
       on a physical device needs either a paid Apple Developer Program
       membership ($99/year, for iOS) or an Android device (no paid
       account needed there). Merge once that tradeoff is worth making.
-- [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
-- [ ] Prepare actual App Store / Play Store listing assets — screenshots,
+      Not launch-blocking as-is: the Scan screen already shows an
+      honest "not working yet" notice instead of a silent failure.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Pick a real web
+      domain for shareable invite links (currently a placeholder one)
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Prepare actual App
+      Store / Play Store listing assets — screenshots,
       store description, category, age rating, promotional text. Build
       profiles and the account-deletion requirement are handled, but
       none of the actual listing content exists yet — this is a
       separate step from having a build that's technically submittable.
-- [ ] Set up a real support channel/contact (email or URL). Apple
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Set up a real support
+      channel/contact (email or URL). Apple
       requires one for the App Store listing; nothing like this exists
       yet — right now there's no way for a real user to reach anyone if
       something breaks.
-- [ ] Identify a real donation partner (food bank, nonprofit, etc.) to
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Identify a real
+      donation partner (food bank, nonprofit, etc.) to
       actually integrate with. Airo confirmed on 8/14 that donation
       records are now real and persisted, but partner selection is still
       just a label with no real handoff behind it — nothing gets
       notified, nothing gets fulfilled. Needs a real organization/API
-      identified before there's anything to integrate against.
-- [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Meal-plan generation (and recipe search, same root cause) is still
+      identified before there's anything to integrate against. Already
+      honestly disclosed in-app as a label-only choice, so not a
+      submission blocker on its own.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Test the full app on
+      an actual Android phone and an actual iPhone
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
+      (and recipe search, same root cause) is still
       too slow to work at all — needs GoDaddy Support, not Airo. Affects
       both "Generate 7-day plan" and "regenerate one day," since both
       hit the same endpoint. Confirmed via direct API testing on 8/16
@@ -1383,19 +1409,22 @@ outside this repo.
       re-verify both meal-plan generation and recipe search end to end,
       and confirm the meal-plan shopping-gap and cuisine-filter tasks
       (both depend on real generated output) actually work too.
-- [ ] Live-test household invitations end-to-end: invite someone, have
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Live-test household
+      invitations end-to-end: invite someone, have
       them accept, then remove them from Profile's "Household members"
       list. Still not directly tested — confirms/fixes the unverified
       assumption on the remove-member task above (does the accepted
       invite's `id` double as the member id `DELETE
       /api/household/members/:id` expects).
-- [ ] Live-test the donation backend with a second household member:
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test the
+      donation backend with a second household member:
       the endpoint itself is confirmed live and working (`GET
       /api/donations` returned a real empty list for a fresh test
       household on 8/16), but cross-member visibility (does a second
       household member actually see a donation the first one recorded)
       is still unconfirmed.
-- [ ] Finish the privacy policy — fill in the two placeholders left in
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Finish the privacy
+      policy — fill in the two placeholders left in
       the draft (launch date, contact email), give it a final accuracy
       check right before actually publishing since the app will keep
       changing between now and then, and host it at a real, permanent
@@ -1407,40 +1436,49 @@ outside this repo.
       submission. GitHub Pages was tried and isn't available on the
       current plan (repo is private); would need either a public repo, a
       paid GitHub plan, or a different static host.
-- [ ] **Needs both Laasya and Laya:** decide whether GoDaddy's Airo AI
+- [ ] ![Later](https://img.shields.io/badge/Later-green) **Needs both
+      Laasya and Laya:** decide whether GoDaddy's Airo AI
       Builder is meant to be the permanent backend, or a bridge to
       something else once the app grows. It's been treated as
       production infrastructure all along — real accounts, real user
       data — but it's an AI-assisted builder tool, not a dedicated
       production backend service. Worth a deliberate joint decision
-      rather than just continuing on it by default.
-- [ ] Enroll in the Apple Developer Program ($99/year) and create a
+      rather than just continuing on it by default. Not launch-blocking
+      on its own — today's setup can carry an initial submission either
+      way.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Enroll in the Apple
+      Developer Program ($99/year) and create a
       Google Play Developer account ($25 one-time). Referenced in
       README's distribution steps but never tracked as its own task —
       nothing can actually be submitted to either store until both
       exist, and both need a real person's payment info.
-- [ ] Decide whether to keep `ios.supportsTablet: true` in `app.json`.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Decide whether to
+      keep `ios.supportsTablet: true` in `app.json`.
       As long as it's `true`, App Store Connect requires iPad
       screenshots and signals iPad support to reviewers, but the app
       has no iPad-specific layout testing done. Either turn it off (the
       simpler option, since this is a phone-first app) or budget real
       time for iPad screenshots and a layout check.
-- [ ] Complete Apple's "App Privacy" questionnaire (App Store Connect)
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Complete Apple's
+      "App Privacy" questionnaire (App Store Connect)
       and Google Play's "Data safety" section (Play Console) before
       submission. Distinct from having a written Privacy Policy — each
       store requires its own in-console declaration of exactly what
       data is collected and why, and Apple/Google check it against the
       app's actual observed behavior, not just the policy text.
-- [ ] Provide reviewer/demo account credentials in App Store Connect's
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Provide reviewer/demo
+      account credentials in App Store Connect's
       "App Review Information" and Google Play's "App access" section.
       Every screen in the app requires sign-in; without a working demo
       login on file, reviewers can't get past the sign-in screen at
       all — a common cause of rejection (Apple Guideline 2.1).
-- [ ] Actually configure `eas submit` credentials for both stores (an
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Actually configure
+      `eas submit` credentials for both stores (an
       App Store Connect API key for Apple, a service account JSON key
       for Google) and do a real first submission. Currently only
       documented as a step in `README.md`, not yet done.
-- [ ] Check whether the Terms of Service (hosted the same way as the
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Check whether the
+      Terms of Service (hosted the same way as the
       Privacy Policy, as a Claude Artifact) has the same "Content is
       user-generated and unverified" banner problem noted above for the
       Privacy Policy — if so it needs the same real, permanent host
