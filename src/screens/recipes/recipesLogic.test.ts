@@ -3,6 +3,7 @@ import {
   filterByCuisine,
   filterByMealType,
   filterByTitle,
+  hasActiveRecipeFilters,
   sortByMatchScore,
   uniqueCuisines,
   uniqueMealTypes,
@@ -211,5 +212,23 @@ describe("filterByTitle", () => {
 
   it("returns an empty array when nothing matches", () => {
     expect(filterByTitle(recipes, "pizza")).toEqual([]);
+  });
+});
+
+describe("hasActiveRecipeFilters", () => {
+  it("is false when neither filter is active", () => {
+    expect(hasActiveRecipeFilters(null, null)).toBe(false);
+  });
+
+  it("is true when only the meal-type filter is active", () => {
+    expect(hasActiveRecipeFilters("Breakfast", null)).toBe(true);
+  });
+
+  it("is true when only the cuisine filter is active", () => {
+    expect(hasActiveRecipeFilters(null, "Thai")).toBe(true);
+  });
+
+  it("is true when both filters are active", () => {
+    expect(hasActiveRecipeFilters("Breakfast", "Thai")).toBe(true);
   });
 });
