@@ -1377,6 +1377,13 @@ outside this repo.
       profiles and the account-deletion requirement are handled, but
       none of the actual listing content exists yet — this is a
       separate step from having a build that's technically submittable.
+      **In progress:** drafted app name/subtitle options, promotional
+      text, full description, keywords, category recommendation, and
+      age-rating reasoning in `STORE_LISTING.md` — deliberately leaves
+      out receipt/barcode scanning since it doesn't work yet. Needs
+      Laasya + Laya to review/finalize the copy and actually take the
+      screenshots (needs a phone with Expo Go, not something buildable
+      from this repo) before this is submittable.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Set up a real support
       channel/contact (email or URL). Apple
       requires one for the App Store listing; nothing like this exists
