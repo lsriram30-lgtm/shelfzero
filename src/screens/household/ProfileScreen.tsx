@@ -12,6 +12,7 @@ import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { PRIVACY_POLICY_URL } from "../../utils/privacyPolicy";
 import { TERMS_OF_SERVICE_URL } from "../../utils/termsOfService";
+import { SUPPORT_EMAIL_URL } from "../../utils/supportContact";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { householdApi } from "../../api/household";
 
@@ -264,6 +265,12 @@ export function ProfileScreen() {
           label="Terms of Service"
           variant="ghost"
           onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)}
+          style={styles.signOutButton}
+        />
+        <Button
+          label="Contact support"
+          variant="ghost"
+          onPress={() => Linking.openURL(SUPPORT_EMAIL_URL)}
           style={styles.signOutButton}
         />
         <Button label="Sign out" variant="neutral" onPress={signOut} style={styles.signOutButton} />

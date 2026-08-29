@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 51 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 52 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1289,6 +1289,14 @@ pace I just won't be able to work much next week <3
       would have required App Store Connect iPad screenshots and
       signaled iPad support to reviewers for a layout that was never
       actually verified there.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Set up a real
+      support channel/contact — committed directly to
+      `master`. Decided on a dedicated email (`shelfzero.2026@gmail.com`)
+      over a personal address or a hosted support page. Added a "Contact
+      support" link on Profile next to Privacy Policy/Terms of Service
+      (`src/utils/supportContact.ts`, opens a `mailto:` link), and this
+      is now the real address to enter as the App Store/Play Store
+      listing's support contact once that task is picked back up.
 
 ### Not yet assigned
 
@@ -1384,11 +1392,6 @@ outside this repo.
       Laasya + Laya to review/finalize the copy and actually take the
       screenshots (needs a phone with Expo Go, not something buildable
       from this repo) before this is submittable.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Set up a real support
-      channel/contact (email or URL). Apple
-      requires one for the App Store listing; nothing like this exists
-      yet — right now there's no way for a real user to reach anyone if
-      something breaks.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Identify a real
       donation partner (food bank, nonprofit, etc.) to
       actually integrate with. Airo confirmed on 8/14 that donation
