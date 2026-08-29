@@ -36,8 +36,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 63 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 51 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1282,6 +1282,13 @@ pace I just won't be able to work much next week <3
       custom encryption. Without it, App Store Connect would otherwise
       stop on a manual encryption questionnaire for every single build
       submission.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Decide against
+      iPad support — committed directly to `master`. Set
+      `ios.supportsTablet: false` in `app.json`. This is a phone-first
+      app with no iPad-specific layout testing, and keeping it `true`
+      would have required App Store Connect iPad screenshots and
+      signaled iPad support to reviewers for a layout that was never
+      actually verified there.
 
 ### Not yet assigned
 
@@ -1384,8 +1391,6 @@ outside this repo.
       identified before there's anything to integrate against. Already
       honestly disclosed in-app as a label-only choice, so not a
       submission blocker on its own.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Test the full app on
-      an actual Android phone and an actual iPhone
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
       (and recipe search, same root cause) is still
       too slow to work at all — needs GoDaddy Support, not Airo. Affects
@@ -1452,13 +1457,6 @@ outside this repo.
       README's distribution steps but never tracked as its own task —
       nothing can actually be submitted to either store until both
       exist, and both need a real person's payment info.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Decide whether to
-      keep `ios.supportsTablet: true` in `app.json`.
-      As long as it's `true`, App Store Connect requires iPad
-      screenshots and signals iPad support to reviewers, but the app
-      has no iPad-specific layout testing done. Either turn it off (the
-      simpler option, since this is a phone-first app) or budget real
-      time for iPad screenshots and a layout check.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Complete Apple's
       "App Privacy" questionnaire (App Store Connect)
       and Google Play's "Data safety" section (Play Console) before
