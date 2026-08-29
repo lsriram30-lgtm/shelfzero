@@ -114,6 +114,72 @@ Expected result: **4+ (Apple) / Everyone (Google Play)**. The actual rating
 is computed by each store's questionnaire, not chosen directly — these are
 just the honest answers to give it.
 
+## Reviewer / demo account
+
+For App Store Connect's "App Review Information" and Google Play's "App
+access" section — every screen in the app requires sign-in, so reviewers
+need working credentials on file or they can't get past the sign-in screen
+(a common cause of rejection under Apple Guideline 2.1).
+
+```
+Email:    shelfzero.2026+demo@gmail.com
+Password: ShelfZeroDemo2026!
+```
+
+This is a real account on the live backend (Gmail's `+demo` alias routes to
+the same real support inbox, so it's still ours if anything ever emails it),
+pre-loaded so a reviewer sees a working app immediately instead of an empty
+one:
+
+- **Pantry:** 8 items across Dairy/Meat/Produce/Bakery/Pantry categories,
+  with expiry dates spread from 2 days out to 17 days out (so the health
+  score, expiry badges, and "expiring soon" Dashboard card all have real
+  data to show)
+- **Shopping list:** 3 unchecked items (Paper towels, Olive oil, Greek yogurt)
+- **Donation history:** 1 past donation, so the "View history" link isn't empty
+- **Household:** the demo account owns its own household (role: owner), so
+  member-management UI is also reachable
+
+Deliberately **not** pre-generated: a meal plan. Generation is a real
+`POST /api/meal-plan` call to a slow, occasionally rate-limited AI backend
+(see the "Meal-plan generation... too slow" backlog item) — safer to let a
+reviewer trigger "Generate 7-day plan" live against the already-populated
+pantry than to depend on that call succeeding ahead of time.
+
+If this account needs to be recreated later (e.g. after more testing
+churns its data), the same seeding can be redone directly against the
+live API — ask and it can be repeated in a couple of minutes.
+
+## App Privacy (Apple) / Data Safety (Google Play) answers
+
+Neither console can be filled in from this repo — these are the answers to
+give when one of you is logged into App Store Connect / Play Console,
+based on what the app actually collects (see the Privacy Policy for the
+full explanation of each):
+
+| Data type | Collected? | Linked to identity? | Used for | Shared with third parties? |
+|---|---|---|---|---|
+| Name | Yes | Yes | Account functionality | No |
+| Email address | Yes | Yes | Account functionality, sign-in | No |
+| Password | Yes | Yes | Account functionality (never stored in plain text) | No |
+| Pantry/shopping list/meal-plan/donation content | Yes | Yes (household-scoped) | App functionality | Item names + stated preferences sent to Google Gemini to generate meal plans/recipes — no name, email, or password included |
+| Household invite contact (email/phone) | Yes | Yes | App functionality (inviting someone) | No |
+| Photos/camera | Only if the scan feature is used | No | App functionality (not fully working yet — see backlog) | No |
+| Precise/approximate location | No | — | — | — |
+| Contacts | No | — | — | — |
+| Analytics/usage data | No | — | — | — |
+| Advertising data | No | — | — | — |
+| Crash data/diagnostics | No | — | — | — |
+| Financial info | No | — | — | — |
+
+Additional answers both consoles ask for directly:
+
+- **Is data encrypted in transit?** Yes (HTTPS only)
+- **Can users request data deletion?** Yes — in-app, Profile &gt; Delete account, or by contacting `shelfzero.2026@gmail.com`
+- **Is any data sold to third parties?** No
+- **Is any data used for advertising/tracking?** No — no ad network, no analytics SDK, no advertising identifiers anywhere in the app
+- **Third-party data processors:** GoDaddy's Airo AI Builder (backend hosting), Google Gemini (meal-plan/recipe generation only — pantry item names and stated preferences, no personal identifiers)
+
 ---
 
 ## Screenshots — needs a phone, not code
@@ -121,11 +187,12 @@ just the honest answers to give it.
 Since `ios.supportsTablet` is now `false`, no iPad screenshots are needed —
 just phone-size shots for both stores.
 
-**How to capture them right now:** the Expo dev server is already running.
-Open Expo Go on a phone → "Enter URL manually" → paste the link from this
-session (`exp://192.168.12.225:8081`, same Wi-Fi network as this computer).
-Take screenshots the normal way on each phone (iPhone: side button + volume
-up; Android: power + volume down).
+**How to capture them:** run `npm start` from the repo root, then open Expo
+Go on a phone → "Enter URL manually" → paste the printed link (same Wi-Fi
+network as the computer running it; ask for a fresh one if a previous
+session's link has gone stale). Sign in with the demo account above so
+there's real data to screenshot. Take screenshots the normal way on each
+phone (iPhone: side button + volume up; Android: power + volume down).
 
 **Store size requirements:**
 - **Apple:** needs the largest current iPhone size (e.g. iPhone 16 Pro Max,

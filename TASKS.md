@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 54 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 55 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1337,6 +1337,20 @@ pace I just won't be able to work much next week <3
       Artifact page's share menu so they're actually publicly viewable
       (they're private by default), and eventually move them to a real
       domain — see the updated task below.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Created and seeded
+      a reviewer/demo account for App Review. A real
+      account on the live backend (`shelfzero.2026+demo@gmail.com`,
+      password in `STORE_LISTING.md`), pre-loaded with 8 pantry items
+      (expiry dates spread from 2 to 17 days out so the health score and
+      "expiring soon" card have real data), 3 shopping list items, and 1
+      donation history entry, so a reviewer sees a working app instead
+      of an empty one. Deliberately didn't pre-generate a meal plan,
+      since that's a real call to a slow, occasionally rate-limited AI
+      backend (see the meal-plan-timeout task below) — safer to let a
+      reviewer trigger it live against the already-populated pantry.
+      Credentials documented in `STORE_LISTING.md` for pasting into App
+      Store Connect's "App Review Information" and Google Play's "App
+      access" section.
 
 ### Not yet assigned
 
@@ -1510,12 +1524,10 @@ outside this repo.
       store requires its own in-console declaration of exactly what
       data is collected and why, and Apple/Google check it against the
       app's actual observed behavior, not just the policy text.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Provide reviewer/demo
-      account credentials in App Store Connect's
-      "App Review Information" and Google Play's "App access" section.
-      Every screen in the app requires sign-in; without a working demo
-      login on file, reviewers can't get past the sign-in screen at
-      all — a common cause of rejection (Apple Guideline 2.1).
+      **In progress:** drafted the actual answers (data-type table +
+      encryption/deletion/tracking/third-party-processor answers) in
+      `STORE_LISTING.md` — copy-paste ready, just needs someone logged
+      into each console to actually enter them.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Actually configure
       `eas submit` credentials for both stores (an
       App Store Connect API key for Apple, a service account JSON key
