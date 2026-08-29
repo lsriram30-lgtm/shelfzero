@@ -9,6 +9,7 @@ import { Screen, Header, Button, TextField } from "../../components";
 import { spacing, typography } from "../../theme";
 import { AuthStackParamList } from "../../navigation/types";
 import { isValidEmail } from "../../utils/validation";
+import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
 type SignUpNavigationProp = NativeStackNavigationProp<AuthStackParamList, "SignUp">;
 
@@ -24,6 +25,14 @@ export function SignUpScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accountExists, setAccountExists] = useState(false);
+
+  // Fields always start empty here, so "any content typed" is dirty. A
+  // successful sign-up swaps the whole navigator (Auth -> Main/Onboarding)
+  // rather than popping this screen, so there's no beforeRemove to bypass
+  // on success.
+  const isDirty =
+    name.length > 0 || email.length > 0 || password.length > 0 || confirmPassword.length > 0;
+  useUnsavedChangesGuard(navigation, isDirty);
 
   const passwordsMatch = confirmPassword.length === 0 || confirmPassword === password;
   const emailFormatValid = email.trim().length === 0 || isValidEmail(email);
