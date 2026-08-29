@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 53 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 54 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1316,6 +1316,27 @@ pace I just won't be able to work much next week <3
       explaining the list only reflects pending invites, not who's
       actually joined — see the new backend task below, since this
       isn't fixable from this repo.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Finished the
+      Privacy Policy and Terms of Service drafts —
+      republished both as new Claude Artifacts. The prior artifacts were
+      created under a different Claude session with no ownership
+      overlap here, so neither could be read or edited from this repo's
+      session (confirmed: `WebFetch` on the old URL and the `Artifact`
+      list both came back empty for this session's identity). Rewrote
+      both from scratch grounded in the app's actual current behavior
+      rather than trying to recover the old text: filled in the contact
+      email (`shelfzero.2026@gmail.com`) and replaced the undecided
+      "launch date" placeholder with a real "last updated" date instead;
+      corrected stale claims along the way (donation history is real,
+      shared, backend-stored data now, not local-only; recipe search,
+      forgot-password, and account deletion are all real and shipped).
+      Visually matches the app's actual theme (DM Sans, the real
+      light/dark color tokens from `src/theme/colors.ts`) instead of a
+      generic template. `PRIVACY_POLICY_URL`/`TERMS_OF_SERVICE_URL`
+      updated to the new URLs. **Still needed:** share both from the
+      Artifact page's share menu so they're actually publicly viewable
+      (they're private by default), and eventually move them to a real
+      domain — see the updated task below.
 
 ### Not yet assigned
 
@@ -1466,19 +1487,6 @@ outside this repo.
       household on 8/16), but cross-member visibility (does a second
       household member actually see a donation the first one recorded)
       is still unconfirmed.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Finish the privacy
-      policy — fill in the two placeholders left in
-      the draft (launch date, contact email), give it a final accuracy
-      check right before actually publishing since the app will keep
-      changing between now and then, and host it at a real, permanent
-      URL once the web domain exists, updating `PRIVACY_POLICY_URL` to
-      point there. One more reason this matters: the shared Claude
-      Artifact shows a "Content is user-generated and unverified" banner,
-      which undercuts credibility for what's supposed to be the app's
-      official, binding policy — fine for testing, not for an actual
-      submission. GitHub Pages was tried and isn't available on the
-      current plan (repo is private); would need either a public repo, a
-      paid GitHub plan, or a different static host.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) **Needs both
       Laasya and Laya:** decide whether GoDaddy's Airo AI
       Builder is meant to be the permanent backend, or a bridge to
@@ -1513,12 +1521,16 @@ outside this repo.
       App Store Connect API key for Apple, a service account JSON key
       for Google) and do a real first submission. Currently only
       documented as a step in `README.md`, not yet done.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Check whether the
-      Terms of Service (hosted the same way as the
-      Privacy Policy, as a Claude Artifact) has the same "Content is
-      user-generated and unverified" banner problem noted above for the
-      Privacy Policy — if so it needs the same real, permanent host
-      before submission, not just the Privacy Policy.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Host the Privacy
+      Policy and Terms of Service at a real, permanent
+      URL once the web domain exists (both currently republished as
+      Claude Artifacts — see the completed entry above — which are
+      private until manually shared, and may still show a "Content is
+      user-generated and unverified" banner to a public viewer even once
+      shared). GitHub Pages was tried and isn't available on the current
+      plan (repo is private); would need either a public repo, a paid
+      GitHub plan, or a different static host. Update
+      `PRIVACY_POLICY_URL`/`TERMS_OF_SERVICE_URL` once that exists.
 
 ---
 
