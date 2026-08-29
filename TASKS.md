@@ -1275,6 +1275,13 @@ pace I just won't be able to work much next week <3
       and added a passing dark-mode track-contrast assertion in its place.
       Typecheck, all 231 Jest tests, and an `expo export --platform ios`
       bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Set the iOS
+      export-compliance flag — committed directly to `master`. Added
+      `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` to
+      `app.json`, standard for an app that only uses HTTPS with no
+      custom encryption. Without it, App Store Connect would otherwise
+      stop on a manual encryption questionnaire for every single build
+      submission.
 
 ### Not yet assigned
 
@@ -1326,12 +1333,6 @@ Buildable in this repo with no backend involvement.
       user to re-pick the same expiring items from scratch on the
       Donate screen. Ties directly to the app's stated purpose (less
       food thrown out).
-- [ ] Set the iOS export-compliance flag (`ios.infoPlist.
-      ITSAppUsesNonExemptEncryption: false` in `app.json`). Standard for
-      an app that only uses HTTPS with no custom encryption, but nothing
-      sets it today — without it, App Store Connect stops on a manual
-      encryption questionnaire for every single build submission.
-
 #### Human decision needed
 
 Not code — needs a person to research, decide, or check something
