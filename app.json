@@ -14,7 +14,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.shelfzero.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "ShelfZero uses your camera to scan receipts and barcodes so items can be added to your pantry automatically."
+        "NSCameraUsageDescription": "ShelfZero uses your camera to scan receipts and barcodes so items can be added to your pantry automatically.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
