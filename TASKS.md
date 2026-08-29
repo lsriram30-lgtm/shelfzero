@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 62 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 63 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -1251,6 +1251,30 @@ pace I just won't be able to work much next week <3
       testable per repo convention), with 12 new tests covering all three
       modes. Typecheck, all 239 tests, and a real
       `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
+      remaining dark-mode contrast edge case on Pantry Stats — code
+      complete on `feature/pantry-stats-dark-contrast-fix`, not yet
+      merged into `master`. Dark mode's secondary-colored category bar
+      previously read at only ~2.15:1 against its track, since the track
+      reused `colors.textMuted` — a color that's also used as body text
+      in 30+ other places and couldn't just be darkened without affecting
+      those. Added a dedicated `statBarTrack` token to both `lightColors`
+      (`#8A8478`, same value `textMuted` already had, so light mode is
+      unchanged) and `darkColors` (`#918C82`, a new value chosen so its
+      luminance sits between the dark (`#3F3A35`) and light (`#FFFAF2`)
+      border tones the bars' fills pick between — verified numerically
+      with a throwaway Node script against the existing
+      `contrastRatio`/`relativeLuminance` utilities, not eyeballed).
+      `PantryStatsScreen`'s `CategoryBar` now reads `colors.statBarTrack`
+      for the track background instead of `colors.textMuted`. All four
+      dark-mode bars now clear 3:1 against the track: primary/accent/
+      highlight (dark-text border) at ~3.36:1 each, secondary (light-text
+      border) at ~3.22:1 — no exceptions left, versus the old ~5.03:1 /
+      ~2.15:1 split where one of the four failed. Updated
+      `contrast.test.ts`'s previously-documented "known exception" comment
+      and added a passing dark-mode track-contrast assertion in its place.
+      Typecheck, all 231 Jest tests, and an `expo export --platform ios`
+      bundle all pass.
 
 ### Not yet assigned
 
@@ -1263,11 +1287,6 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Fix the remaining dark-mode contrast edge case on Pantry Stats.
-      The WCAG contrast redesign got every category bar to 3:1 except
-      one: dark mode's secondary-colored bar against its track still
-      measures ~2.15:1, accepted at the time as an honestly-documented
-      exception rather than blocking that task on it.
 - [ ] Add quick +/- quantity steppers to Pantry list rows, mirroring the
       shopping list's existing quantity stepper. Right now bumping a
       pantry item's quantity by 1 requires opening the full Edit Item
