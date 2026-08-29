@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 60 / 60 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 61 / 60 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 60 |
 
 **Goal:** 60 tasks each (total) by end of day 8/29.
@@ -769,7 +769,9 @@ pace I just won't be able to work much next week <3
       Doesn't yet cover the "sign in" step of onboarding's embedded
       AccountStep (only the standalone Sign In screen) — that flow has no
       navigator to push a screen from, so it's left as a smaller followup
-      rather than restructuring onboarding for it. Typecheck, all 186
+      rather than restructuring onboarding for it. (Since covered — see
+      the `feature/onboarding-forgot-password` entry further down.)
+      Typecheck, all 186
       tests, and a real `expo export --platform ios` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Build
       remove-member / leave-household UI (branch:
@@ -1195,6 +1197,29 @@ pace I just won't be able to work much next week <3
       earlier merged tasks (donate/notification placeholders, missing
       icon assets, no EAS project linked) — small enough to fold in here
       rather than its own task.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Cover
+      onboarding's embedded account-creation step with "Forgot password?"
+      — code complete on `feature/onboarding-forgot-password`, **not
+      merged into `master`** (no merge confirmation requested for this
+      task). Onboarding's `AccountStep` has no navigator to push the
+      standalone `ForgotPasswordScreen` onto, so instead of restructuring
+      onboarding around a stack, added a third in-place mode ("reset") to
+      the step itself: a "Forgot password?" link shown in sign-in mode
+      swaps the step's fields for just an email field and a "Send reset
+      link" button, reusing the exact same `authApi.requestPasswordReset`
+      call and `reset-password` deep link
+      (`Linking.createURL("reset-password")`) that `ForgotPasswordScreen`
+      uses, then shows the same generic "check your email" confirmation
+      regardless of whether the address has an account. Didn't need to
+      touch the reset-password half at all — `ResetPasswordScreen` is
+      already mounted at the root navigator regardless of onboarding
+      state, so the emailed link resolves correctly no matter where the
+      request came from. Extracted the mode-dependent
+      title/subtitle/button-label/can-submit logic into a new sibling
+      `accountStepLogic.ts` (the screen file itself isn't directly
+      testable per repo convention), with 12 new tests covering all three
+      modes. Typecheck, all 239 tests, and a real
+      `expo export --platform ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -1213,12 +1238,6 @@ Buildable in this repo with no backend involvement.
       every screen with a `TextField`" — Invite, Household Hub's inline
       add-to-shopping-list field, the onboarding steps, and the auth
       screens (Sign In/Sign Up/Forgot Password) still have no such guard.
-- [ ] Cover onboarding's embedded account-creation step with "Forgot
-      password?". The password-reset task only added it to the
-      standalone Sign In screen — onboarding's `AccountStep` has no
-      navigator to push a request/reset screen from, so it was
-      deliberately left as a smaller followup rather than restructuring
-      onboarding for it.
 - [ ] Fix the remaining dark-mode contrast edge case on Pantry Stats.
       The WCAG contrast redesign got every category bar to 3:1 except
       one: dark mode's secondary-colored bar against its track still
