@@ -49,7 +49,7 @@ function CategoryBar({
       accessibilityLabel={`View ${category} items in Pantry`}
     >
       <Text style={[styles.barLabel, { color: colors.text }]}>{category}</Text>
-      <View style={[styles.barTrack, { backgroundColor: colors.textMuted }]}>
+      <View style={[styles.barTrack, { backgroundColor: colors.statBarTrack }]}>
         <View
           style={[
             styles.barFill,

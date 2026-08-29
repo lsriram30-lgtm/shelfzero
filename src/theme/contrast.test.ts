@@ -72,8 +72,8 @@ describe("Pantry Stats category bars — bordered-fill contrast fix", () => {
   // whichever of dark/light text reads best against *that* fill
   // (readableTextColor, same utility used elsewhere), which is guaranteed
   // to separate the fill from its surroundings regardless of the fill's own
-  // lightness, plus darkening the track itself (border -> textMuted) for a
-  // better baseline. This is WCAG 1.4.11 non-text contrast (3:1), not the
+  // lightness, plus using a dedicated track color (colors.statBarTrack) for
+  // a better baseline. This is WCAG 1.4.11 non-text contrast (3:1), not the
   // 4.5:1 text threshold.
   const barPaletteFor = (c: typeof lightColors) => [c.primary, c.accent, c.highlight, c.secondary];
 
@@ -91,14 +91,23 @@ describe("Pantry Stats category bars — bordered-fill contrast fix", () => {
 
   it("every fill's border clears 3:1 against the track, light mode", () => {
     for (const fill of barPaletteFor(lightColors)) {
-      expect(contrastRatio(readableTextColor(fill), lightColors.textMuted)).toBeGreaterThanOrEqual(3);
+      expect(contrastRatio(readableTextColor(fill), lightColors.statBarTrack)).toBeGreaterThanOrEqual(3);
     }
   });
 
-  // Dark mode's secondary-colored bar is the one case that doesn't fully
-  // clear 3:1 against the track (~2.15:1) - its border picks light text
-  // (best available against that fill), which is close in lightness to the
-  // dark-mode track. Still a real improvement over the original 1.07-2.68:1
-  // range across the board, and the border-vs-fill contrast (which is what
-  // actually marks the filled boundary) does clear 3:1 in every case above.
+  // Dark mode originally reused colors.textMuted as the track color, which
+  // left the secondary fill's border (light text — the better choice
+  // against that fill) at only ~2.15:1 against the track, since textMuted
+  // is close in lightness to the light text tone. textMuted itself can't
+  // just be darkened, since it's also used as body text elsewhere with its
+  // own contrast requirements against backgrounds/surfaces. Fixed with a
+  // dedicated darkColors.statBarTrack (#918C82), chosen so its luminance
+  // sits between the dark (#3F3A35) and light (#FFFAF2) border tones —
+  // close enough to each that both clear 3:1 against it. Now all four
+  // dark-mode bars clear 3:1 against the track, with no exceptions left.
+  it("every fill's border clears 3:1 against the track, dark mode", () => {
+    for (const fill of barPaletteFor(darkColors)) {
+      expect(contrastRatio(readableTextColor(fill), darkColors.statBarTrack)).toBeGreaterThanOrEqual(3);
+    }
+  });
 });
