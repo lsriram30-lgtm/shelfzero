@@ -38,6 +38,10 @@ export function ProfileScreen() {
       .catch(() => {});
   }, []);
 
+  // Confirmed live (see TASKS.md): GET /api/invites never actually returns
+  // an invite once it's accepted, so this is always empty in practice, not
+  // just when there really are no members yet. Left as-is (rather than
+  // removed) since the backend gap is the real blocker, not this logic.
   const members = invites.filter((invite) => invite.status === "accepted");
 
   const handleResetForTesting = () => {
@@ -210,7 +214,11 @@ export function ProfileScreen() {
           />
           {members.length === 0 ? (
             <Text style={[styles.detailMuted, { color: colors.textMuted }]}>
-              No members yet — invite someone to share your pantry.
+              Accepted members aren't listed here yet — the server only
+              returns pending invites, not who's already joined. If someone
+              accepted your invite, they already have full access to this
+              household's shared pantry and shopping list even though they
+              won't show up in this list.
             </Text>
           ) : (
             members.map((member) => (

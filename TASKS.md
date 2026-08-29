@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 52 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 53 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1297,6 +1297,25 @@ pace I just won't be able to work much next week <3
       (`src/utils/supportContact.ts`, opens a `mailto:` link), and this
       is now the real address to enter as the App Store/Play Store
       listing's support contact once that task is picked back up.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Live-tested
+      household invitations end-to-end against the live
+      backend (two throwaway accounts, direct API calls) — found a real
+      bug, worse than the assumption being tested. `GET /api/invites`
+      never returns an invite once it's accepted (confirmed with no
+      params and with `?status=accepted`/`?all=true`), only pending
+      ones — so Profile's "Household members" list (built by filtering
+      that same response for `status === "accepted"`) is always empty in
+      practice, not just when there really are no members. Separately,
+      `DELETE /api/household/members/:id` does work, but needs the
+      member's real user account id, not the invite's id (confirmed:
+      invite id → 404 "Household member not found"; the accepted user's
+      own id → 200, and their `householdId` correctly went back to
+      `null` after). Since accepted invites never come back from any
+      endpoint, the client has no field to source that id from even if
+      it wanted to. Added an honest note in place of "No members yet"
+      explaining the list only reflects pending invites, not who's
+      actually joined — see the new backend task below, since this
+      isn't fixable from this repo.
 
 ### Not yet assigned
 
@@ -1308,6 +1327,22 @@ can wait until after launch.
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
+
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Add a way to actually
+      list a household's accepted members with their real
+      user account id. Confirmed live on 8/29: `GET /api/invites` never
+      returns an invite once it's accepted (only pending ones come back,
+      regardless of query params tried), and there's no separate
+      members-list endpoint (`GET /api/household`, `/api/household/:id`,
+      `/api/household/members`, and `/api/users` all 404). `DELETE
+      /api/household/members/:id` itself works — confirmed with a real
+      two-account test — but needs the accepted member's actual user id,
+      which the client currently has no way to obtain since accepted
+      invites are invisible to it. Either have `GET /api/invites` include
+      accepted invites with the joined user's real id, or add a
+      dedicated members-list endpoint. Blocks the "Household members"
+      list and remove-member feature from ever actually working, not
+      just the id mismatch originally suspected.
 
 #### Claude Code (client-side)
 
@@ -1424,13 +1459,6 @@ outside this repo.
       re-verify both meal-plan generation and recipe search end to end,
       and confirm the meal-plan shopping-gap and cuisine-filter tasks
       (both depend on real generated output) actually work too.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Live-test household
-      invitations end-to-end: invite someone, have
-      them accept, then remove them from Profile's "Household members"
-      list. Still not directly tested — confirms/fixes the unverified
-      assumption on the remove-member task above (does the accepted
-      invite's `id` double as the member id `DELETE
-      /api/household/members/:id` expects).
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test the
       donation backend with a second household member:
       the endpoint itself is confirmed live and working (`GET
