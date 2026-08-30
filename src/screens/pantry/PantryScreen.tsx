@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 import { usePantry } from "../../hooks/usePantry";
 import {
   Screen,
@@ -15,11 +16,21 @@ import {
   Button,
   TextField,
   Skeleton,
+  SwipeToDelete,
 } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { PantryItem } from "../../types";
-import { groupByCategory, sortByExpiry, daysUntil, filterByName, formatExpiryLabel } from "./pantryLogic";
+import {
+  buildPantryDeleteMessage,
+  groupByCategory,
+  sortByExpiry,
+  daysUntil,
+  filterByName,
+  formatExpiryLabel,
+} from "./pantryLogic";
+import { getCachedMealPlan } from "../../utils/mealPlanCache";
+import { confirmDestructiveAction } from "../../utils/confirmDialog";
 
 type PantryNavigationProp = NativeStackNavigationProp<PantryStackParamList, "Pantry">;
 type PantryRouteProp = RouteProp<PantryStackParamList, "Pantry">;
@@ -77,12 +88,14 @@ function CategoryGroup({
   expanded,
   onToggle,
   onSelectItem,
+  onDeleteItem,
 }: {
   category: string;
   items: PantryItem[];
   expanded: boolean;
   onToggle: () => void;
   onSelectItem: (item: PantryItem) => void;
+  onDeleteItem: (item: PantryItem) => void;
 }) {
   const { colors } = useTheme();
   return (
@@ -106,7 +119,13 @@ function CategoryGroup({
       {expanded ? (
         <View>
           {items.map((item) => (
-            <PantryRow key={item.id} item={item} onPress={() => onSelectItem(item)} />
+            <SwipeToDelete
+              key={item.id}
+              onDelete={() => onDeleteItem(item)}
+              accessibilityLabel={`Delete ${item.name}`}
+            >
+              <PantryRow item={item} onPress={() => onSelectItem(item)} />
+            </SwipeToDelete>
           ))}
         </View>
       ) : null}
@@ -148,18 +167,32 @@ export function PantryScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<PantryNavigationProp>();
   const route = useRoute<PantryRouteProp>();
-  const { items, loading, error, isOffline, refresh } = usePantry();
+  const { currentEmail } = useAuth();
+  const { items, loading, error, isOffline, refresh, removeItem } = usePantry();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("category");
   const [query, setQuery] = useState("");
   const scrollRef = useRef<ScrollView>(null);
   const categoryOffsets = useRef<Record<string, number>>({});
   const [pendingScrollCategory, setPendingScrollCategory] = useState<string | null>(null);
+  const [planItemNames, setPlanItemNames] = useState<Set<string>>(new Set());
 
   useFocusEffect(
     React.useCallback(() => {
       refresh();
     }, [refresh])
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let cancelled = false;
+      getCachedMealPlan(currentEmail).then((cached) => {
+        if (!cancelled) setPlanItemNames(new Set(cached?.pantryItemNames ?? []));
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [currentEmail])
   );
 
   const filteredItems = useMemo(() => filterByName(items, query), [items, query]);
@@ -202,6 +235,24 @@ export function PantryScreen() {
       if (next.has(category)) next.delete(category);
       else next.add(category);
       return next;
+    });
+  };
+
+  const handleDeleteItem = (item: PantryItem) => {
+    confirmDestructiveAction({
+      title: "Remove item",
+      message: buildPantryDeleteMessage(item.name, planItemNames.has(item.name)),
+      confirmLabel: "Remove",
+      onConfirm: async () => {
+        try {
+          await removeItem(item.id);
+        } catch (err) {
+          Alert.alert(
+            "Couldn't remove item",
+            err instanceof Error ? err.message : "Something went wrong. Please try again."
+          );
+        }
+      },
     });
   };
 
@@ -307,12 +358,17 @@ export function PantryScreen() {
         ) : sortMode === "expiry" ? (
           <Card style={styles.groupCard}>
             {byExpiry.map((item, index) => (
-              <PantryRow
+              <SwipeToDelete
                 key={item.id}
-                item={item}
-                first={index === 0}
-                onPress={() => navigation.navigate("AddPantryItem", { item })}
-              />
+                onDelete={() => handleDeleteItem(item)}
+                accessibilityLabel={`Delete ${item.name}`}
+              >
+                <PantryRow
+                  item={item}
+                  first={index === 0}
+                  onPress={() => navigation.navigate("AddPantryItem", { item })}
+                />
+              </SwipeToDelete>
             ))}
           </Card>
         ) : (
@@ -327,6 +383,7 @@ export function PantryScreen() {
                 expanded={!collapsed.has(category)}
                 onToggle={() => toggleCategory(category)}
                 onSelectItem={(item) => navigation.navigate("AddPantryItem", { item })}
+                onDeleteItem={handleDeleteItem}
               />
             </View>
           ))

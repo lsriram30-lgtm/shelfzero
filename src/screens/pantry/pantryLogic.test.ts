@@ -1,4 +1,5 @@
 import {
+  buildPantryDeleteMessage,
   daysUntil,
   filterByAllergies,
   filterByDietaryPrefs,
@@ -334,5 +335,19 @@ describe("filterByAllergies", () => {
   it("combines multiple allergies", () => {
     const result = filterByAllergies(staples, ["Wheat", "Bananas"]).map((s) => s.name);
     expect(result).toEqual(["Milk", "Eggs", "Rice"]);
+  });
+});
+
+describe("buildPantryDeleteMessage", () => {
+  it("asks a plain confirmation when the item isn't in the current plan", () => {
+    expect(buildPantryDeleteMessage("Milk", false)).toBe(
+      "Remove Milk from your pantry?"
+    );
+  });
+
+  it("warns about the current meal plan when the item is part of it", () => {
+    expect(buildPantryDeleteMessage("Milk", true)).toBe(
+      "Remove Milk from your pantry? It's part of your current meal plan, so you may want to regenerate the plan afterward."
+    );
   });
 });

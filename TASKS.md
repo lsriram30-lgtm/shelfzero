@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 63 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 65 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1306,6 +1306,41 @@ pace I just won't be able to work much next week <3
       when run from inside it, so the export was verified from an
       isolated scratch copy of the working tree instead; nothing under
       version control was changed to make this work).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add
+      swipe-to-delete gestures on Pantry and Shopping List rows (branch:
+      `feature/swipe-gestures`) — merged into `master`.
+      `react-native-gesture-handler` was already a dependency
+      (used for navigation), so no new package was needed — used its
+      built-in (if now deprecated in favor of a Reanimated version)
+      `Swipeable` component, which doesn't require Reanimated either.
+      Added a shared `SwipeToDelete` component
+      (`src/components/SwipeToDelete.tsx`) that reveals a red "Delete"
+      action on a right-swipe; wired into both Pantry list rows
+      (category and expiry-sort views) and Shopping list rows. Chose
+      delete over edit since it maps directly onto an action that
+      already exists on both screens, rather than inventing a new
+      inline-edit UI. Each screen routes through its existing delete
+      path rather than a new one: Shopping list swipe calls the exact
+      same `onRemove` handler the row's trash icon already used (no
+      confirm dialog, matching that icon's current behavior) and is
+      disabled while in bulk-selection mode, so swiping there doesn't
+      fight with tap-to-select. Pantry had no per-row delete before this
+      (only via the Edit Item screen), so swipe reuses that screen's
+      exact confirm-dialog wording and current-meal-plan warning —
+      extracted into a new shared, tested `buildPantryDeleteMessage()`
+      in `pantryLogic.ts` so the Edit screen and the new swipe gesture
+      can't drift apart on that message. 2 tests added for the new
+      helper, suite at 242. Doesn't add Pantry delete undo (still a
+      separate open backlog item above) or a Shopping list confirm
+      dialog for single-item delete — both match the pre-existing
+      behavior of the actions being reused, not a gap introduced here.
+      **Not verified on a real device or dev client** — gesture-handler
+      interactions like this can behave differently in Expo Go than in
+      a real build (e.g. the deprecation notice on `Swipeable` mentions
+      Reanimated-based gesture composition, which Expo Go doesn't
+      handle identically); typecheck, all 242 tests, and a real
+      `expo export --platform ios` bundle all pass, but none of those
+      exercise the actual swipe gesture at runtime.
 
 ### Not yet assigned
 
@@ -1346,9 +1381,6 @@ Buildable in this repo with no backend involvement.
       (category vs. expiry-date sort) and Recipes (meal-type/cuisine
       filters) across app restarts instead of resetting to the default
       every time the screen mounts.
-- [ ] Add swipe-to-delete (or swipe-to-edit) gesture on Pantry and
-      Shopping List rows as a faster alternative to opening Edit or
-      tapping the trash icon for every removal.
 - [ ] Add a shortcut from the Dashboard's expiring-items card straight
       into Donate, prefilled with those items, instead of requiring a
       user to re-pick the same expiring items from scratch on the
