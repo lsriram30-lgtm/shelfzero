@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 55 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 56 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1351,6 +1351,35 @@ pace I just won't be able to work much next week <3
       Credentials documented in `STORE_LISTING.md` for pasting into App
       Store Connect's "App Review Information" and Google Play's "App
       access" section.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) **Critical fix:**
+      meal-plan generation was silently producing nothing.
+      Found while pre-checking the app for TestFlight — live-tested
+      `POST /api/meal-plan` directly and found the real response shape
+      doesn't match what the client was reading at all: the actual day
+      list lives under `plan.days`, not the top-level `days` field
+      (which is just an echo of the request's day count, a number, not
+      an array); and each day's `meals` is an object keyed by meal type
+      (`breakfast`/`lunch`/`dinner`) with a `name` field, not the array
+      of `{label, title}` the rest of the app expects. The result: "Generate
+      7-day plan" made real, successful network calls every time, but
+      `plan.days[0]` silently evaluated to `undefined` on every single
+      day, so the screen ended up with an empty plan and no error message
+      — the app's core AI-meal-plan feature was completely non-functional
+      for every real user, despite `npm test`/typecheck/bundle checks all
+      passing (none of them call the live API, so none could catch a
+      runtime shape mismatch). Added a tested `parseMealPlanDays()`
+      conversion function (verified against the exact JSON captured live,
+      not just a hand-written fixture) and fixed all three call sites
+      (`handleGenerate`, `handleRegenerateDay`, and `useSuggestedRecipes`,
+      which derives Recipes-screen suggestions the same way). Also
+      confirmed cross-member sharing (donations, pantry) works correctly
+      with two real linked accounts while investigating. **Note:** a
+      single-day request succeeded in ~10s in this test, faster than the
+      ~20-21s timeout documented on 8/16 for the same payload — unclear if
+      that's backend variance or an improvement; the *un-scoped* full-week
+      call (what `useSuggestedRecipes` sends) still timed out at ~20s as
+      before, so the timeout task below is still real and separate from
+      this parsing fix. 3 tests added, suite at 243.
 
 ### Not yet assigned
 

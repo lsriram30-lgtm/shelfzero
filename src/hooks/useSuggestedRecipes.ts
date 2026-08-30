@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { mealPlanApi } from "../api/mealPlan";
 import { usePantry } from "./usePantry";
 import { Recipe } from "../types";
+import { parseMealPlanDays } from "../screens/mealPlannerLogic";
 
 // The backend has no standalone recipe-list endpoint, so suggestions are
 // derived from the meal-plan generator (POST /api/meal-plan) using current
@@ -16,12 +17,13 @@ export function useSuggestedRecipes() {
     setLoading(true);
     setError(null);
     try {
-      const plan = await mealPlanApi.generate({
+      const raw = await mealPlanApi.generate({
         pantryItems: pantryItems.map((item) => item.name),
       });
+      const parsedDays = parseMealPlanDays(raw);
       const seen = new Set<string>();
       const derived: Recipe[] = [];
-      plan.days.forEach((day) => {
+      parsedDays.forEach((day) => {
         day.meals.forEach((meal) => {
           if (seen.has(meal.title)) return;
           seen.add(meal.title);

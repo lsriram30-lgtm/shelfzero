@@ -30,6 +30,7 @@ import {
   hasPantryChanged,
   missingIngredients,
   parseIngredientQuantity,
+  parseMealPlanDays,
   replaceDayInPlan,
   WEEKDAY_LABELS,
 } from "./mealPlannerLogic";
@@ -98,13 +99,14 @@ export function MealPlannerScreen() {
     try {
       for (let dayIndex = 0; dayIndex < WEEKDAY_LABELS.length; dayIndex++) {
         setGenerationProgress({ current: dayIndex + 1, total: WEEKDAY_LABELS.length });
-        const plan = await mealPlanApi.generate({
+        const raw = await mealPlanApi.generate({
           pantryItems: currentPantryNames,
           preferences,
           days: 1,
           dayIndex,
         });
-        if (plan.days[0]) generatedDays.push(plan.days[0]);
+        const parsedDays = parseMealPlanDays(raw);
+        if (parsedDays[0]) generatedDays.push(parsedDays[0]);
       }
       setDays(generatedDays);
       setCachedPantryNames(currentPantryNames);
@@ -138,13 +140,13 @@ export function MealPlannerScreen() {
     setRegeneratingDay(dayLabel);
     setError(null);
     try {
-      const plan = await mealPlanApi.generate({
+      const raw = await mealPlanApi.generate({
         pantryItems: currentPantryNames,
         preferences: buildMealPlanPreferences(profile),
         days: 1,
         startDay: dayLabel,
       });
-      const updatedDays = replaceDayInPlan(days, dayLabel, plan.days);
+      const updatedDays = replaceDayInPlan(days, dayLabel, parseMealPlanDays(raw));
       setDays(updatedDays);
       // Deliberately NOT updating cachedPantryNames here: only this one day
       // was actually regenerated against the current pantry, so the other

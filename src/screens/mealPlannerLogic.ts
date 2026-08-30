@@ -1,4 +1,35 @@
-import { MealIngredient, MealPlanDay, OnboardingProfile } from "../types";
+import { MealIngredient, MealPlanDay, OnboardingProfile, RawMealPlanApiResponse } from "../types";
+
+const MEAL_TYPE_LABELS: { key: "breakfast" | "lunch" | "dinner"; label: string }[] = [
+  { key: "breakfast", label: "Breakfast" },
+  { key: "lunch", label: "Lunch" },
+  { key: "dinner", label: "Dinner" },
+];
+
+// Converts the real `POST /api/meal-plan` wire shape into the MealPlanDay[]
+// shape the rest of the app is built around - see the comment on
+// RawMealPlanApiResponse for why this is needed at all. Missing days or an
+// unrecognized meals shape resolve to an empty array rather than throwing,
+// since a generation request that returns nothing usable should read as
+// "no days came back" to the caller, not crash the screen.
+export function parseMealPlanDays(raw: RawMealPlanApiResponse): MealPlanDay[] {
+  const rawDays = raw?.plan?.days;
+  if (!Array.isArray(rawDays)) return [];
+
+  return rawDays.map((day) => ({
+    day: day.day,
+    meals: MEAL_TYPE_LABELS.filter(({ key }) => day.meals?.[key]).map(({ key, label }) => {
+      const meal = day.meals[key]!;
+      return {
+        label,
+        title: meal.name,
+        description: meal.description,
+        ingredients: meal.ingredients,
+        cuisine: meal.cuisine,
+      };
+    }),
+  }));
+}
 
 // The backend doesn't document a minimum pantry size for generating a
 // 7-day plan, so this is a client-side heuristic to catch the obvious

@@ -7,9 +7,10 @@ import {
   MIN_PANTRY_ITEMS_FOR_PLAN,
   missingIngredients,
   parseIngredientQuantity,
+  parseMealPlanDays,
   replaceDayInPlan,
 } from "./mealPlannerLogic";
-import { MealPlanDay, OnboardingProfile } from "../types";
+import { MealPlanDay, OnboardingProfile, RawMealPlanApiResponse } from "../types";
 
 function profile(overrides: Partial<OnboardingProfile>): OnboardingProfile {
   return {
@@ -203,5 +204,97 @@ describe("replaceDayInPlan", () => {
     const before = [...original];
     replaceDayInPlan(original, "Monday", [day("Monday", "Omelet")]);
     expect(original).toEqual(before);
+  });
+});
+
+describe("parseMealPlanDays", () => {
+  // Matches the real `POST /api/meal-plan` response confirmed live
+  // 2026-08-30: days live under `plan.days`, and each day's `meals` is an
+  // object keyed by meal type with a `name` field, not the array of
+  // `{label, title}` the rest of the app is built around.
+  it("converts the real backend shape into MealPlanDay[]", () => {
+    const raw: RawMealPlanApiResponse = {
+      plan: {
+        days: [
+          {
+            day: "Monday",
+            meals: {
+              breakfast: {
+                name: "Berry Yogurt Parfait",
+                description: "A quick and healthy breakfast.",
+                cuisine: "American",
+                ingredients: [{ name: "Greek yogurt", quantity: "1 cup", inPantry: false }],
+              },
+              lunch: {
+                name: "Mediterranean Chickpea Salad",
+                cuisine: "Mediterranean",
+              },
+              dinner: {
+                name: "Baked Lemon Herb Salmon",
+                cuisine: "European",
+              },
+            },
+          },
+        ],
+      },
+    };
+
+    expect(parseMealPlanDays(raw)).toEqual([
+      {
+        day: "Monday",
+        meals: [
+          {
+            label: "Breakfast",
+            title: "Berry Yogurt Parfait",
+            description: "A quick and healthy breakfast.",
+            cuisine: "American",
+            ingredients: [{ name: "Greek yogurt", quantity: "1 cup", inPantry: false }],
+          },
+          {
+            label: "Lunch",
+            title: "Mediterranean Chickpea Salad",
+            description: undefined,
+            cuisine: "Mediterranean",
+            ingredients: undefined,
+          },
+          {
+            label: "Dinner",
+            title: "Baked Lemon Herb Salmon",
+            description: undefined,
+            cuisine: "European",
+            ingredients: undefined,
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("skips a meal type the response didn't include, instead of producing a broken entry", () => {
+    const raw: RawMealPlanApiResponse = {
+      plan: {
+        days: [
+          {
+            day: "Tuesday",
+            meals: {
+              lunch: { name: "Soup" },
+            },
+          },
+        ],
+      },
+    };
+
+    expect(parseMealPlanDays(raw)).toEqual([
+      {
+        day: "Tuesday",
+        meals: [
+          { label: "Lunch", title: "Soup", description: undefined, cuisine: undefined, ingredients: undefined },
+        ],
+      },
+    ]);
+  });
+
+  it("returns an empty array when plan.days is missing", () => {
+    expect(parseMealPlanDays({})).toEqual([]);
+    expect(parseMealPlanDays({ plan: {} })).toEqual([]);
   });
 });
