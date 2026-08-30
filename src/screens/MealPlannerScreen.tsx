@@ -171,13 +171,24 @@ export function MealPlannerScreen() {
     if (addingMissingKey) return;
     setAddingMissingKey(key);
     try {
+      // Local running view of the shopping list, updated as we go - the
+      // `shoppingItems` closure won't reflect an item this same loop just
+      // added/bumped until the next render, so two same-named ingredients
+      // in one meal's missing list (e.g. "Garlic" twice) would otherwise
+      // both miss the existing-item check and create duplicate rows.
+      let localItems = shoppingItems;
       for (const ingredient of missing) {
         const qty = parseIngredientQuantity(ingredient.quantity);
-        const existing = findMatchingUnchecked(shoppingItems, ingredient.name);
+        const existing = findMatchingUnchecked(localItems, ingredient.name);
         if (existing) {
-          await updateQuantity(existing.id, existing.qty + qty);
+          const updatedQty = existing.qty + qty;
+          await updateQuantity(existing.id, updatedQty);
+          localItems = localItems.map((item) =>
+            item.id === existing.id ? { ...item, qty: updatedQty } : item
+          );
         } else {
-          await addItem({ name: ingredient.name, qty });
+          const created = await addItem({ name: ingredient.name, qty });
+          localItems = [created, ...localItems];
         }
       }
       setAddedMissingKeys((prev) => new Set(prev).add(key));

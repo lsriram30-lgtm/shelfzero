@@ -301,12 +301,15 @@ export function RecipesScreen() {
             )
           ) : null
         }
-        renderItem={({ item }) => (
-          <RecipeTile
-            recipe={{ ...item, isFavorite: favoriteIds.has(item.id) }}
-            onPress={() => navigation.navigate("RecipeDetail", { recipe: item })}
-          />
-        )}
+        renderItem={({ item }) => {
+          const recipe = { ...item, isFavorite: favoriteIds.has(item.id) };
+          return (
+            <RecipeTile
+              recipe={recipe}
+              onPress={() => navigation.navigate("RecipeDetail", { recipe })}
+            />
+          );
+        }}
       />
     </Screen>
   );

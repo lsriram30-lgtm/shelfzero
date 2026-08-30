@@ -24,7 +24,10 @@ export function DonationProvider({ children }: { children: React.ReactNode }) {
       const data = await donationsApi.list();
       setHistory(data);
     } catch {
-      setHistory([]);
+      // Leave the existing history alone on a failed refresh - e.g. a
+      // transient error right after recordDonation's own post-create
+      // refresh() would otherwise make an already-successful donation
+      // appear to vanish, even though nothing was actually deleted.
     } finally {
       setIsLoading(false);
     }

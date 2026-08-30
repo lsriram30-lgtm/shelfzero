@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 56 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1199,8 +1199,10 @@ pace I just won't be able to work much next week <3
       rather than its own task.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Extend the
       unsaved-changes-warning guard beyond Add/Edit Pantry Item and Edit
-      Profile — code complete on
-      `feature/unsaved-changes-guard-extension`, not yet merged. Added
+      Profile — merged into `master` (`feature/unsaved-changes-guard-extension`,
+      confirmed via `git log --merges`, commit `eae35ee` — this entry
+      previously said "not yet merged," found stale during the
+      pre-TestFlight review). Added
       `useUnsavedChangesGuard` to Invite (dirty once a name, contact, or
       non-default role is entered on the details step; resets once the
       invite is actually sent, so swiping back from the "Invite sent"
@@ -1230,9 +1232,11 @@ pace I just won't be able to work much next week <3
       Typecheck, tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Cover
       onboarding's embedded account-creation step with "Forgot password?"
-      — code complete on `feature/onboarding-forgot-password`, **not
-      merged into `master`** (no merge confirmation requested for this
-      task). Onboarding's `AccountStep` has no navigator to push the
+      — merged into `master` (`feature/onboarding-forgot-password`,
+      confirmed via `git log --merges`, commit `97c06fe`; this entry
+      previously said "not merged, no merge confirmation requested," which
+      was stale — found and fixed during the pre-TestFlight review).
+      Onboarding's `AccountStep` has no navigator to push the
       standalone `ForgotPasswordScreen` onto, so instead of restructuring
       onboarding around a stack, added a third in-place mode ("reset") to
       the step itself: a "Forgot password?" link shown in sign-in mode
@@ -1252,9 +1256,11 @@ pace I just won't be able to work much next week <3
       modes. Typecheck, all 239 tests, and a real
       `expo export --platform ios` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
-      remaining dark-mode contrast edge case on Pantry Stats — code
-      complete on `feature/pantry-stats-dark-contrast-fix`, not yet
-      merged into `master`. Dark mode's secondary-colored category bar
+      remaining dark-mode contrast edge case on Pantry Stats — merged
+      into `master` (`feature/pantry-stats-dark-contrast-fix`, confirmed
+      via `git log --merges`, commit `e4eebf2` — this entry previously
+      said "not yet merged," found stale during the pre-TestFlight
+      review). Dark mode's secondary-colored category bar
       previously read at only ~2.15:1 against its track, since the track
       reused `colors.textMuted` — a color that's also used as body text
       in 30+ other places and couldn't just be darkened without affecting
@@ -1380,6 +1386,61 @@ pace I just won't be able to work much next week <3
       call (what `useSuggestedRecipes` sends) still timed out at ~20s as
       before, so the timeout task below is still real and separate from
       this parsing fix. 3 tests added, suite at 243.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Ran a full
+      pre-TestFlight code review (`/code-review high` over
+      everything since batch6) and fixed the real findings:
+      - `ResetPasswordScreen`'s "Sign in" button targeted a route
+        (`Auth`) that isn't always registered — reached from onboarding's
+        embedded reset flow, the stack only has `Onboarding` +
+        `ResetPassword`, so the button silently did nothing. Now prefers
+        dismissing back to whatever was already showing, falling back to
+        a state-aware reset (matching `RootNavigator`'s own logic) only
+        when there's nothing to go back to. Also added the
+        `useUnsavedChangesGuard` this screen was missing relative to
+        every other auth form.
+      - Tapping a favorited recipe passed the raw (non-favorite-flagged)
+        item to `RecipeDetail` instead of the corrected object the tile
+        itself rendered, so the detail screen's favorite button showed
+        "Add to favorites" for an already-favorited recipe and would
+        have called `add` again instead of `remove`.
+      - `ProfileScreen`'s leave-household flow said "Couldn't leave
+        household" even when leaving actually succeeded and only the
+        follow-up re-provisioning failed, leaving the user in a real
+        no-household state with a misleading error. Now distinguishes
+        which step failed and points at the one real recovery path
+        (sign out/back in re-triggers household creation).
+      - `DonationContext.refresh()` wiped the visible donation history to
+        empty on *any* failed fetch, including a transient one right
+        after `recordDonation`'s own post-create refresh — a real
+        donation could appear to vanish. Now leaves existing history
+        alone on a failed refresh instead.
+      - `MealPlannerScreen`'s "add missing ingredients" action read a
+        stale `shoppingItems` closure across loop iterations, so two
+        same-named ingredients in one meal's missing list (e.g. "Garlic"
+        twice) both missed the existing-item check and created duplicate
+        shopping-list rows instead of one bumped quantity. Now tracks a
+        locally-updated view of the list through the loop.
+      - `DonationHistoryScreen` had no pull-to-refresh in its empty state
+        and never re-fetched on focus, so a first donation from another
+        household member could stay invisible until an app restart.
+        Added a focus-refresh, matching Pantry/Recipes' existing pattern.
+      - `pantryLogic.ts`'s plural-matching `singularize()` mishandled
+        words whose singular already ends in "-ie" (cookies → "cooky",
+        movies → "movy", pies → "py" instead of cookie/movie/pie) —
+        currently dormant since no such keyword exists yet in
+        `CATEGORY_KEYWORDS`, but exported and tested to catch it before
+        it silently ships alongside a future keyword.
+      - Corrected three `TASKS.md` entries that said their branch was
+        "not yet merged" when `git log --merges` shows they've actually
+        been on `master` since this range began (commits `e4eebf2`,
+        `97c06fe`, `eae35ee`).
+      - Not fixed, filed as a Later backlog item instead: 4+ files
+        (`mealPlanCache.ts`, `onboardingDraftCache.ts`, `usePantry.ts`,
+        `NotificationPreferencesContext.tsx`) independently reimplement
+        the same account-scoped-cache pattern — a real simplification
+        opportunity, not a correctness bug, so left for its own pass.
+      6 tests added, suite at 249. Typecheck, all tests, and a real
+      `expo export --platform ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -1412,6 +1473,15 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Consolidate the
+      account-scoped AsyncStorage cache pattern.
+      `mealPlanCache.ts`, `onboardingDraftCache.ts`, `usePantry.ts`, and
+      `NotificationPreferencesContext.tsx` all independently reimplement
+      the same get/set/JSON/account-scoping logic (on top of the shared
+      `accountScopedKey()` util each already uses). Not a bug today, but
+      a future fix (corrupt-JSON handling, write-error logging, a TTL)
+      would need to be applied in 4+ places instead of one. Found during
+      the pre-TestFlight code review.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Add quick +/-
       quantity steppers to Pantry list rows, mirroring the
       shopping list's existing quantity stepper. Right now bumping a
