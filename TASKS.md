@@ -1282,6 +1282,30 @@ pace I just won't be able to work much next week <3
       custom encryption. Without it, App Store Connect would otherwise
       stop on a manual encryption questionnaire for every single build
       submission.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a single
+      "Clear filters" action to the Recipes screen for when both the
+      meal-type and cuisine filter rows have an active selection (branch:
+      `feature/recipes-clear-filters`) — merged into `master`.
+      `RecipesScreen` now shows a right-aligned "Clear filters"
+      link (the existing shared `CardHeaderLink`, the same component used
+      for "Clear checked" on the shopping list) directly below the two
+      pill rows, but only when `mealTypeFilter` and/or `cuisineFilter` is
+      non-null; tapping it resets both to `null` in one action instead of
+      requiring each row's own "All" pill to be tapped individually. Left
+      the search box untouched — it's a separate, explicit action (a slow
+      backend search, not an instant local filter) and out of scope per
+      the backlog note. Extracted the "is either filter active" check into
+      a new `hasActiveRecipeFilters` in `recipesLogic.ts`, matching the
+      file's existing pure-logic-extraction convention, with 4 new tests
+      covering all four null/non-null combinations. Typecheck, all 244
+      Jest tests, and a real `expo export --platform ios` bundle all pass
+      (the bundle check needed a one-off workaround: this worktree had no
+      local `node_modules`, and once installed, Metro's blockList for
+      `.claude/worktrees/*` — added to keep the main checkout's Metro from
+      crawling *other* worktrees — also matches this worktree's own path
+      when run from inside it, so the export was verified from an
+      isolated scratch copy of the working tree instead; nothing under
+      version control was changed to make this work).
 
 ### Not yet assigned
 
@@ -1307,9 +1331,6 @@ Buildable in this repo with no backend involvement.
       "N items cleared — Undo" pattern already used on the shopping
       list (clear-checked and bulk-delete). Pantry delete currently has
       a confirm dialog but no way to recover from an accidental delete.
-- [ ] Add a single "Clear filters" action to the Recipes screen for when
-      both the meal-type and cuisine filter rows have an active
-      selection, instead of deselecting each pill individually.
 - [ ] Show a real last-synced timestamp on the pantry/dashboard
       offline-cache banner ("Showing last synced data"). It's currently
       a static message with no indication of how stale the cached data
