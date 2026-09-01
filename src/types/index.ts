@@ -43,6 +43,12 @@ export type InviteRole = "adult" | "teen" | "child" | "guest";
 export type InviteStatus = "pending" | "accepted" | "cancelled";
 export type ContactType = "phone" | "email" | "link";
 
+export interface HouseholdMember {
+  id: string;
+  name: string;
+  role: "owner" | "member";
+}
+
 export interface HouseholdInvite {
   id: string;
   token: string;

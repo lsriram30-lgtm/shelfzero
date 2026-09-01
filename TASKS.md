@@ -1341,6 +1341,25 @@ pace I just won't be able to work much next week <3
       handle identically); typecheck, all 242 tests, and a real
       `expo export --platform ios` bundle all pass, but none of those
       exercise the actual swipe gesture at runtime.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Wire the app
+      up to the real household-members endpoint (branch:
+      `feature/household-members-endpoint`) — merged into `master`.
+      Airo added `GET /api/household/members` (real account id, name,
+      role; rejects unauthenticated requests) after the task below was
+      filed. "Household members" on Profile previously derived its list
+      by filtering accepted invites — which don't even come back from
+      `GET /api/invites` once accepted, so the section could only ever
+      show pending invites masquerading as members. Added a
+      `useHouseholdMembers` hook that fetches the real endpoint, and
+      swapped Profile's derived-from-invites list for it; the member
+      row's role now shows the real account role ("Owner"/"Member")
+      instead of the invite's role field ("Adult"/"Guest"/etc), since
+      that's what's actually returned now. `removeMember` moved off
+      `useInvites` (where it only ever existed as a workaround for not
+      having real member ids) onto the new hook, and now filters by the
+      real id it removed instead of an invite id that was never
+      guaranteed to match. Typecheck, all 6233 tests, and a real
+      `expo export --platform ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -1348,21 +1367,6 @@ pace I just won't be able to work much next week <3
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
-
-- [ ] Add a way to actually list a household's accepted members with
-      their real user account id. Confirmed live on 8/29: `GET
-      /api/invites` never returns an invite once it's accepted (only
-      pending ones come back, regardless of query params tried), and
-      there's no separate members-list endpoint (`GET /api/household`,
-      `/api/household/:id`, `/api/household/members`, and `/api/users`
-      all 404). `DELETE /api/household/members/:id` itself works —
-      confirmed with a real two-account test — but needs the accepted
-      member's actual user id, which the client currently has no way to
-      obtain since accepted invites are invisible to it. Either have
-      `GET /api/invites` include accepted invites with the joined user's
-      real id, or add a dedicated members-list endpoint. Blocks the
-      "Household members" list and remove-member feature from ever
-      actually working, not just the id mismatch originally suspected.
 
 #### Claude Code (client-side)
 
@@ -1455,10 +1459,11 @@ outside this repo.
       (both depend on real generated output) actually work too.
 - [ ] Live-test household invitations end-to-end: invite someone, have
       them accept, then remove them from Profile's "Household members"
-      list. Still not directly tested — confirms/fixes the unverified
-      assumption on the remove-member task above (does the accepted
-      invite's `id` double as the member id `DELETE
-      /api/household/members/:id` expects).
+      list. Still not directly tested. The id-mismatch risk this
+      originally guarded against is now moot — remove-member uses the
+      real member id from `GET /api/household/members` instead of the
+      accepted invite's id — but the full invite→accept→remove path
+      still hasn't been run end to end.
 - [ ] Live-test the donation backend with a second household member:
       the endpoint itself is confirmed live and working (`GET
       /api/donations` returned a real empty list for a fresh test
