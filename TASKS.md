@@ -1792,28 +1792,33 @@ outside this repo.
       is to merge it right before the TestFlight submission specifically
       so its first real test happens on a real build rather than a
       separate dev-client cycle (losing Expo Go app-wide is accepted as
-      a tradeoff). Testing needs either a paid Apple Developer Program
-      membership ($99/year, for iOS) or an Android device (no paid
-      account needed there) — no Android device is currently available,
-      so iOS/TestFlight is the actual first real test either way. Was
-      previously merged and reverted once already (8/27, no reason
-      recorded in the commit) — worth checking with Laya why, in case
-      it wasn't just "keep Expo Go working."
+      a tradeoff). Testing it would otherwise need either the Apple
+      Developer Program membership or an Android device — moot for now
+      since Android is on hold and iOS/TestFlight is happening anyway,
+      so that's the actual first real test either way. Was previously
+      merged and reverted once already (8/27) — confirmed with Laasya
+      that was deliberate, specifically to keep Expo Go working for
+      continued testing at the time; not a sign of a problem with the
+      OCR code itself.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Pick a real web
       domain for shareable invite links (currently a placeholder one)
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Prepare actual App
-      Store / Play Store listing assets — screenshots,
-      store description, category, age rating, promotional text. Build
-      profiles and the account-deletion requirement are handled, but
-      none of the actual listing content exists yet — this is a
-      separate step from having a build that's technically submittable.
-      **In progress:** drafted app name/subtitle options, promotional
-      text, full description, keywords, category recommendation, and
-      age-rating reasoning in `STORE_LISTING.md` — deliberately leaves
-      out receipt/barcode scanning since it doesn't work yet. Needs
-      Laasya + Laya to review/finalize the copy and actually take the
-      screenshots (needs a phone with Expo Go, not something buildable
-      from this repo) before this is submittable.
+      Store listing assets — screenshots, store description, category,
+      age rating, promotional text. Google Play is on hold for now, so
+      this is iOS/App Store only. Build profiles and the
+      account-deletion requirement are
+      handled, but none of the actual listing content exists yet — this
+      is a separate step from having a build that's technically
+      submittable. **In progress:** drafted app name/subtitle options,
+      promotional text, full description, keywords, category
+      recommendation, and age-rating reasoning in `STORE_LISTING.md` —
+      deliberately left out receipt/barcode scanning since neither
+      worked yet at the time it was drafted; barcode scanning is real
+      now (see the completed entry above), so the copy should be
+      revisited for that before finalizing. Needs Laasya + Laya to
+      review/finalize the copy and actually take the screenshots (needs
+      a phone with Expo Go, not something buildable from this repo)
+      before this is submittable.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
       is meaningfully better than 8/16 but still genuinely intermittent.
       Live-tested 8/31 against
@@ -1913,27 +1918,27 @@ outside this repo.
       on its own — today's setup can carry an initial submission either
       way.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Enroll in the Apple
-      Developer Program ($99/year) and create a
-      Google Play Developer account ($25 one-time). Referenced in
+      Developer Program ($99/year). Referenced in
       README's distribution steps but never tracked as its own task —
-      nothing can actually be submitted to either store until both
-      exist, and both need a real person's payment info.
+      nothing can actually be submitted until it exists, and it needs a
+      real person's payment info. Google Play is on hold for now;
+      revisit that decision separately once iOS is out.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Complete Apple's
-      "App Privacy" questionnaire (App Store Connect)
-      and Google Play's "Data safety" section (Play Console) before
-      submission. Distinct from having a written Privacy Policy — each
-      store requires its own in-console declaration of exactly what
-      data is collected and why, and Apple/Google check it against the
-      app's actual observed behavior, not just the policy text.
+      "App Privacy" questionnaire (App Store Connect) before submission.
+      Distinct from having a written Privacy Policy — the store requires
+      its own in-console declaration of exactly what data is collected
+      and why, and Apple checks it against the app's actual observed
+      behavior, not just the policy text.
       **In progress:** drafted the actual answers (data-type table +
       encryption/deletion/tracking/third-party-processor answers) in
       `STORE_LISTING.md` — copy-paste ready, just needs someone logged
-      into each console to actually enter them.
+      into App Store Connect to actually enter them. (The Google Play
+      "Data safety" answers are in the same doc for whenever Android is
+      picked back up.)
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Actually configure
-      `eas submit` credentials for both stores (an
-      App Store Connect API key for Apple, a service account JSON key
-      for Google) and do a real first submission. Currently only
-      documented as a step in `README.md`, not yet done.
+      `eas submit` credentials for iOS (an App Store Connect API key)
+      and do a real first submission. Currently only documented as a
+      step in `README.md`, not yet done.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Host the Privacy
       Policy and Terms of Service at a real, permanent
       URL once the web domain exists (both currently republished as
