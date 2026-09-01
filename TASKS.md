@@ -36,8 +36,8 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 65 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 50 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 67 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1199,8 +1199,10 @@ pace I just won't be able to work much next week <3
       rather than its own task.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Extend the
       unsaved-changes-warning guard beyond Add/Edit Pantry Item and Edit
-      Profile — code complete on
-      `feature/unsaved-changes-guard-extension`, not yet merged. Added
+      Profile — merged into `master` (`feature/unsaved-changes-guard-extension`,
+      confirmed via `git log --merges`, commit `eae35ee` — this entry
+      previously said "not yet merged," found stale during the
+      pre-TestFlight review). Added
       `useUnsavedChangesGuard` to Invite (dirty once a name, contact, or
       non-default role is entered on the details step; resets once the
       invite is actually sent, so swiping back from the "Invite sent"
@@ -1230,9 +1232,11 @@ pace I just won't be able to work much next week <3
       Typecheck, tests, and an `expo export` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Cover
       onboarding's embedded account-creation step with "Forgot password?"
-      — code complete on `feature/onboarding-forgot-password`, **not
-      merged into `master`** (no merge confirmation requested for this
-      task). Onboarding's `AccountStep` has no navigator to push the
+      — merged into `master` (`feature/onboarding-forgot-password`,
+      confirmed via `git log --merges`, commit `97c06fe`; this entry
+      previously said "not merged, no merge confirmation requested," which
+      was stale — found and fixed during the pre-TestFlight review).
+      Onboarding's `AccountStep` has no navigator to push the
       standalone `ForgotPasswordScreen` onto, so instead of restructuring
       onboarding around a stack, added a third in-place mode ("reset") to
       the step itself: a "Forgot password?" link shown in sign-in mode
@@ -1252,9 +1256,11 @@ pace I just won't be able to work much next week <3
       modes. Typecheck, all 239 tests, and a real
       `expo export --platform ios` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix the
-      remaining dark-mode contrast edge case on Pantry Stats — code
-      complete on `feature/pantry-stats-dark-contrast-fix`, not yet
-      merged into `master`. Dark mode's secondary-colored category bar
+      remaining dark-mode contrast edge case on Pantry Stats — merged
+      into `master` (`feature/pantry-stats-dark-contrast-fix`, confirmed
+      via `git log --merges`, commit `e4eebf2` — this entry previously
+      said "not yet merged," found stale during the pre-TestFlight
+      review). Dark mode's secondary-colored category bar
       previously read at only ~2.15:1 against its track, since the track
       reused `colors.textMuted` — a color that's also used as body text
       in 30+ other places and couldn't just be darkened without affecting
@@ -1341,27 +1347,188 @@ pace I just won't be able to work much next week <3
       handle identically); typecheck, all 242 tests, and a real
       `expo export --platform ios` bundle all pass, but none of those
       exercise the actual swipe gesture at runtime.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Decide against
+      iPad support — committed directly to `master`. Set
+      `ios.supportsTablet: false` in `app.json`. This is a phone-first
+      app with no iPad-specific layout testing, and keeping it `true`
+      would have required App Store Connect iPad screenshots and
+      signaled iPad support to reviewers for a layout that was never
+      actually verified there.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Set up a real
+      support channel/contact — committed directly to
+      `master`. Decided on a dedicated email (`shelfzero.2026@gmail.com`)
+      over a personal address or a hosted support page. Added a "Contact
+      support" link on Profile next to Privacy Policy/Terms of Service
+      (`src/utils/supportContact.ts`, opens a `mailto:` link), and this
+      is now the real address to enter as the App Store/Play Store
+      listing's support contact once that task is picked back up.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Live-tested
+      household invitations end-to-end against the live
+      backend (two throwaway accounts, direct API calls) — found a real
+      bug, worse than the assumption being tested. `GET /api/invites`
+      never returns an invite once it's accepted (confirmed with no
+      params and with `?status=accepted`/`?all=true`), only pending
+      ones — so Profile's "Household members" list (built by filtering
+      that same response for `status === "accepted"`) is always empty in
+      practice, not just when there really are no members. Separately,
+      `DELETE /api/household/members/:id` does work, but needs the
+      member's real user account id, not the invite's id (confirmed:
+      invite id → 404 "Household member not found"; the accepted user's
+      own id → 200, and their `householdId` correctly went back to
+      `null` after). Since accepted invites never come back from any
+      endpoint, the client has no field to source that id from even if
+      it wanted to. Added an honest note in place of "No members yet"
+      explaining the list only reflects pending invites, not who's
+      actually joined — see the new backend task below, since this
+      isn't fixable from this repo.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Finished the
+      Privacy Policy and Terms of Service drafts —
+      republished both as new Claude Artifacts. The prior artifacts were
+      created under a different Claude session with no ownership
+      overlap here, so neither could be read or edited from this repo's
+      session (confirmed: `WebFetch` on the old URL and the `Artifact`
+      list both came back empty for this session's identity). Rewrote
+      both from scratch grounded in the app's actual current behavior
+      rather than trying to recover the old text: filled in the contact
+      email (`shelfzero.2026@gmail.com`) and replaced the undecided
+      "launch date" placeholder with a real "last updated" date instead;
+      corrected stale claims along the way (donation history is real,
+      shared, backend-stored data now, not local-only; recipe search,
+      forgot-password, and account deletion are all real and shipped).
+      Visually matches the app's actual theme (DM Sans, the real
+      light/dark color tokens from `src/theme/colors.ts`) instead of a
+      generic template. `PRIVACY_POLICY_URL`/`TERMS_OF_SERVICE_URL`
+      updated to the new URLs. **Still needed:** share both from the
+      Artifact page's share menu so they're actually publicly viewable
+      (they're private by default), and eventually move them to a real
+      domain — see the updated task below.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Created and seeded
+      a reviewer/demo account for App Review. A real
+      account on the live backend (`shelfzero.2026+demo@gmail.com`,
+      password in `STORE_LISTING.md`), pre-loaded with 8 pantry items
+      (expiry dates spread from 2 to 17 days out so the health score and
+      "expiring soon" card have real data), 3 shopping list items, and 1
+      donation history entry, so a reviewer sees a working app instead
+      of an empty one. Deliberately didn't pre-generate a meal plan,
+      since that's a real call to a slow, occasionally rate-limited AI
+      backend (see the meal-plan-timeout task below) — safer to let a
+      reviewer trigger it live against the already-populated pantry.
+      Credentials documented in `STORE_LISTING.md` for pasting into App
+      Store Connect's "App Review Information" and Google Play's "App
+      access" section.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) **Critical fix:**
+      meal-plan generation was silently producing nothing.
+      Found while pre-checking the app for TestFlight — live-tested
+      `POST /api/meal-plan` directly and found the real response shape
+      doesn't match what the client was reading at all: the actual day
+      list lives under `plan.days`, not the top-level `days` field
+      (which is just an echo of the request's day count, a number, not
+      an array); and each day's `meals` is an object keyed by meal type
+      (`breakfast`/`lunch`/`dinner`) with a `name` field, not the array
+      of `{label, title}` the rest of the app expects. The result: "Generate
+      7-day plan" made real, successful network calls every time, but
+      `plan.days[0]` silently evaluated to `undefined` on every single
+      day, so the screen ended up with an empty plan and no error message
+      — the app's core AI-meal-plan feature was completely non-functional
+      for every real user, despite `npm test`/typecheck/bundle checks all
+      passing (none of them call the live API, so none could catch a
+      runtime shape mismatch). Added a tested `parseMealPlanDays()`
+      conversion function (verified against the exact JSON captured live,
+      not just a hand-written fixture) and fixed all three call sites
+      (`handleGenerate`, `handleRegenerateDay`, and `useSuggestedRecipes`,
+      which derives Recipes-screen suggestions the same way). Also
+      confirmed cross-member sharing (donations, pantry) works correctly
+      with two real linked accounts while investigating. **Note:** a
+      single-day request succeeded in ~10s in this test, faster than the
+      ~20-21s timeout documented on 8/16 for the same payload — unclear if
+      that's backend variance or an improvement; the *un-scoped* full-week
+      call (what `useSuggestedRecipes` sends) still timed out at ~20s as
+      before, so the timeout task below is still real and separate from
+      this parsing fix. 3 tests added, suite at 243.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Ran a full
+      pre-TestFlight code review (`/code-review high` over
+      everything since batch6) and fixed the real findings:
+      - `ResetPasswordScreen`'s "Sign in" button targeted a route
+        (`Auth`) that isn't always registered — reached from onboarding's
+        embedded reset flow, the stack only has `Onboarding` +
+        `ResetPassword`, so the button silently did nothing. Now prefers
+        dismissing back to whatever was already showing, falling back to
+        a state-aware reset (matching `RootNavigator`'s own logic) only
+        when there's nothing to go back to. Also added the
+        `useUnsavedChangesGuard` this screen was missing relative to
+        every other auth form.
+      - Tapping a favorited recipe passed the raw (non-favorite-flagged)
+        item to `RecipeDetail` instead of the corrected object the tile
+        itself rendered, so the detail screen's favorite button showed
+        "Add to favorites" for an already-favorited recipe and would
+        have called `add` again instead of `remove`.
+      - `ProfileScreen`'s leave-household flow said "Couldn't leave
+        household" even when leaving actually succeeded and only the
+        follow-up re-provisioning failed, leaving the user in a real
+        no-household state with a misleading error. Now distinguishes
+        which step failed and points at the one real recovery path
+        (sign out/back in re-triggers household creation).
+      - `DonationContext.refresh()` wiped the visible donation history to
+        empty on *any* failed fetch, including a transient one right
+        after `recordDonation`'s own post-create refresh — a real
+        donation could appear to vanish. Now leaves existing history
+        alone on a failed refresh instead.
+      - `MealPlannerScreen`'s "add missing ingredients" action read a
+        stale `shoppingItems` closure across loop iterations, so two
+        same-named ingredients in one meal's missing list (e.g. "Garlic"
+        twice) both missed the existing-item check and created duplicate
+        shopping-list rows instead of one bumped quantity. Now tracks a
+        locally-updated view of the list through the loop.
+      - `DonationHistoryScreen` had no pull-to-refresh in its empty state
+        and never re-fetched on focus, so a first donation from another
+        household member could stay invisible until an app restart.
+        Added a focus-refresh, matching Pantry/Recipes' existing pattern.
+      - `pantryLogic.ts`'s plural-matching `singularize()` mishandled
+        words whose singular already ends in "-ie" (cookies → "cooky",
+        movies → "movy", pies → "py" instead of cookie/movie/pie) —
+        currently dormant since no such keyword exists yet in
+        `CATEGORY_KEYWORDS`, but exported and tested to catch it before
+        it silently ships alongside a future keyword.
+      - Corrected three `TASKS.md` entries that said their branch was
+        "not yet merged" when `git log --merges` shows they've actually
+        been on `master` since this range began (commits `e4eebf2`,
+        `97c06fe`, `eae35ee`).
+      - Not fixed, filed as a Later backlog item instead: 4+ files
+        (`mealPlanCache.ts`, `onboardingDraftCache.ts`, `usePantry.ts`,
+        `NotificationPreferencesContext.tsx`) independently reimplement
+        the same account-scoped-cache pattern — a real simplification
+        opportunity, not a correctness bug, so left for its own pass.
+      6 tests added, suite at 249. Typecheck, all tests, and a real
+      `expo export --platform ios` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Wire the app
       up to the real household-members endpoint (branch:
       `feature/household-members-endpoint`) — merged into `master`.
       Airo added `GET /api/household/members` (real account id, name,
-      role; rejects unauthenticated requests) after the task below was
-      filed. "Household members" on Profile previously derived its list
-      by filtering accepted invites — which don't even come back from
+      role; rejects unauthenticated requests) after this was flagged as
+      a backend gap (see the live-tested honesty fix above).
+      "Household members" on Profile previously derived its list by
+      filtering accepted invites — which don't even come back from
       `GET /api/invites` once accepted, so the section could only ever
       show pending invites masquerading as members. Added a
       `useHouseholdMembers` hook that fetches the real endpoint, and
-      swapped Profile's derived-from-invites list for it; the member
-      row's role now shows the real account role ("Owner"/"Member")
-      instead of the invite's role field ("Adult"/"Guest"/etc), since
-      that's what's actually returned now. `removeMember` moved off
-      `useInvites` (where it only ever existed as a workaround for not
-      having real member ids) onto the new hook, and now filters by the
-      real id it removed instead of an invite id that was never
-      guaranteed to match. Typecheck, all 6233 tests, and a real
-      `expo export --platform ios` bundle all pass.
+      swapped Profile's derived-from-invites list for it (also reverting
+      the honest "not listed here yet" empty-state message back to a
+      plain "No members yet," since the gap it described no longer
+      exists); the member row's role now shows the real account role
+      ("Owner"/"Member") instead of the invite's role field
+      ("Adult"/"Guest"/etc), since that's what's actually returned now.
+      `removeMember` moved off `useInvites` (where it only ever existed
+      as a workaround for not having real member ids) onto the new
+      hook, and now filters by the real id it removed instead of an
+      invite id that was never guaranteed to match. Typecheck, the full
+      test suite, and a real `expo export --platform ios` bundle all
+      pass.
 
 ### Not yet assigned
+
+**Priority key:** ![MVP](https://img.shields.io/badge/MVP-red) must be
+done before the app store submission — ![Later](https://img.shields.io/badge/Later-green)
+can wait until after launch.
 
 #### Backend (Airo only)
 
@@ -1372,35 +1539,52 @@ this repo.
 
 Buildable in this repo with no backend involvement.
 
-- [ ] Add quick +/- quantity steppers to Pantry list rows, mirroring the
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Consolidate the
+      account-scoped AsyncStorage cache pattern.
+      `mealPlanCache.ts`, `onboardingDraftCache.ts`, `usePantry.ts`, and
+      `NotificationPreferencesContext.tsx` all independently reimplement
+      the same get/set/JSON/account-scoping logic (on top of the shared
+      `accountScopedKey()` util each already uses). Not a bug today, but
+      a future fix (corrupt-JSON handling, write-error logging, a TTL)
+      would need to be applied in 4+ places instead of one. Found during
+      the pre-TestFlight code review.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add quick +/-
+      quantity steppers to Pantry list rows, mirroring the
       shopping list's existing quantity stepper. Right now bumping a
       pantry item's quantity by 1 requires opening the full Edit Item
       screen.
-- [ ] Merge duplicate pantry item names into a quantity bump when adding
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Merge duplicate
+      pantry item names into a quantity bump when adding
       a new item, the same way the shopping list already dedupes
       (`feature/laya-batch5`). Adding "Milk" while "Milk" is already in
       the pantry currently creates a second row instead of bumping the
       existing one.
-- [ ] Add an "undo" after deleting a pantry item, matching the existing
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add an "undo"
+      after deleting a pantry item, matching the existing
       "N items cleared — Undo" pattern already used on the shopping
       list (clear-checked and bulk-delete). Pantry delete currently has
       a confirm dialog but no way to recover from an accidental delete.
-- [ ] Show a real last-synced timestamp on the pantry/dashboard
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Show a real
+      last-synced timestamp on the pantry/dashboard
       offline-cache banner ("Showing last synced data"). It's currently
       a static message with no indication of how stale the cached data
       actually is.
-- [ ] Audit the screens added after the original loading/empty/error-state
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Audit the
+      screens added after the original loading/empty/error-state
       pass (Donation History, Meal Plan History) for the same
       treatment. Donation History currently only has a pull-to-refresh
       spinner — no distinct initial-load or error state.
-- [ ] Add a "share pantry list" action, mirroring the shopping list's
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a "share
+      pantry list" action, mirroring the shopping list's
       existing native-share-sheet action, so the full pantry can be
       sent as plain text the same way the shopping list already can.
-- [ ] Remember the last-used sort/filter choice on Pantry
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Remember the
+      last-used sort/filter choice on Pantry
       (category vs. expiry-date sort) and Recipes (meal-type/cuisine
       filters) across app restarts instead of resetting to the default
       every time the screen mounts.
-- [ ] Add a shortcut from the Dashboard's expiring-items card straight
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a shortcut
+      from the Dashboard's expiring-items card straight
       into Donate, prefilled with those items, instead of requiring a
       user to re-pick the same expiring items from scratch on the
       Donate screen. Ties directly to the app's stated purpose (less
@@ -1410,31 +1594,42 @@ Buildable in this repo with no backend involvement.
 Not code — needs a person to research, decide, or check something
 outside this repo.
 
-- [ ] Decide when to merge `feature/receipt-ocr` (on-device OCR for
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Decide when to
+      merge `feature/receipt-ocr` (on-device OCR for
       receipt scanning) into `master`. The code is complete — see the
       completed entry above — but merging trades away Expo Go for the
       *entire* app in exchange for working receipt scans, and testing it
       on a physical device needs either a paid Apple Developer Program
       membership ($99/year, for iOS) or an Android device (no paid
       account needed there). Merge once that tradeoff is worth making.
-- [ ] Pick a real web domain for shareable invite links (currently a placeholder one)
-- [ ] Prepare actual App Store / Play Store listing assets — screenshots,
+      Not launch-blocking as-is: the Scan screen already shows an
+      honest "not working yet" notice instead of a silent failure.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Pick a real web
+      domain for shareable invite links (currently a placeholder one)
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Prepare actual App
+      Store / Play Store listing assets — screenshots,
       store description, category, age rating, promotional text. Build
       profiles and the account-deletion requirement are handled, but
       none of the actual listing content exists yet — this is a
       separate step from having a build that's technically submittable.
-- [ ] Set up a real support channel/contact (email or URL). Apple
-      requires one for the App Store listing; nothing like this exists
-      yet — right now there's no way for a real user to reach anyone if
-      something breaks.
-- [ ] Identify a real donation partner (food bank, nonprofit, etc.) to
+      **In progress:** drafted app name/subtitle options, promotional
+      text, full description, keywords, category recommendation, and
+      age-rating reasoning in `STORE_LISTING.md` — deliberately leaves
+      out receipt/barcode scanning since it doesn't work yet. Needs
+      Laasya + Laya to review/finalize the copy and actually take the
+      screenshots (needs a phone with Expo Go, not something buildable
+      from this repo) before this is submittable.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Identify a real
+      donation partner (food bank, nonprofit, etc.) to
       actually integrate with. Airo confirmed on 8/14 that donation
       records are now real and persisted, but partner selection is still
       just a label with no real handoff behind it — nothing gets
       notified, nothing gets fulfilled. Needs a real organization/API
-      identified before there's anything to integrate against.
-- [ ] Test the full app on an actual Android phone and an actual iPhone
-- [ ] Meal-plan generation (and recipe search, same root cause) is still
+      identified before there's anything to integrate against. Already
+      honestly disclosed in-app as a label-only choice, so not a
+      submission blocker on its own.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
+      (and recipe search, same root cause) is still
       too slow to work at all — needs GoDaddy Support, not Airo. Affects
       both "Generate 7-day plan" and "regenerate one day," since both
       hit the same endpoint. Confirmed via direct API testing on 8/16
@@ -1457,69 +1652,65 @@ outside this repo.
       re-verify both meal-plan generation and recipe search end to end,
       and confirm the meal-plan shopping-gap and cuisine-filter tasks
       (both depend on real generated output) actually work too.
-- [ ] Live-test household invitations end-to-end: invite someone, have
-      them accept, then remove them from Profile's "Household members"
-      list. Still not directly tested. The id-mismatch risk this
-      originally guarded against is now moot — remove-member uses the
-      real member id from `GET /api/household/members` instead of the
-      accepted invite's id — but the full invite→accept→remove path
-      still hasn't been run end to end.
-- [ ] Live-test the donation backend with a second household member:
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
+      household invitations end-to-end through the actual app UI: invite
+      someone, have them accept, see them in Profile's "Household
+      members" list, then remove them. Each piece is independently
+      confirmed live at this point — the invite/accept flow works;
+      `DELETE /api/household/members/:id` works given a real user id;
+      `GET /api/household/members` now exists, returns real ids, and
+      rejects unauthenticated requests — but nobody has clicked through
+      the actual client flow end-to-end since the real endpoint was
+      wired in.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test the
+      donation backend with a second household member:
       the endpoint itself is confirmed live and working (`GET
       /api/donations` returned a real empty list for a fresh test
       household on 8/16), but cross-member visibility (does a second
       household member actually see a donation the first one recorded)
       is still unconfirmed.
-- [ ] Finish the privacy policy — fill in the two placeholders left in
-      the draft (launch date, contact email), give it a final accuracy
-      check right before actually publishing since the app will keep
-      changing between now and then, and host it at a real, permanent
-      URL once the web domain exists, updating `PRIVACY_POLICY_URL` to
-      point there. One more reason this matters: the shared Claude
-      Artifact shows a "Content is user-generated and unverified" banner,
-      which undercuts credibility for what's supposed to be the app's
-      official, binding policy — fine for testing, not for an actual
-      submission. GitHub Pages was tried and isn't available on the
-      current plan (repo is private); would need either a public repo, a
-      paid GitHub plan, or a different static host.
-- [ ] **Needs both Laasya and Laya:** decide whether GoDaddy's Airo AI
+- [ ] ![Later](https://img.shields.io/badge/Later-green) **Needs both
+      Laasya and Laya:** decide whether GoDaddy's Airo AI
       Builder is meant to be the permanent backend, or a bridge to
       something else once the app grows. It's been treated as
       production infrastructure all along — real accounts, real user
       data — but it's an AI-assisted builder tool, not a dedicated
       production backend service. Worth a deliberate joint decision
-      rather than just continuing on it by default.
-- [ ] Enroll in the Apple Developer Program ($99/year) and create a
+      rather than just continuing on it by default. Not launch-blocking
+      on its own — today's setup can carry an initial submission either
+      way.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Enroll in the Apple
+      Developer Program ($99/year) and create a
       Google Play Developer account ($25 one-time). Referenced in
       README's distribution steps but never tracked as its own task —
       nothing can actually be submitted to either store until both
       exist, and both need a real person's payment info.
-- [ ] Decide whether to keep `ios.supportsTablet: true` in `app.json`.
-      As long as it's `true`, App Store Connect requires iPad
-      screenshots and signals iPad support to reviewers, but the app
-      has no iPad-specific layout testing done. Either turn it off (the
-      simpler option, since this is a phone-first app) or budget real
-      time for iPad screenshots and a layout check.
-- [ ] Complete Apple's "App Privacy" questionnaire (App Store Connect)
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Complete Apple's
+      "App Privacy" questionnaire (App Store Connect)
       and Google Play's "Data safety" section (Play Console) before
       submission. Distinct from having a written Privacy Policy — each
       store requires its own in-console declaration of exactly what
       data is collected and why, and Apple/Google check it against the
       app's actual observed behavior, not just the policy text.
-- [ ] Provide reviewer/demo account credentials in App Store Connect's
-      "App Review Information" and Google Play's "App access" section.
-      Every screen in the app requires sign-in; without a working demo
-      login on file, reviewers can't get past the sign-in screen at
-      all — a common cause of rejection (Apple Guideline 2.1).
-- [ ] Actually configure `eas submit` credentials for both stores (an
+      **In progress:** drafted the actual answers (data-type table +
+      encryption/deletion/tracking/third-party-processor answers) in
+      `STORE_LISTING.md` — copy-paste ready, just needs someone logged
+      into each console to actually enter them.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Actually configure
+      `eas submit` credentials for both stores (an
       App Store Connect API key for Apple, a service account JSON key
       for Google) and do a real first submission. Currently only
       documented as a step in `README.md`, not yet done.
-- [ ] Check whether the Terms of Service (hosted the same way as the
-      Privacy Policy, as a Claude Artifact) has the same "Content is
-      user-generated and unverified" banner problem noted above for the
-      Privacy Policy — if so it needs the same real, permanent host
-      before submission, not just the Privacy Policy.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Host the Privacy
+      Policy and Terms of Service at a real, permanent
+      URL once the web domain exists (both currently republished as
+      Claude Artifacts — see the completed entry above — which are
+      private until manually shared, and may still show a "Content is
+      user-generated and unverified" banner to a public viewer even once
+      shared). GitHub Pages was tried and isn't available on the current
+      plan (repo is private); would need either a public repo, a paid
+      GitHub plan, or a different static host. Update
+      `PRIVACY_POLICY_URL`/`TERMS_OF_SERVICE_URL` once that exists.
 
 ---
 

@@ -12,6 +12,7 @@ import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { PRIVACY_POLICY_URL } from "../../utils/privacyPolicy";
 import { TERMS_OF_SERVICE_URL } from "../../utils/termsOfService";
+import { SUPPORT_EMAIL_URL } from "../../utils/supportContact";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { householdApi } from "../../api/household";
 
@@ -87,13 +88,23 @@ export function ProfileScreen() {
       confirmLabel: "Leave",
       onConfirm: async () => {
         setLeavingHousehold(true);
+        // Tracked separately so a failure after a successful leave() gets
+        // an accurate message instead of implying nothing happened - the
+        // user really has left their old household at that point, even
+        // though setting up the replacement failed.
+        let left = false;
         try {
           await householdApi.leave();
+          left = true;
           await householdApi.create(profile?.name ? `${profile.name}'s Household` : "My Household");
         } catch (err) {
           Alert.alert(
-            "Couldn't leave household",
-            err instanceof Error ? err.message : "Something went wrong. Please try again."
+            left ? "Left, but couldn't finish setup" : "Couldn't leave household",
+            left
+              ? "You've left your old household, but setting up a new one failed. Sign out and back in to finish setting it up."
+              : err instanceof Error
+                ? err.message
+                : "Something went wrong. Please try again."
           );
         } finally {
           setLeavingHousehold(false);
@@ -262,6 +273,12 @@ export function ProfileScreen() {
           label="Terms of Service"
           variant="ghost"
           onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)}
+          style={styles.signOutButton}
+        />
+        <Button
+          label="Contact support"
+          variant="ghost"
+          onPress={() => Linking.openURL(SUPPORT_EMAIL_URL)}
           style={styles.signOutButton}
         />
         <Button label="Sign out" variant="neutral" onPress={signOut} style={styles.signOutButton} />

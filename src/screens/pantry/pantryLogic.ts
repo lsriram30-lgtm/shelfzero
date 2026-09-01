@@ -141,12 +141,27 @@ export function filterByAllergies<T extends { name: string; dietTags?: string[] 
   });
 }
 
+// Words whose singular already ends in "ie" (vowel+ie, not consonant+y),
+// so their plural is just "+s" - "berries" -> "berry" (consonant+y -> ies)
+// and "cookies" -> "cookie" (already-ie -> +s) both end in "ies", and
+// there's no way to tell them apart from the ending alone. Not exhaustive,
+// just the common grocery-list ones.
+const IE_PLURAL_EXCEPTIONS = new Set([
+  "cookies",
+  "veggies",
+  "smoothies",
+  "brownies",
+  "pies",
+  "movies",
+]);
+
 // CATEGORY_KEYWORDS is singular-only ("egg", not "eggs") - this reverses
 // common English plural endings on the input so "Eggs"/"Tomatoes"/
 // "Berries" still match, without having to duplicate every keyword in
 // its plural form. Deliberately simple (not a real stemmer): covers the
 // common cases in a grocery list, not every irregular plural.
-function singularize(word: string): string {
+export function singularize(word: string): string {
+  if (IE_PLURAL_EXCEPTIONS.has(word)) return word.slice(0, -1); // cookies -> cookie
   if (word.endsWith("ies") && word.length > 3) return word.slice(0, -3) + "y"; // berries -> berry
   if (word.endsWith("oes")) return word.slice(0, -2); // tomatoes -> tomato
   if (/(ch|sh|x|s)es$/.test(word)) return word.slice(0, -2); // dishes -> dish

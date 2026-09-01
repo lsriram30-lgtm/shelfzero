@@ -111,8 +111,33 @@ export interface MealPlanDay {
   }[];
 }
 
-export interface MealPlanResponse {
-  days: MealPlanDay[];
+// The actual `POST /api/meal-plan` wire shape - confirmed live 2026-08-30.
+// Doesn't match MealPlanDay at all: the real day list is nested under
+// `plan.days` (the top-level `days` field is just an echo of the request's
+// day count), and each day's `meals` is an object keyed by meal type
+// (`breakfast`/`lunch`/`dinner`) with a `name` field, not an array of
+// `{label, title}` like the rest of the app expects. See
+// `parseMealPlanDays` in `mealPlannerLogic.ts` for the conversion.
+export interface RawRecipeMeal {
+  name: string;
+  description?: string;
+  cuisine?: string;
+  ingredients?: MealIngredient[];
+}
+
+export interface RawMealPlanDay {
+  day: string;
+  meals: {
+    breakfast?: RawRecipeMeal;
+    lunch?: RawRecipeMeal;
+    dinner?: RawRecipeMeal;
+  };
+}
+
+export interface RawMealPlanApiResponse {
+  plan?: {
+    days?: RawMealPlanDay[];
+  };
 }
 
 export interface ScanResult {

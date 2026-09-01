@@ -3,10 +3,13 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CommonActions, RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import { useOnboarding } from "../context/OnboardingContext";
 import { authApi, AuthError } from "../api/auth";
 import { Screen, Header, Button, TextField } from "../components";
 import { spacing, typography } from "../theme";
 import { RootStackParamList } from "../navigation/types";
+import { useUnsavedChangesGuard } from "../hooks/useUnsavedChangesGuard";
 
 type ResetPasswordRouteProp = RouteProp<RootStackParamList, "ResetPassword">;
 type ResetPasswordNavigationProp = NativeStackNavigationProp<RootStackParamList, "ResetPassword">;
@@ -15,6 +18,8 @@ export function ResetPasswordScreen() {
   const { colors } = useTheme();
   const route = useRoute<ResetPasswordRouteProp>();
   const navigation = useNavigation<ResetPasswordNavigationProp>();
+  const { isSignedIn } = useAuth();
+  const { isComplete } = useOnboarding();
   const token = route.params?.token;
 
   const [password, setPassword] = useState("");
@@ -26,11 +31,32 @@ export function ResetPasswordScreen() {
   const passwordsMatch = confirmPassword.length === 0 || confirmPassword === password;
   const canSubmit = password.length > 0 && password === confirmPassword;
 
+  useUnsavedChangesGuard(navigation, !done && (password.length > 0 || confirmPassword.length > 0));
+
+  // This screen is mounted regardless of auth/onboarding state (see
+  // RootNavigator), so "Auth" isn't always a real registered route - e.g.
+  // reached from onboarding's embedded AccountStep before onboarding is
+  // complete, the stack only has "Onboarding" and "ResetPassword", and a
+  // reset targeting "Auth" silently does nothing. Prefer just dismissing
+  // back to whatever was already correctly showing; only fall back to a
+  // state-aware reset (matching RootNavigator's own logic) when there's
+  // nothing to go back to, e.g. a cold app launch from the emailed link.
   const goToSignIn = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+    const showAuth = !isSignedIn && isComplete;
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: "Auth", params: { screen: "SignIn" } }],
+        routes: [
+          showAuth
+            ? { name: "Auth", params: { screen: "SignIn" } }
+            : isComplete
+              ? { name: "Main" }
+              : { name: "Onboarding" },
+        ],
       })
     );
   };

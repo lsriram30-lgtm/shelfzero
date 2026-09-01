@@ -7,6 +7,7 @@ import {
   filterCategoriesByDietaryPrefs,
   formatExpiryLabel,
   groupByCategory,
+  singularize,
   sortByExpiry,
   suggestCategory,
   withAutoAddOptOut,
@@ -165,6 +166,36 @@ describe("withAutoAddOptOut", () => {
 
   it("is a no-op removing an id that isn't present", () => {
     expect(withAutoAddOptOut(["a"], "b", false)).toEqual(["a"]);
+  });
+});
+
+describe("singularize", () => {
+  it("reverses a consonant+y plural (y -> ies)", () => {
+    expect(singularize("berries")).toBe("berry");
+    expect(singularize("cherries")).toBe("cherry");
+  });
+
+  it("doesn't mangle a word whose singular already ends in -ie", () => {
+    expect(singularize("cookies")).toBe("cookie");
+    expect(singularize("movies")).toBe("movie");
+    expect(singularize("pies")).toBe("pie");
+  });
+
+  it("reverses an -oes plural", () => {
+    expect(singularize("tomatoes")).toBe("tomato");
+  });
+
+  it("reverses a sibilant -es plural", () => {
+    expect(singularize("dishes")).toBe("dish");
+  });
+
+  it("reverses a plain -s plural without touching a word that just ends in -ss", () => {
+    expect(singularize("eggs")).toBe("egg");
+    expect(singularize("glass")).toBe("glass");
+  });
+
+  it("leaves an already-singular word unchanged", () => {
+    expect(singularize("milk")).toBe("milk");
   });
 });
 
