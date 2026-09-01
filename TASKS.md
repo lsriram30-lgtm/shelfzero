@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 74 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 75 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1730,6 +1730,44 @@ pace I just won't be able to work much next week <3
       merged), and reworded the top-of-file note to distinguish barcode
       (real, mentioned) from receipt (still not merged/verified, still
       deliberately excluded).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Rebuild meal
+      plan generation to build the week up one day at a time instead of
+      all 7 at once (branch: `feature/mealplan-daily-generation`) —
+      merged into `master`. Re-tested 9/1 (a new day, real time passed
+      since the `429`s) and found single isolated calls now succeed
+      cleanly (200 OK, ~7-9s, 2/2) — the shared rate limit really had
+      cleared, supporting the theory it was exhausted by yesterday's
+      heavy testing rather than a permanent capacity problem. But firing
+      7 of those back-to-back is exactly the pattern that tripped it
+      before, so rather than trust that a burst of 7 stays safe, the
+      "Generate 7-day plan" button is gone. Generation now happens one
+      day at a time: a `nextWeekdayIndex()` helper (new, tested, in
+      `mealPlannerLogic.ts`) starts from today's real weekday and wraps
+      forward through the week, returning the next day not yet
+      generated (or `null` once all 7 exist). The primary button reads
+      "Generate {day}'s meal plan" and only shows before any day exists;
+      once at least one day is generated, an outlined "+ Add {day}'s
+      plan" button appears below the list instead, letting the user
+      build out the rest of the week at their own pace — never more than
+      one request at a time, however many days they choose to add.
+      `saveMealPlanToHistory` now fires once the 7th day lands, whichever
+      order they were added in, instead of only after a single bulk
+      call. The stale-pantry banner's "Regenerate now" now clears the
+      plan and generates a fresh day for today, replacing the old bulk
+      regenerate. Per-day "Regenerate" links are unchanged - already
+      single-day calls. Removed `buildGenerationFailureMessage` (no
+      longer meaningful once every generation is a single atomic call,
+      not a batch with partial success to report) and its tests, and
+      fixed a stale comment on `replaceDayInPlan` left over from the
+      reverted `mealLabel` work ("3 meal-scoped calls" - it's one
+      day-scoped call). Live-verified the exact `dayIndex` mapping this
+      relies on against the real API: `dayIndex: 1` (today, a Tuesday)
+      returned `"day":"Tuesday"`; incrementally adding `dayIndex: 2`
+      returned `"day":"Wednesday"` - confirms `nextWeekdayIndex()`'s
+      real-calendar-to-`dayIndex` mapping is correct, not just internally
+      consistent. 6 tests added/changed net (2 removed, 8 added), suite
+      at 267. Typecheck, all tests, and a real `expo export --platform
+      ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -1835,8 +1873,13 @@ outside this repo.
       review/finalize the copy and actually take the screenshots (needs
       a phone with Expo Go, not something buildable from this repo)
       before this is submittable.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
-      is meaningfully better than 8/16 but still genuinely intermittent.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Meal-plan
+      generation's underlying backend rate-limit issue is still
+      unresolved by Airo/GoDaddy, but no longer submission-blocking as
+      of the 9/1 redesign (see the completed entry above) — demoted
+      from MVP since the client no longer depends on the bulk-call
+      pattern that was tripping it. Was meaningfully better than 8/16
+      but still genuinely intermittent as of 8/31.
       Live-tested 8/31 against
       the real API with the demo account (direct `curl`, phone wifi was
       down): `mealLabel` scoping (see the corrected completed entry
@@ -1896,6 +1939,16 @@ outside this repo.
       `429` findings above; Airo's response was to open a GoDaddy
       Support ticket for it, same as the meal-plan-latency issue below —
       a ticket has been filed (8/31).
+      **Update, 9/1:** re-tested fresh (a new day, real time passed) and
+      single isolated calls now succeed cleanly again (200 OK, ~7-9s,
+      2/2) — supports the theory that 8/31's `429`s were from this
+      session's own heavy testing volume exhausting a shared quota, not
+      a permanent ceiling. Rather than trust a burst of 7 stays safe
+      going forward, rebuilt meal-plan generation to never fire more
+      than one request at a time in the first place — see the completed
+      entry above. The GoDaddy ticket about the underlying rate limit is
+      still open and unanswered, but the app no longer depends on it
+      being fixed to work reliably.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Recipe search
       (`GET /api/recipes?q=`, a separate endpoint from
       `/api/meal-plan`) is still fully broken — still `504`s (~11s,

@@ -1,14 +1,16 @@
 import {
-  buildGenerationFailureMessage,
   buildMealPlanPreferences,
+  currentWeekdayIndex,
   formatIngredientLabel,
   hasEnoughPantryItems,
   hasPantryChanged,
   MIN_PANTRY_ITEMS_FOR_PLAN,
   missingIngredients,
+  nextWeekdayIndex,
   parseIngredientQuantity,
   parseMealPlanDays,
   replaceDayInPlan,
+  WEEKDAY_LABELS,
 } from "./mealPlannerLogic";
 import { MealPlanDay, OnboardingProfile, RawMealPlanApiResponse } from "../types";
 
@@ -163,19 +165,6 @@ describe("formatIngredientLabel", () => {
   });
 });
 
-describe("buildGenerationFailureMessage", () => {
-  it("returns just the error message when nothing succeeded", () => {
-    expect(buildGenerationFailureMessage(0, 7, "Server timed out.")).toBe("Server timed out.");
-  });
-
-  it("names how many days succeeded and points at per-day regenerate", () => {
-    expect(buildGenerationFailureMessage(3, 7, "Server timed out.")).toBe(
-      "Generated 3 of 7 days before this failed: Server timed out. You can regenerate the " +
-        "missing days individually below."
-    );
-  });
-});
-
 function day(label: string, mealTitle: string): MealPlanDay {
   return { day: label, meals: [{ label: "Dinner", title: mealTitle }] };
 }
@@ -204,6 +193,47 @@ describe("replaceDayInPlan", () => {
     const before = [...original];
     replaceDayInPlan(original, "Monday", [day("Monday", "Omelet")]);
     expect(original).toEqual(before);
+  });
+});
+
+describe("currentWeekdayIndex", () => {
+  it("maps JS's Sunday-first getDay() onto WEEKDAY_LABELS' Monday-first scheme", () => {
+    // 2026-08-31 is a Monday, 2026-08-30 is a Sunday.
+    expect(currentWeekdayIndex(new Date("2026-08-31T12:00:00"))).toBe(0);
+    expect(currentWeekdayIndex(new Date("2026-09-01T12:00:00"))).toBe(1);
+    expect(currentWeekdayIndex(new Date("2026-08-30T12:00:00"))).toBe(6);
+  });
+});
+
+describe("nextWeekdayIndex", () => {
+  const monday = new Date("2026-08-31T12:00:00");
+
+  it("starts from today when no days exist yet", () => {
+    expect(nextWeekdayIndex([], monday)).toBe(0);
+  });
+
+  it("returns tomorrow once today is already present", () => {
+    expect(nextWeekdayIndex([day("Monday", "Pasta")], monday)).toBe(1);
+  });
+
+  it("wraps forward through the week, skipping whatever's already present", () => {
+    const days = [day("Monday", "Pasta"), day("Tuesday", "Tacos")];
+    expect(nextWeekdayIndex(days, monday)).toBe(2);
+  });
+
+  it("wraps past Sunday back to days earlier in the week if those are still missing", () => {
+    // Starting from Wednesday (index 2), Mon/Tue aren't generated yet - once
+    // Wed-Sun are filled, the next missing day should wrap back to Monday.
+    const wednesday = new Date("2026-09-02T12:00:00");
+    const days = WEEKDAY_LABELS.filter((label) => label !== "Monday" && label !== "Tuesday").map(
+      (label) => day(label, "Something")
+    );
+    expect(nextWeekdayIndex(days, wednesday)).toBe(0);
+  });
+
+  it("returns null once every day of the week is present", () => {
+    const fullWeek = WEEKDAY_LABELS.map((label) => day(label, "Something"));
+    expect(nextWeekdayIndex(fullWeek, monday)).toBeNull();
   });
 });
 
