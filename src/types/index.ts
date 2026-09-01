@@ -22,6 +22,19 @@ export type NewPantryItem = {
 
 export type UpdatePantryItem = Partial<NewPantryItem>;
 
+export interface BarcodeProduct {
+  barcode: string;
+  name: string;
+  category: string;
+  brand?: string;
+  source: string;
+}
+
+export interface BarcodeLookupResponse {
+  success: true;
+  product: BarcodeProduct;
+}
+
 export interface ShoppingListItem {
   id: string;
   name: string;

@@ -7,10 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { usePantry } from "../../hooks/usePantry";
 import { scanApi } from "../../api/scan";
+import { ApiError } from "../../api/client";
 import { Screen, Header, Button, Pill, Card } from "../../components";
 import { spacing, typography, radius } from "../../theme";
 import { NewPantryItem } from "../../types";
 import { PantryStackParamList } from "../../navigation/types";
+import { barcodeLookupErrorMessage, barcodeProductToPantryItem } from "./scanLogic";
 
 type ScanMode = "receipt" | "barcode";
 type ScanState = "idle" | "processing" | "review" | "error";
@@ -60,11 +62,17 @@ export function ScanScreen() {
     barcodeLocked.current = true;
     setState("processing");
     try {
-      const scanResult = await scanApi.process({ type: "barcode", code: result.data });
-      setReviewItems(scanResult.items ?? []);
+      const { product } = await scanApi.lookupBarcode(result.data);
+      setReviewItems([barcodeProductToPantryItem(product)]);
       setState("review");
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Couldn't identify that barcode.");
+      const code = err instanceof ApiError ? (err.body as { code?: string })?.code : undefined;
+      setErrorMessage(
+        barcodeLookupErrorMessage(
+          code,
+          err instanceof Error ? err.message : "Couldn't identify that barcode."
+        )
+      );
       setState("error");
     }
   };
@@ -132,11 +140,11 @@ export function ScanScreen() {
         <Pill label="Barcode" selected={mode === "barcode"} onPress={() => { setMode("barcode"); reset(); }} />
       </View>
 
-      {state === "idle" ? (
+      {state === "idle" && mode === "receipt" ? (
         <View style={styles.noticeWrapper}>
           <Text style={[styles.noticeText, { color: colors.warning }]}>
-            Scanning isn't working yet — the server can't read a photo or
-            barcode directly right now, so a scan attempt here will fail.
+            Receipt scanning isn't working yet — the server can't read a
+            photo directly right now, so a scan attempt here will fail.
           </Text>
           <Button
             label="Add item manually instead"
