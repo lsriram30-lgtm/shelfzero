@@ -4,11 +4,14 @@ Status: **draft, needs Laasya + Laya review and final sign-off.** Nothing here
 has been entered into App Store Connect or Play Console yet. Screenshots are
 not included — see the bottom of this file for how to capture them.
 
-Everything below is grounded in what the app actually does today. Deliberately
-**not** mentioned anywhere: receipt/barcode scanning. It's visibly in the app
-but doesn't work yet (honest in-app notice already covers that) — advertising
-a broken feature in store copy is a real App Review risk (Apple guideline
-2.1), not just misleading.
+Everything below is grounded in what the app actually does today. Barcode
+scanning is real now (`GET /api/barcode/:code`, added 8/31 — see `TASKS.md`)
+and is mentioned below. Deliberately **not** mentioned: receipt scanning —
+the on-device OCR code exists (`feature/receipt-ocr`) but hasn't been merged
+or verified on a real device yet, so it's still not something to advertise.
+Revisit this note once that's confirmed working — advertising a broken
+feature in store copy is a real App Review risk (Apple guideline 2.1), not
+just misleading.
 
 ---
 
@@ -50,9 +53,10 @@ against App Store Connect's live counter:
 > for dinner.
 >
 > **Track what you actually have**
-> Log pantry items with quantity, category, and expiry date. ShelfZero
-> flags what's expiring soon so you use it before it's wasted, and shows a
-> quick health score for your whole pantry at a glance.
+> Log pantry items with quantity, category, and expiry date, or scan a
+> barcode to add one automatically. ShelfZero flags what's expiring soon so
+> you use it before it's wasted, and shows a quick health score for your
+> whole pantry at a glance.
 >
 > **Get a meal plan built from your own pantry**
 > Generate a 7-day meal plan based on what's actually in your kitchen —
@@ -164,7 +168,7 @@ full explanation of each):
 | Password | Yes | Yes | Account functionality (never stored in plain text) | No |
 | Pantry/shopping list/meal-plan/donation content | Yes | Yes (household-scoped) | App functionality | Item names + stated preferences sent to Google Gemini to generate meal plans/recipes — no name, email, or password included |
 | Household invite contact (email/phone) | Yes | Yes | App functionality (inviting someone) | No |
-| Photos/camera | Only if the scan feature is used | No | App functionality (not fully working yet — see backlog) | No |
+| Photos/camera | Only if the Scan feature is used | No | Barcode scanning reads the barcode number on-device and sends only that number — no photo is ever transmitted. Receipt scanning (not yet merged — see backlog) would extract text on-device before sending anything, same principle. | No |
 | Precise/approximate location | No | — | — | — |
 | Contacts | No | — | — | — |
 | Analytics/usage data | No | — | — | — |

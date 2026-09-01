@@ -52,9 +52,13 @@ Every backend endpoint from the reference doc has a typed wrapper in `src/api/`:
 | `pantry.ts` | `GET/POST /api/pantry`, `PUT/DELETE /api/pantry/:id` |
 | `shoppingList.ts` | `GET/POST /api/shopping-list`, `PATCH/DELETE /api/shopping-list/:id` |
 | `invites.ts` | `GET/POST /api/invites`, `POST /api/invites/accept`, `DELETE /api/invites/:id` |
-| `favorites.ts` | `GET/POST /api/favorites` |
+| `favorites.ts` | `GET/POST /api/favorites`, `DELETE /api/favorites/:id` |
 | `mealPlan.ts` | `POST /api/meal-plan` |
-| `scan.ts` | `POST /api/scan` |
+| `scan.ts` | `POST /api/scan` (receipt), `GET /api/barcode/:code` (barcode lookup, public, no auth) |
+| `household.ts` | `GET /api/me`, `POST /api/household/create`, `DELETE /api/me`, `GET /api/household/members`, `DELETE /api/household/members/:id`, `POST /api/household/leave` |
+| `donations.ts` | `GET/POST /api/donations` |
+| `recipes.ts` | `GET /api/recipes?q=` |
+| `auth.ts` | `POST /api/auth/sign-in/email`, `POST /api/auth/sign-up/email`, `POST /api/auth/request-password-reset`, `POST /api/auth/reset-password` |
 
 ## Known gaps / assumptions
 

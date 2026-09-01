@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 73 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 74 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1714,6 +1714,22 @@ pace I just won't be able to work much next week <3
       (private/shared artifacts can still show it to a public viewer)
       isn't resolved by a republish alone; see the "host at a real
       permanent URL" task below, still the actual fix for that.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix two
+      stale scanning references — committed directly to `master`.
+      `README.md`'s API-module table only ever listed `scan.ts | POST
+      /api/scan`, missing the barcode endpoint entirely and, while
+      checking, four other modules that had never been added
+      (`household.ts`, `donations.ts`, `recipes.ts`, `auth.ts`) — filled
+      in all of them. `STORE_LISTING.md` still said scanning was
+      deliberately left out of the marketing copy entirely and that the
+      Data Safety table's camera row was "not fully working yet" — both
+      stale now that barcode scanning is real. Added a barcode mention
+      to the full description, updated the camera row to accurately
+      describe what actually happens (barcode: only the number is sent,
+      never a photo; receipt: same on-device-first principle, once
+      merged), and reworded the top-of-file note to distinguish barcode
+      (real, mentioned) from receipt (still not merged/verified, still
+      deliberately excluded).
 
 ### Not yet assigned
 
