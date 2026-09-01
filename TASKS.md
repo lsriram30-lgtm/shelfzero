@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 69 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 70 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1588,6 +1588,21 @@ pace I just won't be able to work much next week <3
       unrelated to and unaffected by any of this. Re-ran typecheck, the
       full test suite, and a real `expo export --platform ios` bundle
       after reverting — all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      one-time automatic retry to meal-plan generation calls —
+      committed directly to `master`. Added `retryOnce()`
+      (`src/utils/retryOnce.ts`, 3 tests) and wired it into both
+      `MealPlannerScreen` calls (`handleGenerate`'s day loop and
+      `handleRegenerateDay`) and `useSuggestedRecipes`, so a failed call
+      gets one immediate second attempt before counting as a real
+      failure — a reasonable mitigation for the transient-504-timeout
+      pattern seen live-testing the task above. Live-testing it further
+      surfaced a `429` "temporarily busy" rate-limit state that a retry
+      doesn't help with (it hits the same limit instantly) — see the
+      full findings and open question in the backlog item below. Kept
+      the retry regardless since it's a real improvement for genuine
+      transient 504s and does no harm against 429s. Typecheck, all 258
+      tests, and a real `expo export --platform ios` bundle all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Stopped
       `npm test` from silently running 367 duplicate test files —
       committed directly to `master`. Investigating a suspicious "6233
@@ -1739,6 +1754,37 @@ outside this repo.
       failures) and recipe search end to end, and confirm the meal-plan
       shopping-gap and cuisine-filter tasks (both depend on real
       generated output) actually work too.
+      **Update, same 8/31 session, continued live-testing:** added a
+      `retryOnce` helper (`src/utils/retryOnce.ts`, 3 tests) and wired it
+      into both `MealPlannerScreen` calls and `useSuggestedRecipes` — a
+      failed day gets one immediate retry before counting as a real
+      failure, on the theory that the 504s look like transient
+      backend-load variance. Live-tested that too, and found something
+      worse than 504 timeouts: a second full 7-day run started returning
+      `429 "Meal planning is temporarily busy"` — first on 3 of 7 days
+      (fast, ~1s failures, immediate retry didn't help since it hit the
+      same limit instantly), then a follow-up run with 3s spacing
+      between calls got `429` on all 7, and even a single isolated call
+      by itself (no other calls nearby) still got `429`. That last part
+      matters: it means this isn't just about how fast this session was
+      calling it — the backend was in a genuinely rate-limited/busy state
+      by the end of this testing session, independent of call spacing.
+      Unclear whether today's testing volume (~40+ calls to
+      `/api/meal-plan` in under 15 minutes, across all the verification
+      above) caused or contributed to that state, or whether it's a
+      separate, lower capacity ceiling that would bite a real user
+      hitting "Generate 7-day plan" once. Deliberately stopped
+      testing rather than keep hammering an endpoint already showing
+      "temporarily busy," rather than risk making it worse or racking up
+      more quota usage without new information. `retryOnce` is kept
+      regardless — it's a real improvement for genuine transient 504s
+      and does no harm against 429s, just doesn't fix them. **This needs
+      a fresh live test after some real time has passed** (not
+      immediately back-to-back with today's session) to tell apart
+      "today's testing exhausted a short-term quota" from "this backend
+      has a capacity ceiling real users will hit too." Typecheck, the
+      full test suite (258, was 255), and a real
+      `expo export --platform ios` bundle all pass.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
       household invitations end-to-end through the actual app UI: invite
       someone, have them accept, see them in Profile's "Household

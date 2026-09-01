@@ -3,6 +3,7 @@ import { mealPlanApi } from "../api/mealPlan";
 import { usePantry } from "./usePantry";
 import { Recipe } from "../types";
 import { parseMealPlanDays } from "../screens/mealPlannerLogic";
+import { retryOnce } from "../utils/retryOnce";
 
 // The backend has no standalone recipe-list endpoint, so suggestions are
 // derived from the meal-plan generator (POST /api/meal-plan) using current
@@ -27,11 +28,13 @@ export function useSuggestedRecipes() {
     setLoading(true);
     setError(null);
     try {
-      const raw = await mealPlanApi.generate({
-        pantryItems: pantryItems.map((item) => item.name),
-        days: 1,
-        dayIndex: 0,
-      });
+      const raw = await retryOnce(() =>
+        mealPlanApi.generate({
+          pantryItems: pantryItems.map((item) => item.name),
+          days: 1,
+          dayIndex: 0,
+        })
+      );
       const parsedDays = parseMealPlanDays(raw);
       const seen = new Set<string>();
       const derived: Recipe[] = [];

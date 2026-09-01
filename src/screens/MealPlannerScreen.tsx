@@ -41,6 +41,7 @@ import {
   saveMealPlanToHistory,
   setCachedMealPlan,
 } from "../utils/mealPlanCache";
+import { retryOnce } from "../utils/retryOnce";
 import { MealPlannerStackParamList } from "../navigation/types";
 
 const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
@@ -91,10 +92,15 @@ export function MealPlannerScreen() {
   // tried and reverted - live-tested 8/31 against the real API with a
   // demo account: an invalid mealLabel value ("brunch") still returned
   // 200 with a full, real 3-meal day, so the backend isn't reading or
-  // validating that field at all despite Airo's description. Day-scoped
-  // calls (no mealLabel) were separately confirmed fast on their own
-  // (~7-15s across 4 spot-checked days, well under the old ~20s
-  // timeout), so plain day-scoping is both correct and sufficient here.
+  // validating that field at all despite Airo's description.
+  //
+  // Day-scoped calls (no mealLabel) succeed reliably in isolation
+  // (~7-15s), but the same live-testing found a full 7-in-a-row run only
+  // succeeded on 4/7 days - the rest 504-timed out (~20-21s), looking
+  // like backend load variance under back-to-back calls rather than a
+  // per-day problem. retryOnce gives a failed day one immediate second
+  // attempt (a day that failed once has a real shot at the backend being
+  // less loaded a moment later) before it counts as a real failure.
   const handleGenerate = async () => {
     if (!hasEnoughItems) {
       setError(NOT_ENOUGH_ITEMS_MESSAGE);
@@ -107,12 +113,14 @@ export function MealPlannerScreen() {
     try {
       for (let dayIndex = 0; dayIndex < WEEKDAY_LABELS.length; dayIndex++) {
         setGenerationProgress({ current: dayIndex + 1, total: WEEKDAY_LABELS.length });
-        const raw = await mealPlanApi.generate({
-          pantryItems: currentPantryNames,
-          preferences,
-          days: 1,
-          dayIndex,
-        });
+        const raw = await retryOnce(() =>
+          mealPlanApi.generate({
+            pantryItems: currentPantryNames,
+            preferences,
+            days: 1,
+            dayIndex,
+          })
+        );
         const parsedDays = parseMealPlanDays(raw);
         if (parsedDays[0]) generatedDays.push(parsedDays[0]);
       }
@@ -148,12 +156,14 @@ export function MealPlannerScreen() {
     setRegeneratingDay(dayLabel);
     setError(null);
     try {
-      const raw = await mealPlanApi.generate({
-        pantryItems: currentPantryNames,
-        preferences: buildMealPlanPreferences(profile),
-        days: 1,
-        startDay: dayLabel,
-      });
+      const raw = await retryOnce(() =>
+        mealPlanApi.generate({
+          pantryItems: currentPantryNames,
+          preferences: buildMealPlanPreferences(profile),
+          days: 1,
+          startDay: dayLabel,
+        })
+      );
       const updatedDays = replaceDayInPlan(days, dayLabel, parseMealPlanDays(raw));
       setDays(updatedDays);
       // Deliberately NOT updating cachedPantryNames here: only this one day
