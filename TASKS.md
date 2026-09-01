@@ -1785,16 +1785,20 @@ Buildable in this repo with no backend involvement.
 Not code — needs a person to research, decide, or check something
 outside this repo.
 
-- [ ] ![Later](https://img.shields.io/badge/Later-green) Decide when to
-      merge `feature/receipt-ocr` (on-device OCR for
-      receipt scanning) into `master`. The code is complete — see the
-      completed entry above — but merging trades away Expo Go for the
-      *entire* app in exchange for working receipt scans, and testing it
-      on a physical device needs either a paid Apple Developer Program
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Merge
+      `feature/receipt-ocr` (on-device OCR for receipt scanning) into
+      `master` and verify it on a real device before submitting. The
+      code is complete — see the completed entry above — and the plan
+      is to merge it right before the TestFlight submission specifically
+      so its first real test happens on a real build rather than a
+      separate dev-client cycle (losing Expo Go app-wide is accepted as
+      a tradeoff). Testing needs either a paid Apple Developer Program
       membership ($99/year, for iOS) or an Android device (no paid
-      account needed there). Merge once that tradeoff is worth making.
-      Not launch-blocking as-is: the Scan screen already shows an
-      honest "not working yet" notice instead of a silent failure.
+      account needed there) — no Android device is currently available,
+      so iOS/TestFlight is the actual first real test either way. Was
+      previously merged and reverted once already (8/27, no reason
+      recorded in the commit) — worth checking with Laya why, in case
+      it wasn't just "keep Expo Go working."
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Pick a real web
       domain for shareable invite links (currently a placeholder one)
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Prepare actual App
@@ -1811,8 +1815,8 @@ outside this repo.
       screenshots (needs a phone with Expo Go, not something buildable
       from this repo) before this is submittable.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
-      is meaningfully better than 8/16 but still genuinely intermittent,
-      and recipe search is still fully broken. Live-tested 8/31 against
+      is meaningfully better than 8/16 but still genuinely intermittent.
+      Live-tested 8/31 against
       the real API with the demo account (direct `curl`, phone wifi was
       down): `mealLabel` scoping (see the corrected completed entry
       above) turned out to be a no-op the backend doesn't actually
@@ -1829,17 +1833,14 @@ outside this repo.
       handling (keep whatever succeeded, clear error message, per-day
       regenerate to retry) already covers it as gracefully as a client
       can, but roughly 40% of days still fail on a given generation.
-      **Recipe search is unaffected and still fully broken** — `GET
-      /api/recipes?q=`, a separate endpoint from `/api/meal-plan`,
-      still `504`s (~11s, confirmed 8/31) with no scoping fix proposed
-      or built for it at all. Both need either a GoDaddy Support answer
-      (a ticket was filed 8/31, still awaiting a response) or further
+      Meal-plan generation needs either a GoDaddy Support answer (a
+      ticket was filed 8/31, still awaiting a response) or further
       Airo-side backend work — a client-side day/meal-scoping trick has
       now been tried and mostly exhausted as an option. Once resolved,
-      re-verify meal-plan generation (a full 7-day run with no
-      failures) and recipe search end to end, and confirm the meal-plan
-      shopping-gap and cuisine-filter tasks (both depend on real
-      generated output) actually work too.
+      re-verify meal-plan generation end to end (a full 7-day run with
+      no failures), and confirm the meal-plan shopping-gap and
+      cuisine-filter tasks (both depend on real generated output)
+      actually work too.
       **Update, same 8/31 session, continued live-testing:** added a
       `retryOnce` helper (`src/utils/retryOnce.ts`, 3 tests) and wired it
       into both `MealPlannerScreen` calls and `useSuggestedRecipes` — a
@@ -1874,6 +1875,16 @@ outside this repo.
       `429` findings above; Airo's response was to open a GoDaddy
       Support ticket for it, same as the meal-plan-latency issue below —
       a ticket has been filed (8/31).
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Recipe search
+      (`GET /api/recipes?q=`, a separate endpoint from
+      `/api/meal-plan`) is still fully broken — still `504`s (~11s,
+      confirmed 8/31), with no scoping fix proposed or built for it at
+      all. Split out from the meal-plan generation item above since
+      it's a distinct endpoint with its own unresolved root cause, not
+      something the day-scoping/retry work touches. Not launch-blocking
+      on its own: the existing local title-filter search on the
+      Recipes screen still works, so this only affects the separate
+      "Search all recipes" action.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
       household invitations end-to-end through the actual app UI: invite
       someone, have them accept, see them in Profile's "Household
