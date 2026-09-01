@@ -28,7 +28,6 @@ import {
   formatIngredientLabel,
   hasEnoughPantryItems,
   hasPantryChanged,
-  MEAL_LABELS,
   missingIngredients,
   parseIngredientQuantity,
   parseMealPlanDays,
@@ -82,12 +81,20 @@ export function MealPlannerScreen() {
   const isStale = days.length > 0 && hasPantryChanged(currentPantryNames, cachedPantryNames);
   const hasEnoughItems = hasEnoughPantryItems(pantryItems.length);
 
-  // Even one day in one call was too slow (a day alone still asks for 3
-  // full meals at once) - this makes 21 fast single-meal requests instead
-  // (7 days x 3 meals) and stitches them back into days. A day only gets
-  // pushed into generatedDays once all 3 of its meals succeed, so a
-  // mid-day failure doesn't leave a half-built day in the result; per-day
-  // regenerate (below) is how to retry whatever's missing afterward.
+  // A single request for all 7 days/21 meals was too slow - this makes 7
+  // fast single-day requests instead, one per weekday, and stitches the
+  // results together. A day that fails partway through doesn't discard
+  // the days that already succeeded; per-day regenerate (below) is how
+  // to retry just the missing one(s) afterward.
+  //
+  // mealLabel scoping (one meal per call instead of one day per call) was
+  // tried and reverted - live-tested 8/31 against the real API with a
+  // demo account: an invalid mealLabel value ("brunch") still returned
+  // 200 with a full, real 3-meal day, so the backend isn't reading or
+  // validating that field at all despite Airo's description. Day-scoped
+  // calls (no mealLabel) were separately confirmed fast on their own
+  // (~7-15s across 4 spot-checked days, well under the old ~20s
+  // timeout), so plain day-scoping is both correct and sufficient here.
   const handleGenerate = async () => {
     if (!hasEnoughItems) {
       setError(NOT_ENOUGH_ITEMS_MESSAGE);
@@ -97,25 +104,17 @@ export function MealPlannerScreen() {
     setError(null);
     const preferences = buildMealPlanPreferences(profile);
     const generatedDays: MealPlanDay[] = [];
-    const totalCalls = WEEKDAY_LABELS.length * MEAL_LABELS.length;
-    let callCount = 0;
     try {
       for (let dayIndex = 0; dayIndex < WEEKDAY_LABELS.length; dayIndex++) {
-        const dayMeals: MealPlanDay["meals"] = [];
-        for (const mealLabel of MEAL_LABELS) {
-          callCount++;
-          setGenerationProgress({ current: callCount, total: totalCalls });
-          const raw = await mealPlanApi.generate({
-            pantryItems: currentPantryNames,
-            preferences,
-            days: 1,
-            dayIndex,
-            mealLabel,
-          });
-          const parsedDays = parseMealPlanDays(raw);
-          if (parsedDays[0]) dayMeals.push(...parsedDays[0].meals);
-        }
-        generatedDays.push({ day: WEEKDAY_LABELS[dayIndex], meals: dayMeals });
+        setGenerationProgress({ current: dayIndex + 1, total: WEEKDAY_LABELS.length });
+        const raw = await mealPlanApi.generate({
+          pantryItems: currentPantryNames,
+          preferences,
+          days: 1,
+          dayIndex,
+        });
+        const parsedDays = parseMealPlanDays(raw);
+        if (parsedDays[0]) generatedDays.push(parsedDays[0]);
       }
       setDays(generatedDays);
       setCachedPantryNames(currentPantryNames);
@@ -149,19 +148,13 @@ export function MealPlannerScreen() {
     setRegeneratingDay(dayLabel);
     setError(null);
     try {
-      const meals: MealPlanDay["meals"] = [];
-      for (const mealLabel of MEAL_LABELS) {
-        const raw = await mealPlanApi.generate({
-          pantryItems: currentPantryNames,
-          preferences: buildMealPlanPreferences(profile),
-          days: 1,
-          startDay: dayLabel,
-          mealLabel,
-        });
-        const parsedDays = parseMealPlanDays(raw);
-        if (parsedDays[0]) meals.push(...parsedDays[0].meals);
-      }
-      const updatedDays = replaceDayInPlan(days, dayLabel, [{ day: dayLabel, meals }]);
+      const raw = await mealPlanApi.generate({
+        pantryItems: currentPantryNames,
+        preferences: buildMealPlanPreferences(profile),
+        days: 1,
+        startDay: dayLabel,
+      });
+      const updatedDays = replaceDayInPlan(days, dayLabel, parseMealPlanDays(raw));
       setDays(updatedDays);
       // Deliberately NOT updating cachedPantryNames here: only this one day
       // was actually regenerated against the current pantry, so the other
@@ -243,7 +236,7 @@ export function MealPlannerScreen() {
         />
         {generationProgress ? (
           <Text style={[styles.generationProgressText, { color: colors.textMuted }]}>
-            Generating meal {generationProgress.current} of {generationProgress.total}…
+            Generating day {generationProgress.current} of {generationProgress.total}…
           </Text>
         ) : null}
 

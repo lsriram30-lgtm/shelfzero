@@ -80,8 +80,6 @@ export interface Recipe {
   cuisine?: string;
 }
 
-export type MealSlotLabel = "breakfast" | "lunch" | "dinner";
-
 export interface MealPlanRequest {
   pantryItems: string[];
   preferences?: Record<string, unknown>;
@@ -91,14 +89,15 @@ export interface MealPlanRequest {
   // building a week out of several fast calls; startDay (a weekday name
   // already present in a previously-generated plan) targets regenerating
   // one specific existing day.
+  //
+  // The backend also documents an optional mealLabel field for scoping a
+  // day-level request down to one meal, but live-testing on 8/31 (a real
+  // demo account, an invalid mealLabel value) confirmed it isn't actually
+  // read or validated server-side - deliberately not modeled here since
+  // sending it would just be misleading dead code.
   days?: number;
   dayIndex?: number;
   startDay?: string;
-  // Even a single day still timed out - a day alone asks for all 3 meals
-  // in one call. mealLabel scopes a day-level request down further to
-  // just one of its 3 meals, so a "day" is actually built from 3 fast
-  // single-meal calls instead of one slow one.
-  mealLabel?: MealSlotLabel;
 }
 
 export interface MealIngredient {

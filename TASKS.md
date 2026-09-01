@@ -1556,6 +1556,38 @@ pace I just won't be able to work much next week <3
       the one requested key) or whether the extra round-trips end up
       meaningfully faster in practice. Needs a real live test before
       relying on it for the TestFlight submission.
+      **Correction, live-tested 8/31 against the real API with the demo
+      account** (signed in directly via `curl` — the phone's wifi was
+      down, so this was the only way to actually verify it): `mealLabel`
+      is **not** read or validated by the backend at all. Sending an
+      invalid value (`"brunch"`, not breakfast/lunch/dinner) still
+      returned `200` with a real, complete 3-meal day — Airo's
+      description of it doesn't match live behavior. Since every
+      "meal-scoped" call was actually returning all 3 meals regardless
+      of which one was asked for, the 21-call loop would have jammed 9
+      duplicate-slot meals into every day. **Reverted** both
+      `MealPlannerScreen.tsx` handlers and `useSuggestedRecipes.ts` back
+      to day-scoping only (no `mealLabel`), and removed the now-dead
+      `mealLabel`/`MealSlotLabel` code from the request type and
+      `mealPlannerLogic.ts` rather than leave it around unused and
+      misleading. Separately live-tested day-scoped calls in isolation
+      (4 different days, 7-15s each, all succeeded) — this is what led
+      to reverting rather than just also abandoning day-scoping — but a
+      full sequential 7-day run (exactly what "Generate 7-day plan"
+      actually does) only succeeded on 4 of 7 days, `504`-timing out on
+      the other 3 at ~20-21s each. That's a real improvement over 8/16
+      (where every single day-scoped call failed) but still genuinely
+      intermittent, and looks like backend load/capacity variance under
+      back-to-back calls rather than anything a client change can fix.
+      The existing partial-failure handling (keep whatever days
+      succeeded, show a clear error, point at per-day regenerate)
+      already covers this gracefully — this isn't a crash, just a
+      normal, already-handled failure mode that happens more often than
+      it should. See the updated backlog item below. Also confirmed
+      recipe search (`GET /api/recipes?q=`) still `504`s (~11s),
+      unrelated to and unaffected by any of this. Re-ran typecheck, the
+      full test suite, and a real `expo export --platform ios` bundle
+      after reverting — all pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Stopped
       `npm test` from silently running 367 duplicate test files —
       committed directly to `master`. Investigating a suspicious "6233
@@ -1678,25 +1710,35 @@ outside this repo.
       honestly disclosed in-app as a label-only choice, so not a
       submission blocker on its own.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
-      was too slow to work at all — Airo has since added a client-side
-      mitigation, but it's unverified, and recipe search's separate `504`s
-      are still fully unresolved. Originally: even the smallest possible
-      meal-plan request (one day, `{ days: 1, dayIndex: 0 }`) timed out at
-      ~20-21 seconds, confirmed via direct API testing on 8/16 — Airo's
-      diagnosis was that a single day still asks Gemini for all 3 meals in
-      one call, genuinely a lot of structured output per call. Airo has
-      since added `mealLabel` scoping (one meal per call instead of one
-      day per call) and the client's been updated to use it — see the
-      completed entry above — but that fix hasn't been live-tested yet,
-      so this stays open until it is. **Recipe search's `504`s are a
-      separate endpoint** (`GET /api/recipes?q=`, not `/api/meal-plan`)
-      with the same slow-generation symptom but no equivalent scoping fix
-      proposed or built — still needs either a GoDaddy Support answer (a
-      ticket was filed 8/31, still awaiting a response) or its own Airo
-      fix. Once both are resolved, re-verify meal-plan generation and
-      recipe search end to end, and confirm the meal-plan shopping-gap
-      and cuisine-filter tasks (both depend on real generated output)
-      actually work too.
+      is meaningfully better than 8/16 but still genuinely intermittent,
+      and recipe search is still fully broken. Live-tested 8/31 against
+      the real API with the demo account (direct `curl`, phone wifi was
+      down): `mealLabel` scoping (see the corrected completed entry
+      above) turned out to be a no-op the backend doesn't actually
+      honor, so that part of Airo's 8/31 fix doesn't do anything. What
+      *did* improve since 8/16: individual day-scoped calls tested in
+      isolation succeeded reliably (4 different days, 7-15s each,
+      versus 8/16's ~20-21s timeout on every single one). But a full
+      sequential 7-day run — exactly what "Generate 7-day plan" actually
+      does — only succeeded on 4 of 7 days, `504`-timing out on the
+      other 3 at ~20-21s each, ~101s total. That pattern (isolated calls
+      mostly fine, back-to-back calls intermittently timing out) points
+      at backend load/capacity variance under repeated calls, not
+      something fixable client-side — the app's existing partial-failure
+      handling (keep whatever succeeded, clear error message, per-day
+      regenerate to retry) already covers it as gracefully as a client
+      can, but roughly 40% of days still fail on a given generation.
+      **Recipe search is unaffected and still fully broken** — `GET
+      /api/recipes?q=`, a separate endpoint from `/api/meal-plan`,
+      still `504`s (~11s, confirmed 8/31) with no scoping fix proposed
+      or built for it at all. Both need either a GoDaddy Support answer
+      (a ticket was filed 8/31, still awaiting a response) or further
+      Airo-side backend work — a client-side day/meal-scoping trick has
+      now been tried and mostly exhausted as an option. Once resolved,
+      re-verify meal-plan generation (a full 7-day run with no
+      failures) and recipe search end to end, and confirm the meal-plan
+      shopping-gap and cuisine-filter tasks (both depend on real
+      generated output) actually work too.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
       household invitations end-to-end through the actual app UI: invite
       someone, have them accept, see them in Profile's "Household

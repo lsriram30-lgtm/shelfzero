@@ -1,21 +1,10 @@
-import {
-  MealIngredient,
-  MealPlanDay,
-  MealSlotLabel,
-  OnboardingProfile,
-  RawMealPlanApiResponse,
-} from "../types";
+import { MealIngredient, MealPlanDay, OnboardingProfile, RawMealPlanApiResponse } from "../types";
 
-const MEAL_TYPE_LABELS: { key: MealSlotLabel; label: string }[] = [
+const MEAL_TYPE_LABELS: { key: "breakfast" | "lunch" | "dinner"; label: string }[] = [
   { key: "breakfast", label: "Breakfast" },
   { key: "lunch", label: "Lunch" },
   { key: "dinner", label: "Dinner" },
 ];
-
-// Matches the backend's documented mealLabel values for requesting one
-// specific meal of a day at a time (in addition to dayIndex/startDay
-// already scoping down to one day).
-export const MEAL_LABELS: MealSlotLabel[] = MEAL_TYPE_LABELS.map((m) => m.key);
 
 // Converts the real `POST /api/meal-plan` wire shape into the MealPlanDay[]
 // shape the rest of the app is built around - see the comment on
