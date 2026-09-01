@@ -22,24 +22,29 @@ const DONATION_PARTNERS: DonationPartner[] = [
     name: "Feeding America",
     description: "Search their nationwide network of food banks by zip code",
     url: "https://www.feedingamerica.org/find-your-local-foodbank",
+    accepts:
+      "Varies by the specific food bank, but unopened, unexpired canned/boxed goods are almost always accepted; fresh, frozen, or refrigerated items depend on the location.",
   },
   {
     id: "ampleharvest",
     name: "AmpleHarvest.org",
     description: "Matches surplus pantry or garden food with a nearby pantry that can use it",
     url: "https://www.ampleharvest.org/find-pantry/",
+    accepts: "Built specifically for fresh produce and garden surplus, not packaged goods.",
   },
   {
     id: "211",
     name: "211",
     description: "Free community-services directory, including food assistance near you",
     url: "https://www.211.org/",
+    accepts: "A general directory, not food-specific — ask what's accepted when you call.",
   },
   {
     id: "maps-search",
     name: "Search maps for food banks near me",
     description: "Opens your maps app with a search for nearby food banks",
     url: "https://www.google.com/maps/search/?api=1&query=food+bank+near+me",
+    accepts: "Varies completely by location — check with them directly before dropping off.",
   },
 ];
 
@@ -203,13 +208,20 @@ export function DonateScreen() {
                       style={styles.partnerSelectArea}
                       accessibilityRole="radio"
                       accessibilityState={{ checked: selected }}
-                      accessibilityLabel={p.name}
+                      accessibilityLabel={
+                        p.accepts ? `${p.name}. Accepts: ${p.accepts}` : p.name
+                      }
                     >
                       <View style={styles.partnerInfo}>
                         <Text style={[styles.partnerName, { color: colors.text }]}>{p.name}</Text>
                         <Text style={[styles.partnerDescription, { color: colors.textMuted }]}>
                           {p.description}
                         </Text>
+                        {p.accepts ? (
+                          <Text style={[styles.partnerAccepts, { color: colors.textMuted }]}>
+                            Accepts: {p.accepts}
+                          </Text>
+                        ) : null}
                       </View>
                       <Ionicons
                         name={selected ? "radio-button-on" : "radio-button-off"}
@@ -314,6 +326,11 @@ const styles = StyleSheet.create({
   partnerDescription: {
     ...typography.caption,
     marginTop: 2,
+  },
+  partnerAccepts: {
+    ...typography.caption,
+    marginTop: 2,
+    fontStyle: "italic",
   },
   disclaimer: {
     ...typography.caption,
