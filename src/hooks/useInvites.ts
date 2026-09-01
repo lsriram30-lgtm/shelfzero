@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { invitesApi } from "../api";
-import { householdApi } from "../api/household";
 import { HouseholdInvite, NewInvite } from "../types";
 import { useNotificationPreferences } from "../context/NotificationPreferencesContext";
 import { notifyInviteAccepted } from "../notifications/expiryNotifications";
@@ -50,10 +49,5 @@ export function useInvites() {
     setInvites((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
-  const removeMember = useCallback(async (id: string) => {
-    await householdApi.removeMember(id);
-    setInvites((prev) => prev.filter((i) => i.id !== id));
-  }, []);
-
-  return { invites, loading, error, refresh, createInvite, cancelInvite, removeMember };
+  return { invites, loading, error, refresh, createInvite, cancelInvite };
 }

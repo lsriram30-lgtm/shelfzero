@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
-import { useInvites } from "../../hooks/useInvites";
+import { useHouseholdMembers } from "../../hooks/useHouseholdMembers";
 import { Screen, Header, Card, Button, Pill, CardHeader } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
@@ -21,7 +21,7 @@ export function ProfileScreen() {
   const { colors, mode, setMode } = useTheme();
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile, resetOnboarding } = useOnboarding();
-  const { invites, removeMember } = useInvites();
+  const { members, removeMember } = useHouseholdMembers();
   const { signOut, currentEmail } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [leavingHousehold, setLeavingHousehold] = useState(false);
@@ -36,8 +36,6 @@ export function ProfileScreen() {
       .then((me) => setIsOwner(me.role === "owner"))
       .catch(() => {});
   }, []);
-
-  const members = invites.filter((invite) => invite.status === "accepted");
 
   const handleResetForTesting = () => {
     confirmDestructiveAction({
@@ -215,7 +213,7 @@ export function ProfileScreen() {
             members.map((member) => (
               <View key={member.id} style={styles.memberRow}>
                 <Text style={[styles.detail, { color: colors.text }]}>
-                  {member.name} · {member.role}
+                  {member.name} · {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                 </Text>
                 {isOwner ? (
                   <Pressable

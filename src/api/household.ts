@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import { HouseholdMember } from "../types";
 
 export type CurrentUser = {
   householdId: string | null;
@@ -10,6 +11,7 @@ export const householdApi = {
   create: (name: string) =>
     apiClient.post<{ householdId: string }>("/api/household/create", { name }),
   deleteAccount: () => apiClient.delete<{ ok: boolean }>("/api/me"),
+  members: () => apiClient.get<HouseholdMember[]>("/api/household/members"),
   removeMember: (id: string) => apiClient.delete<void>(`/api/household/members/${id}`),
   leave: () => apiClient.post<void>("/api/household/leave"),
 };
