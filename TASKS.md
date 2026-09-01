@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 67 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 69 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1523,6 +1523,55 @@ pace I just won't be able to work much next week <3
       invite id that was never guaranteed to match. Typecheck, the full
       test suite, and a real `expo export --platform ios` bundle all
       pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Split
+      meal-plan generation down to one meal per call (branch:
+      `feature/mealplan-meal-scoped`) — code complete, **not yet
+      verified against the live backend**. Airo's 8/16 diagnosis was
+      that even a single day-scoped call still timed out (~20-21s)
+      because one day asks for all 3 meals (breakfast/lunch/dinner) in
+      one call; they've since added `mealLabel`
+      (`breakfast`/`lunch`/`dinner`) to `POST /api/meal-plan`, scoping a
+      request down to one specific meal. "Generate 7-day plan" now
+      makes 21 single-meal calls (7 days x 3 meals) instead of 7
+      single-day calls, stitching each day back together from its 3
+      meal responses (through the same `parseMealPlanDays` conversion
+      the day-scoped fix already relies on); a day only lands in the
+      result once all 3 of its meals succeed, same partial-failure
+      semantics as before. "Regenerate one day" got the same treatment.
+      Also converted `useSuggestedRecipes.ts` (Recipes screen's
+      suggestion list), which had the same root problem but worse — it
+      requested the full 21-meal week with no scoping at all, the
+      single slowest possible call. Since that's an automatic
+      on-mount/on-retry fetch rather than a button press with a
+      progress UI, scoped it down to one day's 3 meals (3 calls) rather
+      than the full 21 — bounded and fast rather than maximally varied.
+      Also fixed two comments in `mealPlannerLogic.ts` that were already
+      stale before this change (one described a "splice into a freshly
+      generated whole week" regenerate mechanism that hasn't existed
+      since the 8/16 day-scoping fix). Typecheck, the full test suite,
+      and a real `expo export --platform ios` bundle all pass — **but
+      this hasn't been run against the actual live API yet**, so it's
+      unconfirmed whether `mealLabel` behaves exactly as described (e.g.
+      whether a scoped response's `meals` object really only contains
+      the one requested key) or whether the extra round-trips end up
+      meaningfully faster in practice. Needs a real live test before
+      relying on it for the TestFlight submission.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Stopped
+      `npm test` from silently running 367 duplicate test files —
+      committed directly to `master`. Investigating a suspicious "6233
+      tests passed" count turned up leftover `.claude/worktrees/*/`
+      scratch directories (other Claude Code sessions' isolated
+      worktrees) sitting inside the repo, each a full copy of every test
+      file; Jest had no `testPathIgnorePatterns` telling it to skip
+      them, so it ran ~25 duplicate copies of the real 255-test suite
+      alongside the real one every time. Added
+      `testPathIgnorePatterns: ["/node_modules/", "<rootDir>/.claude/worktrees/"]`
+      to `package.json`'s Jest config (the `node_modules` entry is
+      Jest's own default, otherwise lost by overriding the option at
+      all) — `npm test` now reports the real 255 and runs in ~5-8s
+      instead of ~70s. The worktree directories themselves are untouched
+      (they're not git-tracked, per `.git/info/exclude`, so this was
+      purely a test-runner scoping fix, not a cleanup).
 
 ### Not yet assigned
 
@@ -1629,29 +1678,25 @@ outside this repo.
       honestly disclosed in-app as a label-only choice, so not a
       submission blocker on its own.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
-      (and recipe search, same root cause) is still
-      too slow to work at all — needs GoDaddy Support, not Airo. Affects
-      both "Generate 7-day plan" and "regenerate one day," since both
-      hit the same endpoint. Confirmed via direct API testing on 8/16
-      that even the smallest possible meal-plan request (one day,
-      `{ days: 1, dayIndex: 0 }`) times out at ~20-21 seconds; the
-      day-scoped fix's core assumption ("one day is fast enough") was
-      wrong. Airo diagnosed why: a single day still asks Gemini for 3
-      complete meals in one call, each with description, cuisine,
-      pantry/extra lists, and structured ingredients — genuinely a lot
-      of structured output per call. The app's 20-second timeout is
-      app-level, not a hard platform ceiling, but Airo's own read is
-      that raising it alone would just delay the failure rather than
-      fix the underlying slowness. Recipe search's `504`s are the exact
-      same symptom (route works, generation itself is too slow), so this
-      one task covers both. Airo said it's reached the edge of what it
-      can diagnose here and pointed to **GoDaddy Support**
-      (help.godaddy.com) for further help. A support ticket has since
-      been filed with GoDaddy Support (as of 8/31) — still awaiting a
-      response. Once resolved,
-      re-verify both meal-plan generation and recipe search end to end,
-      and confirm the meal-plan shopping-gap and cuisine-filter tasks
-      (both depend on real generated output) actually work too.
+      was too slow to work at all — Airo has since added a client-side
+      mitigation, but it's unverified, and recipe search's separate `504`s
+      are still fully unresolved. Originally: even the smallest possible
+      meal-plan request (one day, `{ days: 1, dayIndex: 0 }`) timed out at
+      ~20-21 seconds, confirmed via direct API testing on 8/16 — Airo's
+      diagnosis was that a single day still asks Gemini for all 3 meals in
+      one call, genuinely a lot of structured output per call. Airo has
+      since added `mealLabel` scoping (one meal per call instead of one
+      day per call) and the client's been updated to use it — see the
+      completed entry above — but that fix hasn't been live-tested yet,
+      so this stays open until it is. **Recipe search's `504`s are a
+      separate endpoint** (`GET /api/recipes?q=`, not `/api/meal-plan`)
+      with the same slow-generation symptom but no equivalent scoping fix
+      proposed or built — still needs either a GoDaddy Support answer (a
+      ticket was filed 8/31, still awaiting a response) or its own Airo
+      fix. Once both are resolved, re-verify meal-plan generation and
+      recipe search end to end, and confirm the meal-plan shopping-gap
+      and cuisine-filter tasks (both depend on real generated output)
+      actually work too.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
       household invitations end-to-end through the actual app UI: invite
       someone, have them accept, see them in Profile's "Household
