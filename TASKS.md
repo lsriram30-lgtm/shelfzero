@@ -1349,6 +1349,21 @@ pace I just won't be able to work much next week <3
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
+- [ ] Add a way to actually list a household's accepted members with
+      their real user account id. Confirmed live on 8/29: `GET
+      /api/invites` never returns an invite once it's accepted (only
+      pending ones come back, regardless of query params tried), and
+      there's no separate members-list endpoint (`GET /api/household`,
+      `/api/household/:id`, `/api/household/members`, and `/api/users`
+      all 404). `DELETE /api/household/members/:id` itself works —
+      confirmed with a real two-account test — but needs the accepted
+      member's actual user id, which the client currently has no way to
+      obtain since accepted invites are invisible to it. Either have
+      `GET /api/invites` include accepted invites with the joined user's
+      real id, or add a dedicated members-list endpoint. Blocks the
+      "Household members" list and remove-member feature from ever
+      actually working, not just the id mismatch originally suspected.
+
 #### Claude Code (client-side)
 
 Buildable in this repo with no backend involvement.
@@ -1432,8 +1447,9 @@ outside this repo.
       same symptom (route works, generation itself is too slow), so this
       one task covers both. Airo said it's reached the edge of what it
       can diagnose here and pointed to **GoDaddy Support**
-      (help.godaddy.com) for further help — no ticket was auto-opened,
-      so this needs a person to actually go file one. Once resolved,
+      (help.godaddy.com) for further help. A support ticket has since
+      been filed with GoDaddy Support (as of 8/31) — still awaiting a
+      response. Once resolved,
       re-verify both meal-plan generation and recipe search end to end,
       and confirm the meal-plan shopping-gap and cuisine-filter tasks
       (both depend on real generated output) actually work too.
