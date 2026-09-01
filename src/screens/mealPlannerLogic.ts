@@ -1,10 +1,21 @@
-import { MealIngredient, MealPlanDay, OnboardingProfile, RawMealPlanApiResponse } from "../types";
+import {
+  MealIngredient,
+  MealPlanDay,
+  MealSlotLabel,
+  OnboardingProfile,
+  RawMealPlanApiResponse,
+} from "../types";
 
-const MEAL_TYPE_LABELS: { key: "breakfast" | "lunch" | "dinner"; label: string }[] = [
+const MEAL_TYPE_LABELS: { key: MealSlotLabel; label: string }[] = [
   { key: "breakfast", label: "Breakfast" },
   { key: "lunch", label: "Lunch" },
   { key: "dinner", label: "Dinner" },
 ];
+
+// Matches the backend's documented mealLabel values for requesting one
+// specific meal of a day at a time (in addition to dayIndex/startDay
+// already scoping down to one day).
+export const MEAL_LABELS: MealSlotLabel[] = MEAL_TYPE_LABELS.map((m) => m.key);
 
 // Converts the real `POST /api/meal-plan` wire shape into the MealPlanDay[]
 // shape the rest of the app is built around - see the comment on
@@ -71,12 +82,6 @@ export function hasPantryChanged(current: string[], cached: string[]): boolean {
   return cached.some((name) => !currentSet.has(name));
 }
 
-// The backend only ever generates a full 7-day plan - there's no per-day
-// endpoint - so "regenerate one day" works by generating a whole fresh
-// plan and splicing just the requested day out of it, leaving the rest of
-// the cached week untouched. If the fresh plan doesn't happen to include a
-// day with a matching label, the original days are returned unchanged
-// rather than silently dropping that day.
 // Only the 1-2 things actually missing are worth adding to the shopping
 // list - most of a suggested meal's ingredients should already be on hand,
 // since the plan was generated from the current pantry in the first place.
@@ -116,6 +121,11 @@ export function buildGenerationFailureMessage(
   return `Generated ${successCount} of ${totalCount} days before this failed: ${errorMessage} You can regenerate the missing days individually below.`;
 }
 
+// "Regenerate one day" builds a fresh single day (3 meal-scoped calls,
+// stitched together the same way full-week generation is) and splices
+// just that day into the existing cached week, leaving the rest
+// untouched. If the fresh day's label doesn't happen to match, the
+// original days are returned unchanged rather than silently dropping it.
 export function replaceDayInPlan(
   days: MealPlanDay[],
   dayLabel: string,

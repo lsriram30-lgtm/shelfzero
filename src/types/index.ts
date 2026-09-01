@@ -80,6 +80,8 @@ export interface Recipe {
   cuisine?: string;
 }
 
+export type MealSlotLabel = "breakfast" | "lunch" | "dinner";
+
 export interface MealPlanRequest {
   pantryItems: string[];
   preferences?: Record<string, unknown>;
@@ -92,6 +94,11 @@ export interface MealPlanRequest {
   days?: number;
   dayIndex?: number;
   startDay?: string;
+  // Even a single day still timed out - a day alone asks for all 3 meals
+  // in one call. mealLabel scopes a day-level request down further to
+  // just one of its 3 meals, so a "day" is actually built from 3 fast
+  // single-meal calls instead of one slow one.
+  mealLabel?: MealSlotLabel;
 }
 
 export interface MealIngredient {
