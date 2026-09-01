@@ -1784,7 +1784,10 @@ outside this repo.
       "today's testing exhausted a short-term quota" from "this backend
       has a capacity ceiling real users will hit too." Typecheck, the
       full test suite (258, was 255), and a real
-      `expo export --platform ios` bundle all pass.
+      `expo export --platform ios` bundle all pass. Sent Airo the full
+      `429` findings above; Airo's response was to open a GoDaddy
+      Support ticket for it, same as the meal-plan-latency issue below —
+      a ticket has been filed (8/31).
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
       household invitations end-to-end through the actual app UI: invite
       someone, have them accept, see them in Profile's "Household
