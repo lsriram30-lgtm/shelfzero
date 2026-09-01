@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 70 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 71 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1619,6 +1619,35 @@ pace I just won't be able to work much next week <3
       instead of ~70s. The worktree directories themselves are untouched
       (they're not git-tracked, per `.git/info/exclude`, so this was
       purely a test-runner scoping fix, not a cleanup).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Wire the
+      Scan screen up to the real barcode lookup endpoint (branch:
+      `feature/barcode-lookup`) — merged into `master`. Airo added
+      `GET /api/barcode/:code` (public, no auth) after the barcode
+      feature request was sent — resolves a barcode to a real product
+      via Open Food Facts (`{ name, category, brand?, source }`) instead
+      of the old `/api/scan` path, which is confirmed to still only
+      ever accept a receipt's `text`/`lines` regardless of payload
+      shape. Live-tested directly (`curl`, no token needed) before
+      wiring anything, same discipline as the `mealLabel` check: real
+      products **do** resolve correctly (Diet Coke, Pringles both came
+      back with real names/categories), invalid-format codes correctly
+      `400` with `INVALID_BARCODE`, but roughly 4 of 6 spot-checked
+      real UPCs returned `503 BARCODE_LOOKUP_UNAVAILABLE` — Airo's own
+      example UPC included, retried and still `503`. That looks like a
+      product Open Food Facts doesn't have, mismapped to the
+      "unavailable" error code instead of the documented
+      `BARCODE_NOT_FOUND`, rather than a real outage, since well-known
+      products consistently succeed — but that's a mapping bug for Airo
+      to fix, not something to work around client-side. Added
+      `scanApi.lookupBarcode()`, a `BarcodeProduct`/`BarcodeLookupResponse`
+      type, and a new `scanLogic.ts` (`barcodeProductToPantryItem`,
+      `barcodeLookupErrorMessage` — reads the response body's `code`
+      field for a specific message per error case) with 5 tests.
+      `ScanScreen`'s barcode mode now shows a real single-item review
+      instead of always failing; the honest "isn't working yet" notice
+      is now receipt-mode only, since barcode scanning genuinely works
+      for products the lookup actually has. Typecheck, all 263 tests,
+      and a real `expo export --platform ios` bundle all pass.
 
 ### Not yet assigned
 
