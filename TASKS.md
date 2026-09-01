@@ -1525,7 +1525,7 @@ pace I just won't be able to work much next week <3
       pass.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Split
       meal-plan generation down to one meal per call (branch:
-      `feature/mealplan-meal-scoped`) — code complete, **not yet
+      `feature/mealplan-meal-scoped`) — merged into `master`, **not yet
       verified against the live backend**. Airo's 8/16 diagnosis was
       that even a single day-scoped call still timed out (~20-21s)
       because one day asks for all 3 meals (breakfast/lunch/dinner) in
