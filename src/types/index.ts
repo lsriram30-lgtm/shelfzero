@@ -183,6 +183,12 @@ export interface DonationPartner {
   // general suggestions, not a real handoff, so there's no in-app way
   // to actually reach one without this.
   url?: string;
+  // What's actually accepted is set by whichever specific local
+  // organization the user ends up contacting, not by this app - this is
+  // general guidance about the resource itself (e.g. "built for fresh
+  // produce" vs. "a directory, varies completely"), not a promise about
+  // any one location.
+  accepts?: string;
 }
 
 export interface DonationRecord {

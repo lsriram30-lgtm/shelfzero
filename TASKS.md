@@ -1672,6 +1672,19 @@ pace I just won't be able to work much next week <3
       "no real organization is notified" placeholder wording. Typecheck,
       all 263 tests, and a real `expo export --platform ios` bundle all
       pass.
+      **Follow-up (branch: `feature/donation-accepted-items`) — merged
+      into `master`:** added an `accepts` field to `DonationPartner` and
+      a line per suggestion describing what it accepts, since that
+      varies a lot by resource — Feeding America's network mostly takes
+      unopened/unexpired canned or boxed goods (varies by the specific
+      food bank), AmpleHarvest.org is specifically for fresh produce and
+      garden surplus rather than packaged goods, and 211/the maps search
+      are general directories with no food-specific guarantee at all.
+      Deliberately general guidance about each *resource*, not a promise
+      about any one specific organization, since this app has no way to
+      know what a specific local food bank actually takes. Typecheck,
+      all 263 tests, and a real `expo export --platform ios` bundle all
+      pass.
 
 ### Not yet assigned
 
