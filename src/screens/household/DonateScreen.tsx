@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
@@ -12,21 +12,34 @@ import { DonationPartner } from "../../types";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DONATION_WINDOW_DAYS = 7;
 
+// Not real partners - there's no backend integration to notify or confirm
+// with an actual organization (see TASKS.md). These are honest, general
+// suggestions for finding somewhere nearby to donate to; the user reaches
+// out and confirms it themselves.
 const DONATION_PARTNERS: DonationPartner[] = [
   {
-    id: "food-pantry",
-    name: "Community Food Pantry",
-    description: "General pantry staples and shelf-stable goods",
+    id: "feeding-america",
+    name: "Feeding America",
+    description: "Search their nationwide network of food banks by zip code",
+    url: "https://www.feedingamerica.org/find-your-local-foodbank",
   },
   {
-    id: "shelter",
-    name: "Neighborhood Shelter",
-    description: "Prepared meals and fresh produce",
+    id: "ampleharvest",
+    name: "AmpleHarvest.org",
+    description: "Matches surplus pantry or garden food with a nearby pantry that can use it",
+    url: "https://www.ampleharvest.org/find-pantry/",
   },
   {
-    id: "fridge",
-    name: "Community Fridge",
-    description: "Self-serve drop-off, no appointment needed",
+    id: "211",
+    name: "211",
+    description: "Free community-services directory, including food assistance near you",
+    url: "https://www.211.org/",
+  },
+  {
+    id: "maps-search",
+    name: "Search maps for food banks near me",
+    description: "Opens your maps app with a search for nearby food banks",
+    url: "https://www.google.com/maps/search/?api=1&query=food+bank+near+me",
   },
 ];
 
@@ -128,7 +141,7 @@ export function DonateScreen() {
 
   return (
     <Screen>
-      <Header title="Donate surplus" subtitle="Send items nearing expiry to a local partner" />
+      <Header title="Donate surplus" subtitle="Find somewhere nearby to send items nearing expiry" />
       <ScrollView contentContainerStyle={styles.content}>
         {candidates.length === 0 ? (
           <EmptyState
@@ -169,15 +182,14 @@ export function DonateScreen() {
             </Card>
 
             <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>
-              CHOOSE A PARTNER
+              FIND A PLACE TO DONATE
             </Text>
             <View style={styles.partnerList}>
               {DONATION_PARTNERS.map((p) => {
                 const selected = partnerId === p.id;
                 return (
-                  <Pressable
+                  <View
                     key={p.id}
-                    onPress={() => setPartnerId(p.id)}
                     style={[
                       styles.partnerRow,
                       {
@@ -185,28 +197,45 @@ export function DonateScreen() {
                         backgroundColor: colors.surface,
                       },
                     ]}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
-                    accessibilityLabel={p.name}
                   >
-                    <View style={styles.partnerInfo}>
-                      <Text style={[styles.partnerName, { color: colors.text }]}>{p.name}</Text>
-                      <Text style={[styles.partnerDescription, { color: colors.textMuted }]}>
-                        {p.description}
-                      </Text>
-                    </View>
-                    <Ionicons
-                      name={selected ? "radio-button-on" : "radio-button-off"}
-                      size={20}
-                      color={selected ? colors.primary : colors.textMuted}
-                    />
-                  </Pressable>
+                    <Pressable
+                      onPress={() => setPartnerId(p.id)}
+                      style={styles.partnerSelectArea}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: selected }}
+                      accessibilityLabel={p.name}
+                    >
+                      <View style={styles.partnerInfo}>
+                        <Text style={[styles.partnerName, { color: colors.text }]}>{p.name}</Text>
+                        <Text style={[styles.partnerDescription, { color: colors.textMuted }]}>
+                          {p.description}
+                        </Text>
+                      </View>
+                      <Ionicons
+                        name={selected ? "radio-button-on" : "radio-button-off"}
+                        size={20}
+                        color={selected ? colors.primary : colors.textMuted}
+                      />
+                    </Pressable>
+                    {p.url ? (
+                      <Pressable
+                        onPress={() => Linking.openURL(p.url!)}
+                        hitSlop={8}
+                        style={styles.partnerLinkButton}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open ${p.name}`}
+                      >
+                        <Ionicons name="open-outline" size={18} color={colors.primary} />
+                      </Pressable>
+                    ) : null}
+                  </View>
                 );
               })}
             </View>
             <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
-              These are placeholder partners — picking one records your choice in your donation
-              history, but no real organization is notified or receives anything yet.
+              These are suggestions to help you find somewhere to donate — reach out and confirm
+              with them yourself. Selecting one just labels this donation in your history;
+              ShelfZero doesn't contact anyone on your behalf.
             </Text>
 
             <Button
@@ -261,11 +290,20 @@ const styles = StyleSheet.create({
   },
   partnerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
     borderRadius: radius.md,
     padding: spacing.md,
+  },
+  partnerSelectArea: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  partnerLinkButton: {
+    marginLeft: spacing.sm,
+    padding: spacing.xs,
   },
   partnerInfo: {
     flexShrink: 1,

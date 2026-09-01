@@ -179,6 +179,10 @@ export interface DonationPartner {
   id: string;
   name: string;
   description: string;
+  // A link to look the option up / find the nearest one - these are
+  // general suggestions, not a real handoff, so there's no in-app way
+  // to actually reach one without this.
+  url?: string;
 }
 
 export interface DonationRecord {

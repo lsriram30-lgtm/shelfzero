@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 71 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 72 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1648,6 +1648,30 @@ pace I just won't be able to work much next week <3
       is now receipt-mode only, since barcode scanning genuinely works
       for products the lookup actually has. Typecheck, all 263 tests,
       and a real `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Replace the
+      "identify a real donation partner" gap with honest suggestions
+      instead (branch: `feature/donation-suggestions`) — merged into
+      `master`. No real partner org or API has ever been identified to
+      integrate with, and there's no location data in the app to make
+      "nearby" a real, verified claim (onboarding only collects a
+      free-text location string; the Data Safety answers in
+      `STORE_LISTING.md` explicitly say no location is collected, and
+      changing that right before a submission wasn't worth it). Instead
+      of a fake partner list or a real integration neither of those
+      allow for right now, `DONATION_PARTNERS` in `DonateScreen.tsx` now
+      lists real, well-known donation-finder resources (Feeding
+      America, AmpleHarvest.org, 211, a maps search for "food bank near
+      me") — each with a real link (new `open-outline` icon per row,
+      split into its own tappable area from the existing select-radio
+      Pressable to avoid nesting two Pressables) that opens their own
+      website, where the actual proximity/contact lookup happens. The
+      donation-history recording behavior is unchanged — selecting one
+      still just labels the donation, same as before — but the
+      disclaimer now says plainly that these are suggestions to look
+      up and contact yourself, not a real handoff, replacing the old
+      "no real organization is notified" placeholder wording. Typecheck,
+      all 263 tests, and a real `expo export --platform ios` bundle all
+      pass.
 
 ### Not yet assigned
 
@@ -1744,15 +1768,6 @@ outside this repo.
       Laasya + Laya to review/finalize the copy and actually take the
       screenshots (needs a phone with Expo Go, not something buildable
       from this repo) before this is submittable.
-- [ ] ![Later](https://img.shields.io/badge/Later-green) Identify a real
-      donation partner (food bank, nonprofit, etc.) to
-      actually integrate with. Airo confirmed on 8/14 that donation
-      records are now real and persisted, but partner selection is still
-      just a label with no real handoff behind it — nothing gets
-      notified, nothing gets fulfilled. Needs a real organization/API
-      identified before there's anything to integrate against. Already
-      honestly disclosed in-app as a label-only choice, so not a
-      submission blocker on its own.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
       is meaningfully better than 8/16 but still genuinely intermittent,
       and recipe search is still fully broken. Live-tested 8/31 against
