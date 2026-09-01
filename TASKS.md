@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 72 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 73 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1685,6 +1685,35 @@ pace I just won't be able to work much next week <3
       know what a specific local food bank actually takes. Typecheck,
       all 263 tests, and a real `expo export --platform ios` bundle all
       pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Republish
+      the Privacy Policy and Terms of Service with the minimum age set
+      to 13 (branch: `feature/policy-republish-age-13`) — merged into
+      `master`. Same root problem as the 8/29 republish: the versions
+      live at the current `PRIVACY_POLICY_URL`/`TERMS_OF_SERVICE_URL`
+      were created under Laya's Claude session, which this session has
+      no ownership of — confirmed by trying to read both via `Artifact`
+      `action: "read"`, both came back "not found... has not been
+      shared with you." Rather than route the edit through her session,
+      rewrote both fresh (same content/structure as the 8/29 versions,
+      grounded in the app's actual behavior) and published them under
+      this session instead, so this session can maintain them going
+      forward without hitting the same wall. Sets the account minimum
+      age to 13 (a COPPA-aligned line, common for consumer apps) in
+      both documents; the Privacy Policy also adds Open Food Facts as a
+      third-party processor (barcode lookups — just the scanned number,
+      confirmed no personal data included) alongside the existing
+      Airo/Gemini entries, and the Terms of Service adds a section on
+      the donation suggestions feature (general resources, not a real
+      handoff — matches the disclaimer already in `DonateScreen.tsx`).
+      Visually matches the app's real theme (DM Sans, the exact
+      light/dark tokens from `src/theme/colors.ts`), same as the
+      versions being replaced. **Still needed, same as before:** share
+      both from the Artifact page's share menu so they're actually
+      publicly viewable — they're private by default, and the old
+      "Content is user-generated and unverified" banner problem
+      (private/shared artifacts can still show it to a public viewer)
+      isn't resolved by a republish alone; see the "host at a real
+      permanent URL" task below, still the actual fix for that.
 
 ### Not yet assigned
 
