@@ -4,11 +4,11 @@
 // until shared from the page's share menu — replace this URL once the
 // real one is live and publicly reachable.
 //
-// Republished 2026-08-29 under a new URL: the prior artifact was created
-// under a different Claude session/account, which this repo's session has
-// no ownership of and can't read or update. This version fills in the
-// placeholders (real contact email, a real "last updated" date instead of
-// an undecided launch date) and corrects claims that had gone stale
-// (donation history is now real backend-stored data, not local-only).
+// Republished 2026-08-31 under a new URL, same reason as the 8/29
+// republish: the prior artifact was created under a different Claude
+// session/account this session has no ownership of and can't read or
+// update. This version sets the minimum age to 13 (see the matching
+// Terms of Service change) and adds Open Food Facts as a third-party
+// processor now that barcode lookup is real.
 export const PRIVACY_POLICY_URL =
-  "https://claude.ai/code/artifact/887880e0-0f07-451d-a37c-7d95d3ef6ecc";
+  "https://claude.ai/code/artifact/ce67dedb-f86c-42b6-a419-313fdf8fbdf1";
