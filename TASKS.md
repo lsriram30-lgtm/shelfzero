@@ -2058,7 +2058,13 @@ this repo.
       about mislabeling ingredients that *were* used; this is about the
       model not reliably choosing to use them in the first place. Since
       the whole feature is meant to suggest meals *from what you have*,
-      this undercuts the core value of Meal Planner as it stands.
+      this undercuts the core value of Meal Planner as it stands. Also
+      hits Recipes' "suggested" list (not the separate "Search all
+      recipes" action, which uses a different, unrelated
+      `GET /api/recipes?q=` endpoint) — `useSuggestedRecipes.ts` calls
+      this exact same `/api/meal-plan` endpoint with pantry items and
+      just displays whatever meals come back as recipe cards, so it's
+      the identical defect on a second surface, not a separate bug.
       Needs Airo to look at the prompt actually sent to the model and
       make it weight/require pantry items more strongly — not
       something fixable from this repo, since the client only sends
