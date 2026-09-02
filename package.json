@@ -15,7 +15,8 @@
     "build:production": "npx eas-cli build --profile production"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": ["/node_modules/", "<rootDir>/.claude/worktrees/"]
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.2.3",

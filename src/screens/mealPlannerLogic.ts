@@ -71,12 +71,6 @@ export function hasPantryChanged(current: string[], cached: string[]): boolean {
   return cached.some((name) => !currentSet.has(name));
 }
 
-// The backend only ever generates a full 7-day plan - there's no per-day
-// endpoint - so "regenerate one day" works by generating a whole fresh
-// plan and splicing just the requested day out of it, leaving the rest of
-// the cached week untouched. If the fresh plan doesn't happen to include a
-// day with a matching label, the original days are returned unchanged
-// rather than silently dropping that day.
 // Only the 1-2 things actually missing are worth adding to the shopping
 // list - most of a suggested meal's ingredients should already be on hand,
 // since the plan was generated from the current pantry in the first place.
@@ -103,19 +97,10 @@ export function formatIngredientLabel(ingredient: MealIngredient): string {
   return ingredient.quantity ? `${ingredient.name} (${ingredient.quantity})` : ingredient.name;
 }
 
-// Building a week out of 7 sequential single-day requests means a
-// mid-week failure shouldn't discard the days that already succeeded -
-// this summarizes what happened so the partial result and the failure
-// are both clear, and points at per-day regenerate for the rest.
-export function buildGenerationFailureMessage(
-  successCount: number,
-  totalCount: number,
-  errorMessage: string
-): string {
-  if (successCount === 0) return errorMessage;
-  return `Generated ${successCount} of ${totalCount} days before this failed: ${errorMessage} You can regenerate the missing days individually below.`;
-}
-
+// "Regenerate one day" builds a fresh single day-scoped call and splices
+// just that day into the existing cached week, leaving the rest
+// untouched. If the fresh day's label doesn't happen to match, the
+// original days are returned unchanged rather than silently dropping it.
 export function replaceDayInPlan(
   days: MealPlanDay[],
   dayLabel: string,
@@ -124,4 +109,25 @@ export function replaceDayInPlan(
   const replacement = freshDays.find((d) => d.day === dayLabel);
   if (!replacement) return days;
   return days.map((d) => (d.day === dayLabel ? replacement : d));
+}
+
+// Maps JS Date.getDay() (0=Sunday..6=Saturday) onto WEEKDAY_LABELS' own
+// Monday-indexed scheme (0=Monday..6=Sunday).
+export function currentWeekdayIndex(now: Date = new Date()): number {
+  return (now.getDay() + 6) % 7;
+}
+
+// Building a full week out of 7 back-to-back calls is what was tripping
+// the backend's rate limit - this builds it up one day at a time instead,
+// starting from today and wrapping forward through the week, so a day
+// only ever gets requested when the user actually asks for the next one.
+// Returns null once every day of the week is already present.
+export function nextWeekdayIndex(days: MealPlanDay[], now: Date = new Date()): number | null {
+  const present = new Set(days.map((d) => d.day));
+  const start = currentWeekdayIndex(now);
+  for (let offset = 0; offset < WEEKDAY_LABELS.length; offset++) {
+    const idx = (start + offset) % WEEKDAY_LABELS.length;
+    if (!present.has(WEEKDAY_LABELS[idx])) return idx;
+  }
+  return null;
 }

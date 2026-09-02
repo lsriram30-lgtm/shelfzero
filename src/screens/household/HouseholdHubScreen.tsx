@@ -19,6 +19,7 @@ import {
   CardHeader,
   CardHeaderLink,
   SwitchRow,
+  SwipeToDelete,
 } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
@@ -517,23 +518,35 @@ export function HouseholdHubScreen() {
                 <Text style={[styles.shoppingCategoryLabel, { color: colors.textMuted }]}>
                   {category}
                 </Text>
-                {items.map((item) => (
-                  <ShoppingRow
-                    key={item.id}
-                    item={item}
-                    selectionMode={selectionMode}
-                    selected={selectedIds.has(item.id)}
-                    onToggle={() => {
-                      hapticTap();
-                      selectionMode
-                        ? handleToggleItemSelected(item.id)
-                        : toggleChecked(item.id, !item.checked);
-                    }}
-                    onChangeQuantity={handleChangeQuantity}
-                    onRemove={removeItem}
-                    pendingQuantityIds={pendingQuantityIds}
-                  />
-                ))}
+                {items.map((item) => {
+                  const row = (
+                    <ShoppingRow
+                      item={item}
+                      selectionMode={selectionMode}
+                      selected={selectedIds.has(item.id)}
+                      onToggle={() => {
+                        hapticTap();
+                        selectionMode
+                          ? handleToggleItemSelected(item.id)
+                          : toggleChecked(item.id, !item.checked);
+                      }}
+                      onChangeQuantity={handleChangeQuantity}
+                      onRemove={removeItem}
+                      pendingQuantityIds={pendingQuantityIds}
+                    />
+                  );
+                  return selectionMode ? (
+                    <View key={item.id}>{row}</View>
+                  ) : (
+                    <SwipeToDelete
+                      key={item.id}
+                      onDelete={() => removeItem(item.id)}
+                      accessibilityLabel={`Delete ${item.name}`}
+                    >
+                      {row}
+                    </SwipeToDelete>
+                  );
+                })}
               </View>
             ))
           )}

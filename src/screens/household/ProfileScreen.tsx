@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
+import { useHouseholdMembers } from "../../hooks/useHouseholdMembers";
 import { Screen, Header, Card, Button, Pill, CardHeader } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
@@ -14,7 +15,6 @@ import { TERMS_OF_SERVICE_URL } from "../../utils/termsOfService";
 import { SUPPORT_EMAIL_URL } from "../../utils/supportContact";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { householdApi } from "../../api/household";
-import { HouseholdMember } from "../../types";
 
 type ProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "Profile">;
 
@@ -22,6 +22,7 @@ export function ProfileScreen() {
   const { colors, mode, setMode } = useTheme();
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile, resetOnboarding } = useOnboarding();
+  const { members, removeMember, refresh: refreshMembers } = useHouseholdMembers();
   const { signOut, currentEmail } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [leavingHousehold, setLeavingHousehold] = useState(false);
@@ -30,14 +31,8 @@ export function ProfileScreen() {
   // flashing a control that a non-owner would just get a 403 from.
   const [isOwner, setIsOwner] = useState(false);
   const [ownId, setOwnId] = useState<string | null>(null);
-  const [members, setMembers] = useState<HouseholdMember[]>([]);
 
-  // GET /api/household/members is a real, working endpoint (confirmed
-  // live 2026-08-30) - it didn't exist for most of this project, so the
-  // member list used to be derived (incorrectly - see the fixed bug this
-  // replaced) from GET /api/invites instead. Refetches on focus so
-  // removing/inviting someone elsewhere and coming back shows current data.
-  const refreshHousehold = useCallback(async () => {
+  const refreshOwnRole = useCallback(async () => {
     try {
       const me = await householdApi.me();
       setIsOwner(me.role === "owner");
@@ -45,19 +40,15 @@ export function ProfileScreen() {
     } catch {
       // Best-effort - the remove-member control just stays hidden.
     }
-    try {
-      const list = await householdApi.members();
-      setMembers(list);
-    } catch {
-      // Best-effort - falls back to showing no members rather than an error
-      // for what's a secondary section of this screen.
-    }
   }, []);
 
+  // Refetches on focus, not just mount, so removing/inviting someone
+  // elsewhere and coming back to this screen shows current data.
   useFocusEffect(
     useCallback(() => {
-      refreshHousehold();
-    }, [refreshHousehold])
+      refreshOwnRole();
+      refreshMembers();
+    }, [refreshOwnRole, refreshMembers])
   );
 
   const handleResetForTesting = () => {
@@ -91,8 +82,7 @@ export function ProfileScreen() {
       confirmLabel: "Remove",
       onConfirm: async () => {
         try {
-          await householdApi.removeMember(id);
-          setMembers((prev) => prev.filter((m) => m.id !== id));
+          await removeMember(id);
         } catch (err) {
           Alert.alert(
             "Couldn't remove member",

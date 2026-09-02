@@ -63,6 +63,15 @@ export function withAutoAddOptOut(ids: string[], itemId: string, optedOut: boole
   return Array.from(next);
 }
 
+// Shared between the Edit Item screen's delete confirm and Pantry's
+// swipe-to-delete gesture, so both surfaces warn about the current meal
+// plan the same way instead of drifting apart.
+export function buildPantryDeleteMessage(itemName: string, isInCurrentPlan: boolean): string {
+  return isInCurrentPlan
+    ? `Remove ${itemName} from your pantry? It's part of your current meal plan, so you may want to regenerate the plan afterward.`
+    : `Remove ${itemName} from your pantry?`;
+}
+
 const CATEGORY_KEYWORDS: { category: string; keywords: string[] }[] = [
   // Checked before Dairy so "ice cream" doesn't match on "cream".
   { category: "Frozen", keywords: ["frozen", "ice cream", "popsicle"] },

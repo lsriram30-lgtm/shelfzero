@@ -23,12 +23,12 @@ import {
 import { spacing, typography } from "../theme";
 import { MealIngredient, MealPlanDay } from "../types";
 import {
-  buildGenerationFailureMessage,
   buildMealPlanPreferences,
   formatIngredientLabel,
   hasEnoughPantryItems,
   hasPantryChanged,
   missingIngredients,
+  nextWeekdayIndex,
   parseIngredientQuantity,
   parseMealPlanDays,
   replaceDayInPlan,
@@ -41,9 +41,10 @@ import {
   saveMealPlanToHistory,
   setCachedMealPlan,
 } from "../utils/mealPlanCache";
+import { retryOnce } from "../utils/retryOnce";
 import { MealPlannerStackParamList } from "../navigation/types";
 
-const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a 7-day meal plan, add more items to your pantry.";
+const NOT_ENOUGH_ITEMS_MESSAGE = "To generate a meal plan, add more items to your pantry.";
 
 type MealPlannerNavigationProp = NativeStackNavigationProp<
   MealPlannerStackParamList,
@@ -61,10 +62,6 @@ export function MealPlannerScreen() {
   const [cachedPantryNames, setCachedPantryNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [regeneratingDay, setRegeneratingDay] = useState<string | null>(null);
-  const [generationProgress, setGenerationProgress] = useState<{
-    current: number;
-    total: number;
-  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [addingMissingKey, setAddingMissingKey] = useState<string | null>(null);
   const [addedMissingKeys, setAddedMissingKeys] = useState<Set<string>>(new Set());
@@ -80,55 +77,79 @@ export function MealPlannerScreen() {
   const currentPantryNames = pantryItems.map((item) => item.name);
   const isStale = days.length > 0 && hasPantryChanged(currentPantryNames, cachedPantryNames);
   const hasEnoughItems = hasEnoughPantryItems(pantryItems.length);
+  const nextDayIndex = nextWeekdayIndex(days);
+  const nextDayLabel = nextDayIndex !== null ? WEEKDAY_LABELS[nextDayIndex] : null;
 
-  // A single request for all 7 days/21 meals was too slow (Airo confirmed
-  // even their own test timed out) - this makes 7 fast single-day
-  // requests instead, one per weekday, and stitches the results together.
-  // A day that fails partway through doesn't discard the days that
-  // already succeeded; per-day regenerate (below) is how to retry just
-  // the missing one(s) afterward.
-  const handleGenerate = async () => {
+  // A single request for all 7 days/21 meals was too slow, and even 7
+  // sequential single-day requests turned out to trip the backend's rate
+  // limit when fired back-to-back (confirmed live 8/31: two separate runs
+  // of 7 got 429 "temporarily busy" on most/all of them, while isolated
+  // single calls made well apart from each other succeeded cleanly). So
+  // the week is built up one day at a time instead - starting from today
+  // and wrapping forward - only ever making a new request when the user
+  // actually asks for the next day, never a burst of several.
+  //
+  // mealLabel scoping (one meal per call instead of one day per call) was
+  // tried and reverted first - live-tested 8/31: an invalid mealLabel
+  // value ("brunch") still returned a full, real 3-meal day, so the
+  // backend isn't reading or validating that field at all.
+  const generateDayInto = async (baseDays: MealPlanDay[], dayIndex: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const raw = await retryOnce(() =>
+        mealPlanApi.generate({
+          pantryItems: currentPantryNames,
+          preferences: buildMealPlanPreferences(profile),
+          days: 1,
+          dayIndex,
+        })
+      );
+      const parsedDays = parseMealPlanDays(raw);
+      if (!parsedDays[0]) {
+        setError("Couldn't generate a meal plan. Please try again.");
+        return;
+      }
+      const updatedDays = [...baseDays, parsedDays[0]];
+      setDays(updatedDays);
+      // Only the first day of a fresh plan resets the pantry snapshot -
+      // same reasoning as handleRegenerateDay below: days added one at a
+      // time afterward shouldn't change what "matches current pantry"
+      // means for the days already built.
+      const pantryNamesForCache = baseDays.length === 0 ? currentPantryNames : cachedPantryNames;
+      if (baseDays.length === 0) setCachedPantryNames(currentPantryNames);
+      const toCache = { days: updatedDays, pantryItemNames: pantryNamesForCache };
+      setCachedMealPlan(toCache, currentEmail);
+      // Only once the full week is actually built up is it worth its own
+      // history entry.
+      if (updatedDays.length === WEEKDAY_LABELS.length) {
+        saveMealPlanToHistory(toCache, currentEmail);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't generate a meal plan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateNextDay = () => {
     if (!hasEnoughItems) {
       setError(NOT_ENOUGH_ITEMS_MESSAGE);
       return;
     }
-    setLoading(true);
-    setError(null);
-    const preferences = buildMealPlanPreferences(profile);
-    const generatedDays: MealPlanDay[] = [];
-    try {
-      for (let dayIndex = 0; dayIndex < WEEKDAY_LABELS.length; dayIndex++) {
-        setGenerationProgress({ current: dayIndex + 1, total: WEEKDAY_LABELS.length });
-        const raw = await mealPlanApi.generate({
-          pantryItems: currentPantryNames,
-          preferences,
-          days: 1,
-          dayIndex,
-        });
-        const parsedDays = parseMealPlanDays(raw);
-        if (parsedDays[0]) generatedDays.push(parsedDays[0]);
-      }
-      setDays(generatedDays);
-      setCachedPantryNames(currentPantryNames);
-      const toCache = { days: generatedDays, pantryItemNames: currentPantryNames };
-      setCachedMealPlan(toCache, currentEmail);
-      // Only a genuinely complete week (the loop above ran with no
-      // exception - a partial failure jumps to catch instead) is worth
-      // its own history entry.
-      saveMealPlanToHistory(toCache, currentEmail);
-    } catch (err) {
-      if (generatedDays.length > 0) setDays(generatedDays);
-      setError(
-        buildGenerationFailureMessage(
-          generatedDays.length,
-          WEEKDAY_LABELS.length,
-          err instanceof Error ? err.message : "Couldn't generate a meal plan."
-        )
-      );
-    } finally {
-      setLoading(false);
-      setGenerationProgress(null);
+    if (nextDayIndex === null) return;
+    generateDayInto(days, nextDayIndex);
+  };
+
+  const handleRegenerateFromStale = () => {
+    if (!hasEnoughItems) {
+      setError(NOT_ENOUGH_ITEMS_MESSAGE);
+      return;
     }
+    const freshDayIndex = nextWeekdayIndex([]);
+    if (freshDayIndex === null) return;
+    setDays([]);
+    generateDayInto([], freshDayIndex);
   };
 
   const handleRegenerateDay = async (dayLabel: string) => {
@@ -140,12 +161,14 @@ export function MealPlannerScreen() {
     setRegeneratingDay(dayLabel);
     setError(null);
     try {
-      const raw = await mealPlanApi.generate({
-        pantryItems: currentPantryNames,
-        preferences: buildMealPlanPreferences(profile),
-        days: 1,
-        startDay: dayLabel,
-      });
+      const raw = await retryOnce(() =>
+        mealPlanApi.generate({
+          pantryItems: currentPantryNames,
+          preferences: buildMealPlanPreferences(profile),
+          days: 1,
+          startDay: dayLabel,
+        })
+      );
       const updatedDays = replaceDayInPlan(days, dayLabel, parseMealPlanDays(raw));
       setDays(updatedDays);
       // Deliberately NOT updating cachedPantryNames here: only this one day
@@ -206,7 +229,7 @@ export function MealPlannerScreen() {
     <Screen>
       <Header
         title="Meal planner"
-        subtitle="A 7-day plan built from your pantry"
+        subtitle="A meal plan built day by day from your pantry"
         right={
           <Pressable
             onPress={() => navigation.navigate("MealPlanHistory")}
@@ -219,17 +242,13 @@ export function MealPlannerScreen() {
         }
       />
       <ScrollView contentContainerStyle={styles.content}>
-        <Button
-          label={loading ? "Generating…" : days.length > 0 ? "Regenerate plan" : "Generate 7-day plan"}
-          onPress={handleGenerate}
-          loading={loading}
-          disabled={!!regeneratingDay}
-          style={styles.generateButton}
-        />
-        {generationProgress ? (
-          <Text style={[styles.generationProgressText, { color: colors.textMuted }]}>
-            Generating day {generationProgress.current} of {generationProgress.total}…
-          </Text>
+        {days.length === 0 ? (
+          <Button
+            label={loading ? "Generating…" : `Generate ${nextDayLabel}'s meal plan`}
+            onPress={handleGenerateNextDay}
+            loading={loading}
+            style={styles.generateButton}
+          />
         ) : null}
 
         {isStale && !loading ? (
@@ -243,7 +262,7 @@ export function MealPlannerScreen() {
             <View style={styles.staleActions}>
               <Button
                 label="Regenerate now"
-                onPress={handleGenerate}
+                onPress={handleRegenerateFromStale}
                 style={styles.staleButton}
               />
               <Button
@@ -257,7 +276,7 @@ export function MealPlannerScreen() {
         ) : null}
 
         {error ? (
-          <ErrorState message={error} onRetry={handleGenerate} />
+          <ErrorState message={error} onRetry={handleGenerateNextDay} />
         ) : days.length === 0 && !loading && !hasEnoughItems ? (
           <EmptyState
             icon="basket-outline"
@@ -323,6 +342,17 @@ export function MealPlannerScreen() {
             </Card>
           ))
         )}
+
+        {!error && days.length > 0 && nextDayLabel ? (
+          <Button
+            label={loading ? "Adding…" : `+ Add ${nextDayLabel}'s plan`}
+            variant="outline"
+            onPress={handleGenerateNextDay}
+            loading={loading}
+            disabled={!!regeneratingDay}
+            style={styles.addDayButton}
+          />
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -336,10 +366,8 @@ const styles = StyleSheet.create({
   generateButton: {
     marginBottom: spacing.lg,
   },
-  generationProgressText: {
-    ...typography.caption,
-    textAlign: "center",
-    marginBottom: spacing.lg,
+  addDayButton: {
+    marginTop: spacing.sm,
   },
   staleBanner: {
     marginBottom: spacing.lg,

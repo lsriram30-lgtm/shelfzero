@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 77 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 58 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1288,6 +1288,65 @@ pace I just won't be able to work much next week <3
       custom encryption. Without it, App Store Connect would otherwise
       stop on a manual encryption questionnaire for every single build
       submission.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a single
+      "Clear filters" action to the Recipes screen for when both the
+      meal-type and cuisine filter rows have an active selection (branch:
+      `feature/recipes-clear-filters`) — merged into `master`.
+      `RecipesScreen` now shows a right-aligned "Clear filters"
+      link (the existing shared `CardHeaderLink`, the same component used
+      for "Clear checked" on the shopping list) directly below the two
+      pill rows, but only when `mealTypeFilter` and/or `cuisineFilter` is
+      non-null; tapping it resets both to `null` in one action instead of
+      requiring each row's own "All" pill to be tapped individually. Left
+      the search box untouched — it's a separate, explicit action (a slow
+      backend search, not an instant local filter) and out of scope per
+      the backlog note. Extracted the "is either filter active" check into
+      a new `hasActiveRecipeFilters` in `recipesLogic.ts`, matching the
+      file's existing pure-logic-extraction convention, with 4 new tests
+      covering all four null/non-null combinations. Typecheck, all 244
+      Jest tests, and a real `expo export --platform ios` bundle all pass
+      (the bundle check needed a one-off workaround: this worktree had no
+      local `node_modules`, and once installed, Metro's blockList for
+      `.claude/worktrees/*` — added to keep the main checkout's Metro from
+      crawling *other* worktrees — also matches this worktree's own path
+      when run from inside it, so the export was verified from an
+      isolated scratch copy of the working tree instead; nothing under
+      version control was changed to make this work).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add
+      swipe-to-delete gestures on Pantry and Shopping List rows (branch:
+      `feature/swipe-gestures`) — merged into `master`.
+      `react-native-gesture-handler` was already a dependency
+      (used for navigation), so no new package was needed — used its
+      built-in (if now deprecated in favor of a Reanimated version)
+      `Swipeable` component, which doesn't require Reanimated either.
+      Added a shared `SwipeToDelete` component
+      (`src/components/SwipeToDelete.tsx`) that reveals a red "Delete"
+      action on a right-swipe; wired into both Pantry list rows
+      (category and expiry-sort views) and Shopping list rows. Chose
+      delete over edit since it maps directly onto an action that
+      already exists on both screens, rather than inventing a new
+      inline-edit UI. Each screen routes through its existing delete
+      path rather than a new one: Shopping list swipe calls the exact
+      same `onRemove` handler the row's trash icon already used (no
+      confirm dialog, matching that icon's current behavior) and is
+      disabled while in bulk-selection mode, so swiping there doesn't
+      fight with tap-to-select. Pantry had no per-row delete before this
+      (only via the Edit Item screen), so swipe reuses that screen's
+      exact confirm-dialog wording and current-meal-plan warning —
+      extracted into a new shared, tested `buildPantryDeleteMessage()`
+      in `pantryLogic.ts` so the Edit screen and the new swipe gesture
+      can't drift apart on that message. 2 tests added for the new
+      helper, suite at 242. Doesn't add Pantry delete undo (still a
+      separate open backlog item above) or a Shopping list confirm
+      dialog for single-item delete — both match the pre-existing
+      behavior of the actions being reused, not a gap introduced here.
+      **Not verified on a real device or dev client** — gesture-handler
+      interactions like this can behave differently in Expo Go than in
+      a real build (e.g. the deprecation notice on `Swipeable` mentions
+      Reanimated-based gesture composition, which Expo Go doesn't
+      handle identically); typecheck, all 242 tests, and a real
+      `expo export --platform ios` bundle all pass, but none of those
+      exercise the actual swipe gesture at runtime.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Decide against
       iPad support — committed directly to `master`. Set
       `ios.supportsTablet: false` in `app.json`. This is a phone-first
@@ -1441,9 +1500,318 @@ pace I just won't be able to work much next week <3
         opportunity, not a correctness bug, so left for its own pass.
       6 tests added, suite at 249. Typecheck, all tests, and a real
       `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Wire the app
+      up to the real household-members endpoint (branch:
+      `feature/household-members-endpoint`) — merged into `master`.
+      Airo added `GET /api/household/members` (real account id, name,
+      role; rejects unauthenticated requests) after this was flagged as
+      a backend gap (see the live-tested honesty fix above).
+      "Household members" on Profile previously derived its list by
+      filtering accepted invites — which don't even come back from
+      `GET /api/invites` once accepted, so the section could only ever
+      show pending invites masquerading as members. Added a
+      `useHouseholdMembers` hook that fetches the real endpoint, and
+      swapped Profile's derived-from-invites list for it (also reverting
+      the honest "not listed here yet" empty-state message back to a
+      plain "No members yet," since the gap it described no longer
+      exists); the member row's role now shows the real account role
+      ("Owner"/"Member") instead of the invite's role field
+      ("Adult"/"Guest"/etc), since that's what's actually returned now.
+      `removeMember` moved off `useInvites` (where it only ever existed
+      as a workaround for not having real member ids) onto the new
+      hook, and now filters by the real id it removed instead of an
+      invite id that was never guaranteed to match. Typecheck, the full
+      test suite, and a real `expo export --platform ios` bundle all
+      pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Split
+      meal-plan generation down to one meal per call (branch:
+      `feature/mealplan-meal-scoped`) — merged into `master`, **not yet
+      verified against the live backend**. Airo's 8/16 diagnosis was
+      that even a single day-scoped call still timed out (~20-21s)
+      because one day asks for all 3 meals (breakfast/lunch/dinner) in
+      one call; they've since added `mealLabel`
+      (`breakfast`/`lunch`/`dinner`) to `POST /api/meal-plan`, scoping a
+      request down to one specific meal. "Generate 7-day plan" now
+      makes 21 single-meal calls (7 days x 3 meals) instead of 7
+      single-day calls, stitching each day back together from its 3
+      meal responses (through the same `parseMealPlanDays` conversion
+      the day-scoped fix already relies on); a day only lands in the
+      result once all 3 of its meals succeed, same partial-failure
+      semantics as before. "Regenerate one day" got the same treatment.
+      Also converted `useSuggestedRecipes.ts` (Recipes screen's
+      suggestion list), which had the same root problem but worse — it
+      requested the full 21-meal week with no scoping at all, the
+      single slowest possible call. Since that's an automatic
+      on-mount/on-retry fetch rather than a button press with a
+      progress UI, scoped it down to one day's 3 meals (3 calls) rather
+      than the full 21 — bounded and fast rather than maximally varied.
+      Also fixed two comments in `mealPlannerLogic.ts` that were already
+      stale before this change (one described a "splice into a freshly
+      generated whole week" regenerate mechanism that hasn't existed
+      since the 8/16 day-scoping fix). Typecheck, the full test suite,
+      and a real `expo export --platform ios` bundle all pass — **but
+      this hasn't been run against the actual live API yet**, so it's
+      unconfirmed whether `mealLabel` behaves exactly as described (e.g.
+      whether a scoped response's `meals` object really only contains
+      the one requested key) or whether the extra round-trips end up
+      meaningfully faster in practice. Needs a real live test before
+      relying on it for the TestFlight submission.
+      **Correction, live-tested 8/31 against the real API with the demo
+      account** (signed in directly via `curl` — the phone's wifi was
+      down, so this was the only way to actually verify it): `mealLabel`
+      is **not** read or validated by the backend at all. Sending an
+      invalid value (`"brunch"`, not breakfast/lunch/dinner) still
+      returned `200` with a real, complete 3-meal day — Airo's
+      description of it doesn't match live behavior. Since every
+      "meal-scoped" call was actually returning all 3 meals regardless
+      of which one was asked for, the 21-call loop would have jammed 9
+      duplicate-slot meals into every day. **Reverted** both
+      `MealPlannerScreen.tsx` handlers and `useSuggestedRecipes.ts` back
+      to day-scoping only (no `mealLabel`), and removed the now-dead
+      `mealLabel`/`MealSlotLabel` code from the request type and
+      `mealPlannerLogic.ts` rather than leave it around unused and
+      misleading. Separately live-tested day-scoped calls in isolation
+      (4 different days, 7-15s each, all succeeded) — this is what led
+      to reverting rather than just also abandoning day-scoping — but a
+      full sequential 7-day run (exactly what "Generate 7-day plan"
+      actually does) only succeeded on 4 of 7 days, `504`-timing out on
+      the other 3 at ~20-21s each. That's a real improvement over 8/16
+      (where every single day-scoped call failed) but still genuinely
+      intermittent, and looks like backend load/capacity variance under
+      back-to-back calls rather than anything a client change can fix.
+      The existing partial-failure handling (keep whatever days
+      succeeded, show a clear error, point at per-day regenerate)
+      already covers this gracefully — this isn't a crash, just a
+      normal, already-handled failure mode that happens more often than
+      it should. See the updated backlog item below. Also confirmed
+      recipe search (`GET /api/recipes?q=`) still `504`s (~11s),
+      unrelated to and unaffected by any of this. Re-ran typecheck, the
+      full test suite, and a real `expo export --platform ios` bundle
+      after reverting — all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add a
+      one-time automatic retry to meal-plan generation calls —
+      committed directly to `master`. Added `retryOnce()`
+      (`src/utils/retryOnce.ts`, 3 tests) and wired it into both
+      `MealPlannerScreen` calls (`handleGenerate`'s day loop and
+      `handleRegenerateDay`) and `useSuggestedRecipes`, so a failed call
+      gets one immediate second attempt before counting as a real
+      failure — a reasonable mitigation for the transient-504-timeout
+      pattern seen live-testing the task above. Live-testing it further
+      surfaced a `429` "temporarily busy" rate-limit state that a retry
+      doesn't help with (it hits the same limit instantly) — see the
+      full findings and open question in the backlog item below. Kept
+      the retry regardless since it's a real improvement for genuine
+      transient 504s and does no harm against 429s. Typecheck, all 258
+      tests, and a real `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Stopped
+      `npm test` from silently running 367 duplicate test files —
+      committed directly to `master`. Investigating a suspicious "6233
+      tests passed" count turned up leftover `.claude/worktrees/*/`
+      scratch directories (other Claude Code sessions' isolated
+      worktrees) sitting inside the repo, each a full copy of every test
+      file; Jest had no `testPathIgnorePatterns` telling it to skip
+      them, so it ran ~25 duplicate copies of the real 255-test suite
+      alongside the real one every time. Added
+      `testPathIgnorePatterns: ["/node_modules/", "<rootDir>/.claude/worktrees/"]`
+      to `package.json`'s Jest config (the `node_modules` entry is
+      Jest's own default, otherwise lost by overriding the option at
+      all) — `npm test` now reports the real 255 and runs in ~5-8s
+      instead of ~70s. The worktree directories themselves are untouched
+      (they're not git-tracked, per `.git/info/exclude`, so this was
+      purely a test-runner scoping fix, not a cleanup).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Wire the
+      Scan screen up to the real barcode lookup endpoint (branch:
+      `feature/barcode-lookup`) — merged into `master`. Airo added
+      `GET /api/barcode/:code` (public, no auth) after the barcode
+      feature request was sent — resolves a barcode to a real product
+      via Open Food Facts (`{ name, category, brand?, source }`) instead
+      of the old `/api/scan` path, which is confirmed to still only
+      ever accept a receipt's `text`/`lines` regardless of payload
+      shape. Live-tested directly (`curl`, no token needed) before
+      wiring anything, same discipline as the `mealLabel` check: real
+      products **do** resolve correctly (Diet Coke, Pringles both came
+      back with real names/categories), invalid-format codes correctly
+      `400` with `INVALID_BARCODE`, but roughly 4 of 6 spot-checked
+      real UPCs returned `503 BARCODE_LOOKUP_UNAVAILABLE` — Airo's own
+      example UPC included, retried and still `503`. That looks like a
+      product Open Food Facts doesn't have, mismapped to the
+      "unavailable" error code instead of the documented
+      `BARCODE_NOT_FOUND`, rather than a real outage, since well-known
+      products consistently succeed — but that's a mapping bug for Airo
+      to fix, not something to work around client-side. Added
+      `scanApi.lookupBarcode()`, a `BarcodeProduct`/`BarcodeLookupResponse`
+      type, and a new `scanLogic.ts` (`barcodeProductToPantryItem`,
+      `barcodeLookupErrorMessage` — reads the response body's `code`
+      field for a specific message per error case) with 5 tests.
+      `ScanScreen`'s barcode mode now shows a real single-item review
+      instead of always failing; the honest "isn't working yet" notice
+      is now receipt-mode only, since barcode scanning genuinely works
+      for products the lookup actually has. Typecheck, all 263 tests,
+      and a real `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Replace the
+      "identify a real donation partner" gap with honest suggestions
+      instead (branch: `feature/donation-suggestions`) — merged into
+      `master`. No real partner org or API has ever been identified to
+      integrate with, and there's no location data in the app to make
+      "nearby" a real, verified claim (onboarding only collects a
+      free-text location string; the Data Safety answers in
+      `STORE_LISTING.md` explicitly say no location is collected, and
+      changing that right before a submission wasn't worth it). Instead
+      of a fake partner list or a real integration neither of those
+      allow for right now, `DONATION_PARTNERS` in `DonateScreen.tsx` now
+      lists real, well-known donation-finder resources (Feeding
+      America, AmpleHarvest.org, 211, a maps search for "food bank near
+      me") — each with a real link (new `open-outline` icon per row,
+      split into its own tappable area from the existing select-radio
+      Pressable to avoid nesting two Pressables) that opens their own
+      website, where the actual proximity/contact lookup happens. The
+      donation-history recording behavior is unchanged — selecting one
+      still just labels the donation, same as before — but the
+      disclaimer now says plainly that these are suggestions to look
+      up and contact yourself, not a real handoff, replacing the old
+      "no real organization is notified" placeholder wording. Typecheck,
+      all 263 tests, and a real `expo export --platform ios` bundle all
+      pass.
+      **Follow-up (branch: `feature/donation-accepted-items`) — merged
+      into `master`:** added an `accepts` field to `DonationPartner` and
+      a line per suggestion describing what it accepts, since that
+      varies a lot by resource — Feeding America's network mostly takes
+      unopened/unexpired canned or boxed goods (varies by the specific
+      food bank), AmpleHarvest.org is specifically for fresh produce and
+      garden surplus rather than packaged goods, and 211/the maps search
+      are general directories with no food-specific guarantee at all.
+      Deliberately general guidance about each *resource*, not a promise
+      about any one specific organization, since this app has no way to
+      know what a specific local food bank actually takes. Typecheck,
+      all 263 tests, and a real `expo export --platform ios` bundle all
+      pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Republish
+      the Privacy Policy and Terms of Service with the minimum age set
+      to 13 (branch: `feature/policy-republish-age-13`) — merged into
+      `master`. Same root problem as the 8/29 republish: the versions
+      live at the current `PRIVACY_POLICY_URL`/`TERMS_OF_SERVICE_URL`
+      were created under Laya's Claude session, which this session has
+      no ownership of — confirmed by trying to read both via `Artifact`
+      `action: "read"`, both came back "not found... has not been
+      shared with you." Rather than route the edit through her session,
+      rewrote both fresh (same content/structure as the 8/29 versions,
+      grounded in the app's actual behavior) and published them under
+      this session instead, so this session can maintain them going
+      forward without hitting the same wall. Sets the account minimum
+      age to 13 (a COPPA-aligned line, common for consumer apps) in
+      both documents; the Privacy Policy also adds Open Food Facts as a
+      third-party processor (barcode lookups — just the scanned number,
+      confirmed no personal data included) alongside the existing
+      Airo/Gemini entries, and the Terms of Service adds a section on
+      the donation suggestions feature (general resources, not a real
+      handoff — matches the disclaimer already in `DonateScreen.tsx`).
+      Visually matches the app's real theme (DM Sans, the exact
+      light/dark tokens from `src/theme/colors.ts`), same as the
+      versions being replaced. **Still needed, same as before:** share
+      both from the Artifact page's share menu so they're actually
+      publicly viewable — they're private by default, and the old
+      "Content is user-generated and unverified" banner problem
+      (private/shared artifacts can still show it to a public viewer)
+      isn't resolved by a republish alone; see the "host at a real
+      permanent URL" task below, still the actual fix for that.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix two
+      stale scanning references — committed directly to `master`.
+      `README.md`'s API-module table only ever listed `scan.ts | POST
+      /api/scan`, missing the barcode endpoint entirely and, while
+      checking, four other modules that had never been added
+      (`household.ts`, `donations.ts`, `recipes.ts`, `auth.ts`) — filled
+      in all of them. `STORE_LISTING.md` still said scanning was
+      deliberately left out of the marketing copy entirely and that the
+      Data Safety table's camera row was "not fully working yet" — both
+      stale now that barcode scanning is real. Added a barcode mention
+      to the full description, updated the camera row to accurately
+      describe what actually happens (barcode: only the number is sent,
+      never a photo; receipt: same on-device-first principle, once
+      merged), and reworded the top-of-file note to distinguish barcode
+      (real, mentioned) from receipt (still not merged/verified, still
+      deliberately excluded).
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Rebuild meal
+      plan generation to build the week up one day at a time instead of
+      all 7 at once (branch: `feature/mealplan-daily-generation`) —
+      merged into `master`. Re-tested 9/1 (a new day, real time passed
+      since the `429`s) and found single isolated calls now succeed
+      cleanly (200 OK, ~7-9s, 2/2) — the shared rate limit really had
+      cleared, supporting the theory it was exhausted by yesterday's
+      heavy testing rather than a permanent capacity problem. But firing
+      7 of those back-to-back is exactly the pattern that tripped it
+      before, so rather than trust that a burst of 7 stays safe, the
+      "Generate 7-day plan" button is gone. Generation now happens one
+      day at a time: a `nextWeekdayIndex()` helper (new, tested, in
+      `mealPlannerLogic.ts`) starts from today's real weekday and wraps
+      forward through the week, returning the next day not yet
+      generated (or `null` once all 7 exist). The primary button reads
+      "Generate {day}'s meal plan" and only shows before any day exists;
+      once at least one day is generated, an outlined "+ Add {day}'s
+      plan" button appears below the list instead, letting the user
+      build out the rest of the week at their own pace — never more than
+      one request at a time, however many days they choose to add.
+      `saveMealPlanToHistory` now fires once the 7th day lands, whichever
+      order they were added in, instead of only after a single bulk
+      call. The stale-pantry banner's "Regenerate now" now clears the
+      plan and generates a fresh day for today, replacing the old bulk
+      regenerate. Per-day "Regenerate" links are unchanged - already
+      single-day calls. Removed `buildGenerationFailureMessage` (no
+      longer meaningful once every generation is a single atomic call,
+      not a batch with partial success to report) and its tests, and
+      fixed a stale comment on `replaceDayInPlan` left over from the
+      reverted `mealLabel` work ("3 meal-scoped calls" - it's one
+      day-scoped call). Live-verified the exact `dayIndex` mapping this
+      relies on against the real API: `dayIndex: 1` (today, a Tuesday)
+      returned `"day":"Tuesday"`; incrementally adding `dayIndex: 2`
+      returned `"day":"Wednesday"` - confirms `nextWeekdayIndex()`'s
+      real-calendar-to-`dayIndex` mapping is correct, not just internally
+      consistent. 6 tests added/changed net (2 removed, 8 added), suite
+      at 267. Typecheck, all tests, and a real `expo export --platform
+      ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix an
+      app-wide "401 error on everything" bug, and fix onboarding
+      starting on the questionnaire's 2nd step instead of the 1st
+      (branch: `feature/fix-session-expiry-and-onboarding-start`) —
+      merged into `master`. Found while live-testing with Laya: once a
+      stored auth token was invalidated (e.g. a leftover session from
+      earlier testing), `client.ts` deleted it on the resulting 401 but
+      never told `AuthContext`, so `isSignedIn` stayed stuck `true` and
+      every screen just kept 401ing with no way back to sign-in short of
+      manually signing out. `client.ts` now calls a handler
+      `AuthContext` registers on mount, flipping `isSignedIn` to `false`
+      the moment a token gets invalidated. The same stale-token state
+      also explained the onboarding bug: `OnboardingScreen` skipped
+      straight to step 1 (past the account step) whenever a token
+      happened to be present at mount — meant as a restart-resume
+      shortcut, but a genuine resume is already handled by the separate
+      draft-cache restore a few lines below, so this only ever fired for
+      a leftover token with no cached draft. Removed the skip; onboarding
+      now always starts at the account step. 3 tests added, suite at
+      270. Typecheck, tests, and a real `expo export --platform ios`
+      bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make
+      donation confirmation actually send you to a place to donate
+      (branch: `feature/donation-take-me-there`) — merged into
+      `master`. The real fix behind this was already merged
+      (`feature/donation-suggestions`, `feature/donation-accepted-items`)
+      — real link-out resources since there's no real food-bank API or
+      location data to integrate with — but the actual "go there" link
+      was a small icon on the partner-selection row, separate from the
+      Donate button, easy to never tap; confirming a donation just said
+      "N items donated to X" with nothing having actually happened. The
+      confirmation screen now leads with an "Open X" button that opens
+      the partner's real site, plus honest copy clarifying nothing's
+      happened yet until you do. Also added FoodPantries.org (a real
+      national food-pantry directory), rounding the suggestion list out
+      to five. Typecheck, all 270 tests, and a real `expo export
+      --platform ios` bundle all pass.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fixed household
-      link-sharing end to end, per live user testing. Several real,
-      confirmed-live fixes:
+      link-sharing end to end, per live user testing — independently
+      discovered the same `GET /api/household/members` endpoint as
+      Laasya's session above (both found it live-testing around the same
+      time) and built on her `useHouseholdMembers` hook once reconciling
+      the two branches. Several real, confirmed-live fixes beyond the
+      members-endpoint wiring:
       - **Invite flow was lying about sending anything.** The backend has
         no way to actually text/email an invite — `POST /api/invites`
         only ever creates a shareable link record, regardless of contact
@@ -1454,15 +1822,12 @@ pace I just won't be able to work much next week <3
         fields at all (the invitee's real name/role come from their own
         account once they accept, not a guess entered ahead of time),
         and honest "Invite link ready" / "share this yourself" copy.
-      - **Household members are now actually visible.** Airo added
-        `GET /api/household/members` since the last check (previously
-        404, tracked as a backend blocker) — it returns real members
-        with their actual user account ids. Rewired Profile's household
-        members list to this real endpoint instead of the broken
-        `invites`-derived list, refetching on focus. Self is labeled
-        "(You)" and excluded from the remove action; confirm-remove now
-        reads "Are you sure you want to remove {name}?" per the exact
-        wording requested.
+      - **Self-exclusion + exact wording on remove-member.** Building on
+        the members endpoint, excluded the signed-in user's own row from
+        the remove action (labeled "(You)" instead) and reworded the
+        confirm dialog to "Are you sure you want to remove {name}?" per
+        the exact wording requested, plus refetch-on-focus so
+        removing/inviting elsewhere and coming back shows current data.
       - **Removed-member experience.** Confirmed live: the moment
         someone's removed, their access is cut instantly (immediate 403
         "No household" on every household-scoped call) — there's no
@@ -1488,12 +1853,12 @@ pace I just won't be able to work much next week <3
         different tracked things, not one item with a confused quantity.
       - Renamed Household Hub's "Members & invites" card to "Pending
         invites," matching what it's always actually shown (it can never
-        list accepted members — see the fix above for where that now
-        lives).
+        list accepted members — the real list lives on Profile).
       Cross-member sharing (pantry, shopping list) was confirmed already
       working correctly via live two-account testing — not touched.
-      New tests for the pantry merge logic; typecheck, all 254 tests, and
-      a real `expo export --platform ios` bundle all pass.
+      New tests for the pantry merge logic; typecheck, all tests, and a
+      real `expo export --platform ios` bundle all pass after reconciling
+      both branches together.
 
 ### Not yet assigned
 
@@ -1505,6 +1870,23 @@ can wait until after launch.
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
+
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a real
+      nearby-donation-centers endpoint (e.g. `GET
+      /api/donation-centers?lat=&lng=`) so Donate can show many real
+      food banks/pantries sorted by proximity, each with whether it's
+      currently open and what it accepts — not just today's 5 static
+      link-out resources (Feeding America, AmpleHarvest.org, 211,
+      FoodPantries.org, a maps search). No nationwide directory with
+      that data is exposed by any of those sites' own APIs (none of
+      them publish one), so this needs Airo to source/proxy a real
+      directory (e.g. Google Places API) server-side — keeping any API
+      key off the client, same reasoning as every other Airo-only
+      integration. Once this exists, the client-side follow-up is
+      adding real device location: the app collects none today
+      (Privacy Policy / App Store Data Safety answers explicitly say
+      so), so that also needs a permission prompt and a privacy-policy
+      update before it can be wired in.
 
 #### Claude Code (client-side)
 
@@ -1535,10 +1917,6 @@ Buildable in this repo with no backend involvement.
       "N items cleared — Undo" pattern already used on the shopping
       list (clear-checked and bulk-delete). Pantry delete currently has
       a confirm dialog but no way to recover from an accidental delete.
-- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a single
-      "Clear filters" action to the Recipes screen for when
-      both the meal-type and cuisine filter rows have an active
-      selection, instead of deselecting each pill individually.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Show a real
       last-synced timestamp on the pantry/dashboard
       offline-cache banner ("Showing last synced data"). It's currently
@@ -1558,10 +1936,6 @@ Buildable in this repo with no backend involvement.
       (category vs. expiry-date sort) and Recipes (meal-type/cuisine
       filters) across app restarts instead of resetting to the default
       every time the screen mounts.
-- [ ] ![Later](https://img.shields.io/badge/Later-green) Add
-      swipe-to-delete (or swipe-to-edit) gesture on Pantry and
-      Shopping List rows as a faster alternative to opening Edit or
-      tapping the trash icon for every removal.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Add a shortcut
       from the Dashboard's expiring-items card straight
       into Donate, prefilled with those items, instead of requiring a
@@ -1573,63 +1947,136 @@ Buildable in this repo with no backend involvement.
 Not code — needs a person to research, decide, or check something
 outside this repo.
 
-- [ ] ![Later](https://img.shields.io/badge/Later-green) Decide when to
-      merge `feature/receipt-ocr` (on-device OCR for
-      receipt scanning) into `master`. The code is complete — see the
-      completed entry above — but merging trades away Expo Go for the
-      *entire* app in exchange for working receipt scans, and testing it
-      on a physical device needs either a paid Apple Developer Program
-      membership ($99/year, for iOS) or an Android device (no paid
-      account needed there). Merge once that tradeoff is worth making.
-      Not launch-blocking as-is: the Scan screen already shows an
-      honest "not working yet" notice instead of a silent failure.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Merge
+      `feature/receipt-ocr` (on-device OCR for receipt scanning) into
+      `master` and verify it on a real device before submitting. The
+      code is complete — see the completed entry above — and the plan
+      is to merge it right before the TestFlight submission specifically
+      so its first real test happens on a real build rather than a
+      separate dev-client cycle (losing Expo Go app-wide is accepted as
+      a tradeoff). Testing it would otherwise need either the Apple
+      Developer Program membership or an Android device — moot for now
+      since Android is on hold and iOS/TestFlight is happening anyway,
+      so that's the actual first real test either way. Was previously
+      merged and reverted once already (8/27) — confirmed with Laasya
+      that was deliberate, specifically to keep Expo Go working for
+      continued testing at the time; not a sign of a problem with the
+      OCR code itself.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Pick a real web
       domain for shareable invite links (currently a placeholder one)
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Prepare actual App
-      Store / Play Store listing assets — screenshots,
-      store description, category, age rating, promotional text. Build
-      profiles and the account-deletion requirement are handled, but
-      none of the actual listing content exists yet — this is a
-      separate step from having a build that's technically submittable.
-      **In progress:** drafted app name/subtitle options, promotional
-      text, full description, keywords, category recommendation, and
-      age-rating reasoning in `STORE_LISTING.md` — deliberately leaves
-      out receipt/barcode scanning since it doesn't work yet. Needs
+      Store listing assets — screenshots, store description, category,
+      age rating, promotional text. Google Play is on hold for now, so
+      this is iOS/App Store only. Build profiles and the
+      account-deletion requirement are
+      handled, but none of the actual listing content exists yet — this
+      is a separate step from having a build that's technically
+      submittable. **In progress:** drafted app name/subtitle options,
+      promotional text, full description, keywords, category
+      recommendation, and age-rating reasoning in `STORE_LISTING.md`.
+      Barcode scanning is now mentioned in the copy and its Data Safety
+      row corrected (see the "Fix two stale scanning references"
+      completed entry); receipt scanning stays deliberately excluded
+      until `feature/receipt-ocr` is merged and verified. Still needs
       Laasya + Laya to review/finalize the copy and actually take the
       screenshots (needs a phone with Expo Go, not something buildable
       from this repo) before this is submittable.
-- [ ] ![Later](https://img.shields.io/badge/Later-green) Identify a real
-      donation partner (food bank, nonprofit, etc.) to
-      actually integrate with. Airo confirmed on 8/14 that donation
-      records are now real and persisted, but partner selection is still
-      just a label with no real handoff behind it — nothing gets
-      notified, nothing gets fulfilled. Needs a real organization/API
-      identified before there's anything to integrate against. Already
-      honestly disclosed in-app as a label-only choice, so not a
-      submission blocker on its own.
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Meal-plan generation
-      (and recipe search, same root cause) is still
-      too slow to work at all — needs GoDaddy Support, not Airo. Affects
-      both "Generate 7-day plan" and "regenerate one day," since both
-      hit the same endpoint. Confirmed via direct API testing on 8/16
-      that even the smallest possible meal-plan request (one day,
-      `{ days: 1, dayIndex: 0 }`) times out at ~20-21 seconds; the
-      day-scoped fix's core assumption ("one day is fast enough") was
-      wrong. Airo diagnosed why: a single day still asks Gemini for 3
-      complete meals in one call, each with description, cuisine,
-      pantry/extra lists, and structured ingredients — genuinely a lot
-      of structured output per call. The app's 20-second timeout is
-      app-level, not a hard platform ceiling, but Airo's own read is
-      that raising it alone would just delay the failure rather than
-      fix the underlying slowness. Recipe search's `504`s are the exact
-      same symptom (route works, generation itself is too slow), so this
-      one task covers both. Airo said it's reached the edge of what it
-      can diagnose here and pointed to **GoDaddy Support**
-      (help.godaddy.com) for further help — no ticket was auto-opened,
-      so this needs a person to actually go file one. Once resolved,
-      re-verify both meal-plan generation and recipe search end to end,
-      and confirm the meal-plan shopping-gap and cuisine-filter tasks
-      (both depend on real generated output) actually work too.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Meal-plan
+      generation's underlying backend rate-limit issue is still
+      unresolved by Airo/GoDaddy, but no longer submission-blocking as
+      of the 9/1 redesign (see the completed entry above) — demoted
+      from MVP since the client no longer depends on the bulk-call
+      pattern that was tripping it. Was meaningfully better than 8/16
+      but still genuinely intermittent as of 8/31.
+      Live-tested 8/31 against
+      the real API with the demo account (direct `curl`, phone wifi was
+      down): `mealLabel` scoping (see the corrected completed entry
+      above) turned out to be a no-op the backend doesn't actually
+      honor, so that part of Airo's 8/31 fix doesn't do anything. What
+      *did* improve since 8/16: individual day-scoped calls tested in
+      isolation succeeded reliably (4 different days, 7-15s each,
+      versus 8/16's ~20-21s timeout on every single one). But a full
+      sequential 7-day run — exactly what "Generate 7-day plan" actually
+      does — only succeeded on 4 of 7 days, `504`-timing out on the
+      other 3 at ~20-21s each, ~101s total. That pattern (isolated calls
+      mostly fine, back-to-back calls intermittently timing out) points
+      at backend load/capacity variance under repeated calls, not
+      something fixable client-side — the app's existing partial-failure
+      handling (keep whatever succeeded, clear error message, per-day
+      regenerate to retry) already covers it as gracefully as a client
+      can, but roughly 40% of days still fail on a given generation.
+      Meal-plan generation needs either a GoDaddy Support answer (a
+      ticket was filed 8/31, still awaiting a response) or further
+      Airo-side backend work — a client-side day/meal-scoping trick has
+      now been tried and mostly exhausted as an option. Once resolved,
+      re-verify meal-plan generation end to end (a full 7-day run with
+      no failures), and confirm the meal-plan shopping-gap and
+      cuisine-filter tasks (both depend on real generated output)
+      actually work too.
+      **Update, same 8/31 session, continued live-testing:** added a
+      `retryOnce` helper (`src/utils/retryOnce.ts`, 3 tests) and wired it
+      into both `MealPlannerScreen` calls and `useSuggestedRecipes` — a
+      failed day gets one immediate retry before counting as a real
+      failure, on the theory that the 504s look like transient
+      backend-load variance. Live-tested that too, and found something
+      worse than 504 timeouts: a second full 7-day run started returning
+      `429 "Meal planning is temporarily busy"` — first on 3 of 7 days
+      (fast, ~1s failures, immediate retry didn't help since it hit the
+      same limit instantly), then a follow-up run with 3s spacing
+      between calls got `429` on all 7, and even a single isolated call
+      by itself (no other calls nearby) still got `429`. That last part
+      matters: it means this isn't just about how fast this session was
+      calling it — the backend was in a genuinely rate-limited/busy state
+      by the end of this testing session, independent of call spacing.
+      Unclear whether today's testing volume (~40+ calls to
+      `/api/meal-plan` in under 15 minutes, across all the verification
+      above) caused or contributed to that state, or whether it's a
+      separate, lower capacity ceiling that would bite a real user
+      hitting "Generate 7-day plan" once. Deliberately stopped
+      testing rather than keep hammering an endpoint already showing
+      "temporarily busy," rather than risk making it worse or racking up
+      more quota usage without new information. `retryOnce` is kept
+      regardless — it's a real improvement for genuine transient 504s
+      and does no harm against 429s, just doesn't fix them. **This needs
+      a fresh live test after some real time has passed** (not
+      immediately back-to-back with today's session) to tell apart
+      "today's testing exhausted a short-term quota" from "this backend
+      has a capacity ceiling real users will hit too." Typecheck, the
+      full test suite (258, was 255), and a real
+      `expo export --platform ios` bundle all pass. Sent Airo the full
+      `429` findings above; Airo's response was to open a GoDaddy
+      Support ticket for it, same as the meal-plan-latency issue below —
+      a ticket has been filed (8/31).
+      **Update, 9/1:** re-tested fresh (a new day, real time passed) and
+      single isolated calls now succeed cleanly again (200 OK, ~7-9s,
+      2/2) — supports the theory that 8/31's `429`s were from this
+      session's own heavy testing volume exhausting a shared quota, not
+      a permanent ceiling. Rather than trust a burst of 7 stays safe
+      going forward, rebuilt meal-plan generation to never fire more
+      than one request at a time in the first place — see the completed
+      entry above. The GoDaddy ticket about the underlying rate limit is
+      still open and unanswered, but the app no longer depends on it
+      being fixed to work reliably.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Recipe search
+      (`GET /api/recipes?q=`, a separate endpoint from
+      `/api/meal-plan`) is still fully broken — still `504`s (~11s,
+      confirmed 8/31), with no scoping fix proposed or built for it at
+      all. Split out from the meal-plan generation item above since
+      it's a distinct endpoint with its own unresolved root cause, not
+      something the day-scoping/retry work touches. Not launch-blocking
+      on its own: the existing local title-filter search on the
+      Recipes screen still works, so this only affects the separate
+      "Search all recipes" action.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test
+      household invitations end-to-end through the actual app UI: invite
+      someone, have them accept, see them in Profile's "Household
+      members" list, then remove them. Each piece is independently
+      confirmed live at this point — the invite/accept flow works;
+      `DELETE /api/household/members/:id` works given a real user id;
+      `GET /api/household/members` now exists, returns real ids, and
+      rejects unauthenticated requests — but nobody has clicked through
+      the actual client flow end-to-end since the real endpoint was
+      wired in.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Live-test the
       donation backend with a second household member:
       the endpoint itself is confirmed live and working (`GET
@@ -1648,27 +2095,27 @@ outside this repo.
       on its own — today's setup can carry an initial submission either
       way.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Enroll in the Apple
-      Developer Program ($99/year) and create a
-      Google Play Developer account ($25 one-time). Referenced in
+      Developer Program ($99/year). Referenced in
       README's distribution steps but never tracked as its own task —
-      nothing can actually be submitted to either store until both
-      exist, and both need a real person's payment info.
+      nothing can actually be submitted until it exists, and it needs a
+      real person's payment info. Google Play is on hold for now;
+      revisit that decision separately once iOS is out.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Complete Apple's
-      "App Privacy" questionnaire (App Store Connect)
-      and Google Play's "Data safety" section (Play Console) before
-      submission. Distinct from having a written Privacy Policy — each
-      store requires its own in-console declaration of exactly what
-      data is collected and why, and Apple/Google check it against the
-      app's actual observed behavior, not just the policy text.
+      "App Privacy" questionnaire (App Store Connect) before submission.
+      Distinct from having a written Privacy Policy — the store requires
+      its own in-console declaration of exactly what data is collected
+      and why, and Apple checks it against the app's actual observed
+      behavior, not just the policy text.
       **In progress:** drafted the actual answers (data-type table +
       encryption/deletion/tracking/third-party-processor answers) in
       `STORE_LISTING.md` — copy-paste ready, just needs someone logged
-      into each console to actually enter them.
+      into App Store Connect to actually enter them. (The Google Play
+      "Data safety" answers are in the same doc for whenever Android is
+      picked back up.)
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Actually configure
-      `eas submit` credentials for both stores (an
-      App Store Connect API key for Apple, a service account JSON key
-      for Google) and do a real first submission. Currently only
-      documented as a step in `README.md`, not yet done.
+      `eas submit` credentials for iOS (an App Store Connect API key)
+      and do a real first submission. Currently only documented as a
+      step in `README.md`, not yet done.
 - [ ] ![MVP](https://img.shields.io/badge/MVP-red) Host the Privacy
       Policy and Terms of Service at a real, permanent
       URL once the web domain exists (both currently republished as

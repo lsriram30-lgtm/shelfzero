@@ -9,7 +9,7 @@ jest.mock("expo-secure-store", () => ({
 }));
 
 import * as SecureStore from "expo-secure-store";
-import { apiClient, ApiError, extractErrorMessage } from "./client";
+import { apiClient, ApiError, extractErrorMessage, setSessionExpiredHandler } from "./client";
 
 function jsonResponse(status: number, body: unknown): Response {
   return {
@@ -24,6 +24,7 @@ describe("apiClient", () => {
     jest.restoreAllMocks();
     (SecureStore.getItemAsync as jest.Mock).mockReset().mockResolvedValue(null);
     (SecureStore.deleteItemAsync as jest.Mock).mockReset().mockResolvedValue(undefined);
+    setSessionExpiredHandler(null);
   });
 
   it("returns parsed JSON on a successful response", async () => {
@@ -71,6 +72,35 @@ describe("apiClient", () => {
 
     await expect(apiClient.get("/api/pantry")).rejects.toBeInstanceOf(ApiError);
     expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+  });
+
+  it("notifies the registered session-expired handler on a 401 when a token was present", async () => {
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("stored-token");
+    jest.spyOn(global, "fetch").mockResolvedValue(jsonResponse(401, { message: "Unauthorized" }));
+    const handler = jest.fn();
+    setSessionExpiredHandler(handler);
+
+    await expect(apiClient.get("/api/pantry")).rejects.toBeInstanceOf(ApiError);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not notify the session-expired handler on a 401 when there was no token to begin with", async () => {
+    jest.spyOn(global, "fetch").mockResolvedValue(jsonResponse(401, { message: "Unauthorized" }));
+    const handler = jest.fn();
+    setSessionExpiredHandler(handler);
+
+    await expect(apiClient.get("/api/pantry")).rejects.toBeInstanceOf(ApiError);
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("does not notify the session-expired handler on a non-401 error", async () => {
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue("stored-token");
+    jest.spyOn(global, "fetch").mockResolvedValue(jsonResponse(500, {}));
+    const handler = jest.fn();
+    setSessionExpiredHandler(handler);
+
+    await expect(apiClient.get("/api/pantry")).rejects.toBeInstanceOf(ApiError);
+    expect(handler).not.toHaveBeenCalled();
   });
 
   it("sends a Bearer token when one is stored", async () => {

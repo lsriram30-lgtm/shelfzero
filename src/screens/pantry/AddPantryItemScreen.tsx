@@ -10,6 +10,7 @@ import { spacing, typography } from "../../theme";
 import { PantryStackParamList } from "../../navigation/types";
 import { DateParts, fromIsoDate, isDateComplete, isDateEmpty, onlyDigits, toIsoDate } from "../../utils/dateInput";
 import {
+  buildPantryDeleteMessage,
   filterByAllergies,
   filterByDietaryPrefs,
   filterCategoriesByDietaryPrefs,
@@ -236,9 +237,7 @@ export function AddPantryItemScreen() {
 
   const handleDelete = () => {
     if (!editingItem) return;
-    const message = isInCurrentPlan
-      ? `Remove ${editingItem.name} from your pantry? It's part of your current meal plan, so you may want to regenerate the plan afterward.`
-      : `Remove ${editingItem.name} from your pantry?`;
+    const message = buildPantryDeleteMessage(editingItem.name, isInCurrentPlan);
     Alert.alert("Remove item", message, [
       { text: "Cancel", style: "cancel" },
       {

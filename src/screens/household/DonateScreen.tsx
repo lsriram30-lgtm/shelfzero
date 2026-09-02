@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
@@ -12,21 +12,46 @@ import { DonationPartner } from "../../types";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DONATION_WINDOW_DAYS = 7;
 
+// Not real partners - there's no backend integration to notify or confirm
+// with an actual organization (see TASKS.md). These are honest, general
+// suggestions for finding somewhere nearby to donate to; the user reaches
+// out and confirms it themselves.
 const DONATION_PARTNERS: DonationPartner[] = [
   {
-    id: "food-pantry",
-    name: "Community Food Pantry",
-    description: "General pantry staples and shelf-stable goods",
+    id: "feeding-america",
+    name: "Feeding America",
+    description: "Search their nationwide network of food banks by zip code",
+    url: "https://www.feedingamerica.org/find-your-local-foodbank",
+    accepts:
+      "Varies by the specific food bank, but unopened, unexpired canned/boxed goods are almost always accepted; fresh, frozen, or refrigerated items depend on the location.",
   },
   {
-    id: "shelter",
-    name: "Neighborhood Shelter",
-    description: "Prepared meals and fresh produce",
+    id: "ampleharvest",
+    name: "AmpleHarvest.org",
+    description: "Matches surplus pantry or garden food with a nearby pantry that can use it",
+    url: "https://www.ampleharvest.org/find-pantry/",
+    accepts: "Built specifically for fresh produce and garden surplus, not packaged goods.",
   },
   {
-    id: "fridge",
-    name: "Community Fridge",
-    description: "Self-serve drop-off, no appointment needed",
+    id: "211",
+    name: "211",
+    description: "Free community-services directory, including food assistance near you",
+    url: "https://www.211.org/",
+    accepts: "A general directory, not food-specific — ask what's accepted when you call.",
+  },
+  {
+    id: "foodpantries",
+    name: "FoodPantries.org",
+    description: "Directory of food pantries searchable by city, state, or zip code",
+    url: "https://www.foodpantries.org/",
+    accepts: "Varies by pantry — most list accepted items and hours on their own page.",
+  },
+  {
+    id: "maps-search",
+    name: "Search maps for food banks near me",
+    description: "Opens your maps app with a search for nearby food banks",
+    url: "https://www.google.com/maps/search/?api=1&query=food+bank+near+me",
+    accepts: "Varies completely by location — check with them directly before dropping off.",
   },
 ];
 
@@ -39,7 +64,9 @@ export function DonateScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<{ count: number; partnerName: string } | null>(null);
+  const [done, setDone] = useState<{ count: number; partnerName: string; partnerUrl?: string } | null>(
+    null
+  );
 
   const candidates = useMemo(() => {
     const now = Date.now();
@@ -82,7 +109,7 @@ export function DonateScreen() {
         partnerName: partner.name,
         itemNames: removed.map((item) => item.name),
       });
-      setDone({ count: removed.length, partnerName: partner.name });
+      setDone({ count: removed.length, partnerName: partner.name, partnerUrl: partner.url });
     } catch (err) {
       if (removed.length > 0) {
         // These items are genuinely gone from the pantry already - log them
@@ -117,9 +144,22 @@ export function DonateScreen() {
           <Card style={styles.doneCard}>
             <Text style={[styles.doneTitle, { color: colors.text }]}>Thank you!</Text>
             <Text style={[styles.doneMessage, { color: colors.textMuted }]}>
-              {done.count} item{done.count === 1 ? "" : "s"} donated to {done.partnerName}.
+              {done.count} item{done.count === 1 ? "" : "s"} logged for {done.partnerName}. Nothing's
+              actually there yet — open their site to find a location and drop them off.
             </Text>
-            <Button label="Done" onPress={() => navigation.goBack()} style={styles.doneButton} />
+            {done.partnerUrl ? (
+              <Button
+                label={`Open ${done.partnerName}`}
+                onPress={() => Linking.openURL(done.partnerUrl!)}
+                style={styles.doneButton}
+              />
+            ) : null}
+            <Button
+              label="Done"
+              variant={done.partnerUrl ? "secondary" : "primary"}
+              onPress={() => navigation.goBack()}
+              style={styles.doneButton}
+            />
           </Card>
         </View>
       </Screen>
@@ -128,7 +168,7 @@ export function DonateScreen() {
 
   return (
     <Screen>
-      <Header title="Donate surplus" subtitle="Send items nearing expiry to a local partner" />
+      <Header title="Donate surplus" subtitle="Find somewhere nearby to send items nearing expiry" />
       <ScrollView contentContainerStyle={styles.content}>
         {candidates.length === 0 ? (
           <EmptyState
@@ -169,15 +209,14 @@ export function DonateScreen() {
             </Card>
 
             <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>
-              CHOOSE A PARTNER
+              FIND A PLACE TO DONATE
             </Text>
             <View style={styles.partnerList}>
               {DONATION_PARTNERS.map((p) => {
                 const selected = partnerId === p.id;
                 return (
-                  <Pressable
+                  <View
                     key={p.id}
-                    onPress={() => setPartnerId(p.id)}
                     style={[
                       styles.partnerRow,
                       {
@@ -185,28 +224,52 @@ export function DonateScreen() {
                         backgroundColor: colors.surface,
                       },
                     ]}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
-                    accessibilityLabel={p.name}
                   >
-                    <View style={styles.partnerInfo}>
-                      <Text style={[styles.partnerName, { color: colors.text }]}>{p.name}</Text>
-                      <Text style={[styles.partnerDescription, { color: colors.textMuted }]}>
-                        {p.description}
-                      </Text>
-                    </View>
-                    <Ionicons
-                      name={selected ? "radio-button-on" : "radio-button-off"}
-                      size={20}
-                      color={selected ? colors.primary : colors.textMuted}
-                    />
-                  </Pressable>
+                    <Pressable
+                      onPress={() => setPartnerId(p.id)}
+                      style={styles.partnerSelectArea}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: selected }}
+                      accessibilityLabel={
+                        p.accepts ? `${p.name}. Accepts: ${p.accepts}` : p.name
+                      }
+                    >
+                      <View style={styles.partnerInfo}>
+                        <Text style={[styles.partnerName, { color: colors.text }]}>{p.name}</Text>
+                        <Text style={[styles.partnerDescription, { color: colors.textMuted }]}>
+                          {p.description}
+                        </Text>
+                        {p.accepts ? (
+                          <Text style={[styles.partnerAccepts, { color: colors.textMuted }]}>
+                            Accepts: {p.accepts}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <Ionicons
+                        name={selected ? "radio-button-on" : "radio-button-off"}
+                        size={20}
+                        color={selected ? colors.primary : colors.textMuted}
+                      />
+                    </Pressable>
+                    {p.url ? (
+                      <Pressable
+                        onPress={() => Linking.openURL(p.url!)}
+                        hitSlop={8}
+                        style={styles.partnerLinkButton}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open ${p.name}`}
+                      >
+                        <Ionicons name="open-outline" size={18} color={colors.primary} />
+                      </Pressable>
+                    ) : null}
+                  </View>
                 );
               })}
             </View>
             <Text style={[styles.disclaimer, { color: colors.textMuted }]}>
-              These are placeholder partners — picking one records your choice in your donation
-              history, but no real organization is notified or receives anything yet.
+              These are suggestions to help you find somewhere to donate — reach out and confirm
+              with them yourself. Selecting one just labels this donation in your history;
+              ShelfZero doesn't contact anyone on your behalf.
             </Text>
 
             <Button
@@ -261,11 +324,20 @@ const styles = StyleSheet.create({
   },
   partnerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
     borderRadius: radius.md,
     padding: spacing.md,
+  },
+  partnerSelectArea: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  partnerLinkButton: {
+    marginLeft: spacing.sm,
+    padding: spacing.xs,
   },
   partnerInfo: {
     flexShrink: 1,
@@ -276,6 +348,11 @@ const styles = StyleSheet.create({
   partnerDescription: {
     ...typography.caption,
     marginTop: 2,
+  },
+  partnerAccepts: {
+    ...typography.caption,
+    marginTop: 2,
+    fontStyle: "italic",
   },
   disclaimer: {
     ...typography.caption,

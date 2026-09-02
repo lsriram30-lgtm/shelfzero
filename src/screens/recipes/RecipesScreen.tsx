@@ -12,6 +12,7 @@ import {
   Header,
   Card,
   Button,
+  CardHeaderLink,
   EmptyState,
   ErrorState,
   Pill,
@@ -26,6 +27,7 @@ import {
   filterByCuisine,
   filterByMealType,
   filterByTitle,
+  hasActiveRecipeFilters,
   sortByMatchScore,
   uniqueCuisines,
   uniqueMealTypes,
@@ -158,6 +160,11 @@ export function RecipesScreen() {
     setSearchError(null);
   };
 
+  const clearFilters = () => {
+    setMealTypeFilter(null);
+    setCuisineFilter(null);
+  };
+
   // Refreshed on focus (not just mount) so favoriting/un-favoriting from
   // RecipeDetail is reflected here on the way back, the same pattern
   // PantryScreen already uses for its own re-fetch-on-return.
@@ -253,6 +260,11 @@ export function RecipesScreen() {
           ))}
         </View>
       ) : null}
+      {!searchResults && hasActiveRecipeFilters(mealTypeFilter, cuisineFilter) ? (
+        <View style={styles.clearFiltersRow}>
+          <CardHeaderLink label="Clear filters" onPress={clearFilters} />
+        </View>
+      ) : null}
       <FlatList
         data={searchResults ?? filtered}
         keyExtractor={(item) => item.id}
@@ -330,6 +342,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  clearFiltersRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
   },

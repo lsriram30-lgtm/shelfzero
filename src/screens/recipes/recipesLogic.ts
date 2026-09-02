@@ -74,3 +74,14 @@ export function filterByTitle(recipes: Recipe[], query: string): Recipe[] {
   if (!trimmed) return recipes;
   return recipes.filter((recipe) => recipe.title.toLowerCase().includes(trimmed));
 }
+
+// The meal-type and cuisine filter rows are independent, each with its own
+// "All"/clear pill - this is just what decides whether a single combined
+// "Clear filters" action has anything to do, so it can stay hidden rather
+// than sit there uselessly when neither row has an active selection.
+export function hasActiveRecipeFilters(
+  mealTypeFilter: string | null,
+  cuisineFilter: string | null
+): boolean {
+  return mealTypeFilter !== null || cuisineFilter !== null;
+}

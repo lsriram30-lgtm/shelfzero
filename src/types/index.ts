@@ -22,6 +22,19 @@ export type NewPantryItem = {
 
 export type UpdatePantryItem = Partial<NewPantryItem>;
 
+export interface BarcodeProduct {
+  barcode: string;
+  name: string;
+  category: string;
+  brand?: string;
+  source: string;
+}
+
+export interface BarcodeLookupResponse {
+  success: true;
+  product: BarcodeProduct;
+}
+
 export interface ShoppingListItem {
   id: string;
   name: string;
@@ -43,6 +56,15 @@ export type InviteRole = "adult" | "teen" | "child" | "guest";
 export type InviteStatus = "pending" | "accepted" | "cancelled";
 export type ContactType = "phone" | "email" | "link";
 
+// From GET /api/household/members - confirmed live 2026-08-30. Unlike
+// HouseholdInvite, `id` here is the member's real user account id (what
+// DELETE /api/household/members/:id actually expects), not an invite id.
+export interface HouseholdMember {
+  id: string;
+  name: string;
+  role: "owner" | "member";
+}
+
 export interface HouseholdInvite {
   id: string;
   token: string;
@@ -52,15 +74,6 @@ export interface HouseholdInvite {
   contact_type: ContactType;
   status: InviteStatus;
   created_at: string;
-}
-
-// From GET /api/household/members - confirmed live 2026-08-30. Unlike
-// HouseholdInvite, `id` here is the member's real user account id (what
-// DELETE /api/household/members/:id actually expects), not an invite id.
-export interface HouseholdMember {
-  id: string;
-  name: string;
-  role: string;
 }
 
 export type NewInvite = {
@@ -94,6 +107,12 @@ export interface MealPlanRequest {
   // building a week out of several fast calls; startDay (a weekday name
   // already present in a previously-generated plan) targets regenerating
   // one specific existing day.
+  //
+  // The backend also documents an optional mealLabel field for scoping a
+  // day-level request down to one meal, but live-testing on 8/31 (a real
+  // demo account, an invalid mealLabel value) confirmed it isn't actually
+  // read or validated server-side - deliberately not modeled here since
+  // sending it would just be misleading dead code.
   days?: number;
   dayIndex?: number;
   startDay?: string;
@@ -165,6 +184,16 @@ export interface DonationPartner {
   id: string;
   name: string;
   description: string;
+  // A link to look the option up / find the nearest one - these are
+  // general suggestions, not a real handoff, so there's no in-app way
+  // to actually reach one without this.
+  url?: string;
+  // What's actually accepted is set by whichever specific local
+  // organization the user ends up contacting, not by this app - this is
+  // general guidance about the resource itself (e.g. "built for fresh
+  // produce" vs. "a directory, varies completely"), not a promise about
+  // any one location.
+  accepts?: string;
 }
 
 export interface DonationRecord {
