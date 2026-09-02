@@ -39,7 +39,7 @@ export function MealPlanHistoryScreen() {
         <EmptyState
           icon="calendar-outline"
           title="No history yet"
-          message="Every time you generate a full 7-day plan, it's saved here so you can look back."
+          message="Once you've built up a full week, it's saved here so you can look back."
         />
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
