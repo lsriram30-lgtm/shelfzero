@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 80 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 81 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 60 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1915,6 +1915,27 @@ pace I just won't be able to work much next week <3
       day-by-day rebuild removed that single action entirely. 2 tests
       added, suite at 286. Typecheck, tests, and a real `expo export
       --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Add quantity
+      shortcuts, more categories, and more expiry shortcuts to Add Item
+      (branch: `feature/add-item-more-options`) — merged into `master`.
+      Quantity: added Half dozen (6) / Dozen (12) / 2 dozen (24) shortcut
+      pills next to the Quantity field, same tap-to-fill pattern as the
+      existing expiry shortcuts. Categories: added Seafood, Snacks,
+      Condiments, Spices & Seasonings, and Baking alongside the original
+      8, and moved/split the auto-suggest keywords (fish/salmon/shrimp
+      out of Meat into Seafood; flour/sugar, spice, honey/sauce, and
+      cracker out of Pantry into their new categories) so typing an item
+      name actually suggests the new categories instead of them just
+      being selectable with no suggestions ever pointing at them. Also
+      generalized `filterCategoriesByDietaryPrefs`, which only ever knew
+      how to hide "Meat" specifically, into a category→diet-tag map —
+      Seafood is now correctly hidden for Vegetarian/Vegan but stays
+      visible for Pescatarian, same reasoning Meat already had. Expiry:
+      added 1 day, 3 months, 6 months, and 1 year shortcuts alongside the
+      original 4, covering both very-short-life items and the
+      long-shelf-life items the new categories add. 9 tests added, suite
+      at 291. Typecheck, tests, and a real `expo export --platform ios`
+      bundle all pass.
 - [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Redesigned
       Household Hub with a member avatar row and reordered
       sections, per direct request. A horizontal row of circular avatars

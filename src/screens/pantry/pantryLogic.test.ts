@@ -279,6 +279,30 @@ describe("suggestCategory", () => {
   it("does not singularize a word ending in a double s", () => {
     expect(suggestCategory("Swiss")).toBeNull();
   });
+
+  it("suggests Seafood for fish, not Meat", () => {
+    expect(suggestCategory("Salmon")).toBe("Seafood");
+    expect(suggestCategory("Shrimp")).toBe("Seafood");
+  });
+
+  it("suggests Snacks for chips and crackers", () => {
+    expect(suggestCategory("Chips")).toBe("Snacks");
+    expect(suggestCategory("Crackers")).toBe("Snacks");
+  });
+
+  it("suggests Condiments for sauces and spreads", () => {
+    expect(suggestCategory("Ketchup")).toBe("Condiments");
+    expect(suggestCategory("Hot Sauce")).toBe("Condiments");
+  });
+
+  it("suggests Spices & Seasonings for spices", () => {
+    expect(suggestCategory("Cinnamon")).toBe("Spices & Seasonings");
+  });
+
+  it("suggests Baking for baking ingredients", () => {
+    expect(suggestCategory("Flour")).toBe("Baking");
+    expect(suggestCategory("Baking Soda")).toBe("Baking");
+  });
 });
 
 describe("filterByDietaryPrefs", () => {
@@ -319,13 +343,13 @@ describe("filterByDietaryPrefs", () => {
 });
 
 describe("filterCategoriesByDietaryPrefs", () => {
-  const categories = ["Produce", "Dairy", "Meat", "Pantry"];
+  const categories = ["Produce", "Dairy", "Meat", "Seafood", "Pantry"];
 
   it("returns everything unfiltered when there are no dietary prefs", () => {
     expect(filterCategoriesByDietaryPrefs(categories, [])).toEqual(categories);
   });
 
-  it("hides Meat for vegetarians", () => {
+  it("hides Meat and Seafood for vegetarians", () => {
     expect(filterCategoriesByDietaryPrefs(categories, ["Vegetarian"])).toEqual([
       "Produce",
       "Dairy",
@@ -333,7 +357,7 @@ describe("filterCategoriesByDietaryPrefs", () => {
     ]);
   });
 
-  it("hides Meat for vegans", () => {
+  it("hides Meat and Seafood for vegans", () => {
     expect(filterCategoriesByDietaryPrefs(categories, ["Vegan"])).toEqual([
       "Produce",
       "Dairy",
@@ -341,15 +365,16 @@ describe("filterCategoriesByDietaryPrefs", () => {
     ]);
   });
 
-  it("hides Meat for pescatarians", () => {
+  it("hides Meat but keeps Seafood for pescatarians", () => {
     expect(filterCategoriesByDietaryPrefs(categories, ["Pescatarian"])).toEqual([
       "Produce",
       "Dairy",
+      "Seafood",
       "Pantry",
     ]);
   });
 
-  it("keeps Meat for preferences that don't exclude it", () => {
+  it("keeps Meat and Seafood for preferences that don't exclude either", () => {
     expect(filterCategoriesByDietaryPrefs(categories, ["Keto"])).toEqual(categories);
   });
 });

@@ -21,8 +21,27 @@ import { getCachedMealPlan } from "../../utils/mealPlanCache";
 import { hapticWarning } from "../../utils/haptics";
 import { useUnsavedChangesGuard } from "../../hooks/useUnsavedChangesGuard";
 
-const CATEGORIES = ["Produce", "Dairy", "Meat", "Pantry", "Frozen", "Bakery", "Beverages", "Other"];
+const CATEGORIES = [
+  "Produce",
+  "Dairy",
+  "Meat",
+  "Seafood",
+  "Bakery",
+  "Frozen",
+  "Snacks",
+  "Condiments",
+  "Spices & Seasonings",
+  "Baking",
+  "Pantry",
+  "Beverages",
+  "Other",
+];
 const UNITS = ["ct", "lb", "oz", "g", "kg", "L", "mL", "Other"];
+const QUANTITY_SHORTCUTS: { label: string; value: number }[] = [
+  { label: "Half dozen (6)", value: 6 },
+  { label: "Dozen (12)", value: 12 },
+  { label: "2 dozen (24)", value: 24 },
+];
 const STAPLES: { name: string; category: string; unit: string; quantity?: number; dietTags?: string[] }[] = [
   { name: "Milk", category: "Dairy", unit: "L", dietTags: ["dairy"] },
   { name: "Eggs", category: "Dairy", unit: "ct", quantity: 12, dietTags: ["egg"] },
@@ -33,10 +52,14 @@ const STAPLES: { name: string; category: string; unit: string; quantity?: number
   { name: "Chicken Breast", category: "Meat", unit: "lb", dietTags: ["meat"] },
 ];
 const EXPIRY_SHORTCUTS: { label: string; days: number }[] = [
+  { label: "1 day", days: 1 },
   { label: "3 days", days: 3 },
   { label: "1 week", days: 7 },
   { label: "2 weeks", days: 14 },
   { label: "1 month", days: 30 },
+  { label: "3 months", days: 90 },
+  { label: "6 months", days: 180 },
+  { label: "1 year", days: 365 },
 ];
 
 function partsFromDate(date: Date): DateParts {
@@ -188,6 +211,10 @@ export function AddPantryItemScreen() {
     setExpiryParts((prev) => ({ ...prev, [field]: onlyDigits(text, maxLength) }));
   };
 
+  const applyQuantityShortcut = (value: number) => {
+    setQuantity(String(value));
+  };
+
   const applyShortcut = (days: number) => {
     const date = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
     setExpiryParts(partsFromDate(date));
@@ -322,6 +349,15 @@ export function AddPantryItemScreen() {
               onChangeText={setQuantity}
             />
           </View>
+        </View>
+        <View style={styles.pillRow}>
+          {QUANTITY_SHORTCUTS.map((shortcut) => (
+            <Pill
+              key={shortcut.label}
+              label={shortcut.label}
+              onPress={() => applyQuantityShortcut(shortcut.value)}
+            />
+          ))}
         </View>
         {isEditing ? (
           <Text style={[styles.hint, { color: colors.textMuted }]}>
