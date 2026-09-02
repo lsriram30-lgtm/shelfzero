@@ -2072,6 +2072,21 @@ this repo.
       core to what the feature is supposed to do, but worth a joint
       call with Laya on priority given the backend rate-limit issue
       above is also still open.
+      **Update, same day:** Airo reported a fix — normalized string vs.
+      object pantry-item inputs so the list actually reaches the model
+      correctly, and made pantry use mandatory in the prompt (every
+      meal must use a pantry item, and use all listed items where
+      practical), leaving `ingredients[].inPantry` unchanged (expected —
+      that's the separate, already-fixed-client-side bug above). Three
+      live re-tests right after (the original 5-item repro, twice, plus
+      a bare `["pasta", "tomato"]`) all still showed the exact same
+      failure pattern (including the same "Baked Salmon with Roasted
+      Asparagus" dinner twice across different pantry inputs) - but
+      Laasya confirmed the change hasn't actually been published yet on
+      Airo's end, which fully explains testing against what's still the
+      old behavior. Not a failed fix, just not live yet. **Needs a
+      fresh re-test once Laasya publishes it** before this can be
+      marked resolved either way.
 
 #### Claude Code (client-side)
 
