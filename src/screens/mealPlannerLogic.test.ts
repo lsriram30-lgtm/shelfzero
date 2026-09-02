@@ -4,6 +4,7 @@ import {
   formatIngredientLabel,
   hasEnoughPantryItems,
   hasPantryChanged,
+  ingredientInPantry,
   MIN_PANTRY_ITEMS_FOR_PLAN,
   missingIngredients,
   nextWeekdayIndex,
@@ -104,29 +105,58 @@ describe("hasEnoughPantryItems", () => {
   });
 });
 
+describe("ingredientInPantry", () => {
+  it("matches an exact single-word pantry item", () => {
+    expect(ingredientInPantry("Olive Oil", ["olive oil"])).toBe(true);
+  });
+
+  it("matches a pantry item that's just one word of a longer ingredient name", () => {
+    expect(ingredientInPantry("Cooked Chicken Breast", ["Chicken"])).toBe(true);
+  });
+
+  it("matches case-insensitively", () => {
+    expect(ingredientInPantry("PASTA", ["Pasta"])).toBe(true);
+  });
+
+  it("matches a singular pantry item against a plural ingredient name and vice versa", () => {
+    expect(ingredientInPantry("Tomato", ["Tomatoes"])).toBe(true);
+    expect(ingredientInPantry("Tomatoes", ["Tomato"])).toBe(true);
+  });
+
+  it("requires every word of a multi-word pantry item to appear in the ingredient", () => {
+    expect(ingredientInPantry("Sauce", ["Alfredo Sauce"])).toBe(false);
+    expect(ingredientInPantry("Alfredo Sauce", ["Alfredo Sauce"])).toBe(true);
+  });
+
+  it("does not false-positive match a short pantry item against an unrelated word that contains it", () => {
+    expect(ingredientInPantry("Eggplant", ["Egg"])).toBe(false);
+  });
+
+  it("returns false when nothing in the pantry matches", () => {
+    expect(ingredientInPantry("Salmon", ["Chicken", "Rice"])).toBe(false);
+  });
+
+  it("returns false for an empty pantry", () => {
+    expect(ingredientInPantry("Rice", [])).toBe(false);
+  });
+});
+
 describe("missingIngredients", () => {
   it("returns an empty array when there are no ingredients", () => {
-    expect(missingIngredients(undefined)).toEqual([]);
+    expect(missingIngredients(undefined, ["rice"])).toEqual([]);
   });
 
-  it("returns only ingredients explicitly marked not in pantry", () => {
-    const ingredients = [
-      { name: "chicken breast", inPantry: false },
-      { name: "rice", inPantry: true },
-      { name: "garlic", inPantry: false },
-    ];
-    expect(missingIngredients(ingredients)).toEqual([
-      { name: "chicken breast", inPantry: false },
-      { name: "garlic", inPantry: false },
-    ]);
+  it("returns ingredients that don't match anything in the current pantry", () => {
+    const ingredients = [{ name: "Chicken Breast" }, { name: "Rice" }, { name: "Garlic" }];
+    expect(missingIngredients(ingredients, ["chicken", "rice"])).toEqual([{ name: "Garlic" }]);
   });
 
-  it("treats a missing inPantry flag as not-missing (unknown, not assumed absent)", () => {
-    expect(missingIngredients([{ name: "salt" }])).toEqual([]);
+  it("ignores the backend's own inPantry flag - it's been unreliable live (e.g. marking an exact pantry match as not in pantry)", () => {
+    expect(missingIngredients([{ name: "Olive Oil", inPantry: false }], ["Olive Oil"])).toEqual([]);
   });
 
-  it("returns an empty array when everything is already in the pantry", () => {
-    expect(missingIngredients([{ name: "rice", inPantry: true }])).toEqual([]);
+  it("returns an empty array when everything matches the current pantry", () => {
+    expect(missingIngredients([{ name: "Rice" }], ["Rice"])).toEqual([]);
   });
 });
 
