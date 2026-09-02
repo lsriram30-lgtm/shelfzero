@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 import * as SecureStore from "expo-secure-store";
 import { authApi } from "../api/auth";
 import { householdApi } from "../api/household";
-import { AUTH_TOKEN_KEY } from "../api/client";
+import { AUTH_TOKEN_KEY, setSessionExpiredHandler } from "../api/client";
 
 const AUTH_EMAIL_KEY = "shelfzero.authEmail";
 
@@ -44,6 +44,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setCurrentEmail(email);
       })
       .finally(() => setIsLoading(false));
+  }, []);
+
+  // A 401 elsewhere in the app means the token client.ts just deleted was
+  // no longer valid — drop back to signed-out state so RootNavigator sends
+  // the user to the sign-in screen instead of leaving them on a screen that
+  // just keeps 401ing.
+  useEffect(() => {
+    setSessionExpiredHandler(() => setIsSignedIn(false));
+    return () => setSessionExpiredHandler(null);
   }, []);
 
   const signIn = async (email: string, password: string) => {

@@ -7,6 +7,18 @@ const API_BASE_URL: string =
 
 export const AUTH_TOKEN_KEY = "shelfzero.authToken";
 
+// AuthContext registers a listener here so that a 401 (session
+// expired/invalidated) can flip its in-memory `isSignedIn` state, not just
+// clear the stored token. Without this, the token disappears but the app
+// keeps rendering the signed-in navigation stack, so every screen just
+// starts 401ing with no way back to the sign-in screen short of manually
+// signing out.
+let onSessionExpired: (() => void) | null = null;
+
+export function setSessionExpiredHandler(handler: (() => void) | null): void {
+  onSessionExpired = handler;
+}
+
 export class ApiError extends Error {
   status: number;
   body?: unknown;
@@ -80,6 +92,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (!response.ok) {
     if (response.status === 401 && token) {
       await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+      onSessionExpired?.();
     }
     throw new ApiError(extractErrorMessage(data, response.status), response.status, data);
   }

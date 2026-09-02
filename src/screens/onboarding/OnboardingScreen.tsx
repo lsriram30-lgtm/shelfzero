@@ -23,10 +23,12 @@ const STEP_COUNT = 8;
 export function OnboardingScreen() {
   const { completeOnboarding } = useOnboarding();
   const { isSignedIn, currentEmail } = useAuth();
-  // Already signed in (e.g. resuming onboarding after a restart) — skip
-  // straight past the account step, no need to sign in again.
-  const firstStep = isSignedIn ? 1 : 0;
-  const [stepIndex, setStepIndex] = useState(firstStep);
+  // Always start at the account step. A genuine resume-after-restart is
+  // handled below by the cached-draft restore, which sets stepIndex from
+  // the real saved progress — this initial value should never itself skip
+  // ahead, or a leftover/stale token with no cached draft shows the account
+  // step as already passed when it wasn't.
+  const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<OnboardingDraft>(initialOnboardingDraft);
   const [submitting, setSubmitting] = useState(false);
   // Gates autosaving until the resume-load below has had its chance to run,
@@ -77,7 +79,7 @@ export function OnboardingScreen() {
   };
   const goBack = () => {
     interactedRef.current = true;
-    setStepIndex((i) => Math.max(firstStep, i - 1));
+    setStepIndex((i) => Math.max(0, i - 1));
   };
 
   const handleFinish = async () => {
