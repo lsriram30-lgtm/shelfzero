@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 81 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 82 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 60 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1977,6 +1977,33 @@ pace I just won't be able to work much next week <3
       and added real breathing room (bottom padding + a margin) below the
       row instead of a tight fit, so it's not right back to touching the
       next time text rendering measures a few px taller than expected.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Stop
+      trusting the backend's unreliable per-ingredient `inPantry` flag
+      (branch: `feature/mealplan-real-pantry-match`) — merged into
+      `master`. Reported: pantry items like pasta/alfredo sauce/veggies
+      didn't seem to be recognized by the meal planner. Live-tested
+      directly against `/api/meal-plan`: the response's own
+      `ingredients[].inPantry` flag came back `false` across the board,
+      including for "olive oil" when "olive oil" was the exact literal
+      pantry item name sent in the same request — so `missingIngredients()`
+      (feeding the "Missing: X, Y" list and "Add missing to shopping
+      list") was trusting a flag that's essentially always wrong. New
+      `ingredientInPantry()` recomputes this client-side against the
+      real current pantry names instead: word-boundary matching (every
+      word of the pantry item name has to appear in the ingredient
+      name, not a raw substring), so "chicken" correctly matches
+      "cooked chicken breast" and "olive oil" matches "olive oil"
+      without a short item like "egg" false-matching "eggplant". Honest
+      gaps, not fixed by this: a vague pantry entry like "Veggies"
+      won't match a recipe's specific "broccoli" — no way to know what
+      a generic name refers to from the string alone; and whether the
+      backend's AI actually builds a meal *around* what's in the
+      pantry (vs. suggesting something largely unrelated) is a
+      server-side prompt/model decision, still unverified as of this
+      entry since the backend was rate-limited through the rest of this
+      testing session — re-verification in progress, see the note
+      below. 8 tests added, suite at 312. Typecheck, tests, and a real
+      `expo export --platform ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -2198,6 +2225,22 @@ outside this repo.
       `feature/mealplan-no-retry-on-429` entry above for the one
       client-side improvement made alongside this (stopped `retryOnce`
       from adding a second request into an already-429'd call).
+      **Update, same day, different question:** live-testing this also
+      surfaced a second, separate concern — whether the AI actually
+      builds a meal *around* what's given as `pantryItems`, not just
+      whether requests succeed. One test (pantryItems: chicken, rice,
+      broccoli, onion, garlic, olive oil, tomato) came back with a
+      dinner of salmon with asparagus — a real ingredient list with no
+      real connection to any of the 7 pantry items sent. Confirmed
+      separately and already fixed: the response's own
+      `ingredients[].inPantry` flag is unreliable (see the completed
+      `feature/mealplan-real-pantry-match` entry above), but that's a
+      different bug from whether the model chooses relevant meals in
+      the first place. Still needs a clean re-test with the exact
+      repro that prompted this (pasta, alfredo sauce, a few vegetables)
+      once the rate limit isn't actively interfering — couldn't get a
+      non-429 response for it in this session despite several spaced
+      retries.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Recipe search
       (`GET /api/recipes?q=`, a separate endpoint from
       `/api/meal-plan`) is still fully broken — still `504`s (~11s,
