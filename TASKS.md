@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 75 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 76 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1768,6 +1768,27 @@ pace I just won't be able to work much next week <3
       consistent. 6 tests added/changed net (2 removed, 8 added), suite
       at 267. Typecheck, all tests, and a real `expo export --platform
       ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Fix an
+      app-wide "401 error on everything" bug, and fix onboarding
+      starting on the questionnaire's 2nd step instead of the 1st
+      (branch: `feature/fix-session-expiry-and-onboarding-start`) —
+      merged into `master`. Found while live-testing with Laya: once a
+      stored auth token was invalidated (e.g. a leftover session from
+      earlier testing), `client.ts` deleted it on the resulting 401 but
+      never told `AuthContext`, so `isSignedIn` stayed stuck `true` and
+      every screen just kept 401ing with no way back to sign-in short of
+      manually signing out. `client.ts` now calls a handler
+      `AuthContext` registers on mount, flipping `isSignedIn` to `false`
+      the moment a token gets invalidated. The same stale-token state
+      also explained the onboarding bug: `OnboardingScreen` skipped
+      straight to step 1 (past the account step) whenever a token
+      happened to be present at mount — meant as a restart-resume
+      shortcut, but a genuine resume is already handled by the separate
+      draft-cache restore a few lines below, so this only ever fired for
+      a leftover token with no cached draft. Removed the skip; onboarding
+      now always starts at the account step. 3 tests added, suite at
+      270. Typecheck, tests, and a real `expo export --platform ios`
+      bundle all pass.
 
 ### Not yet assigned
 
@@ -1865,14 +1886,14 @@ outside this repo.
       is a separate step from having a build that's technically
       submittable. **In progress:** drafted app name/subtitle options,
       promotional text, full description, keywords, category
-      recommendation, and age-rating reasoning in `STORE_LISTING.md` —
-      deliberately left out receipt/barcode scanning since neither
-      worked yet at the time it was drafted; barcode scanning is real
-      now (see the completed entry above), so the copy should be
-      revisited for that before finalizing. Needs Laasya + Laya to
-      review/finalize the copy and actually take the screenshots (needs
-      a phone with Expo Go, not something buildable from this repo)
-      before this is submittable.
+      recommendation, and age-rating reasoning in `STORE_LISTING.md`.
+      Barcode scanning is now mentioned in the copy and its Data Safety
+      row corrected (see the "Fix two stale scanning references"
+      completed entry); receipt scanning stays deliberately excluded
+      until `feature/receipt-ocr` is merged and verified. Still needs
+      Laasya + Laya to review/finalize the copy and actually take the
+      screenshots (needs a phone with Expo Go, not something buildable
+      from this repo) before this is submittable.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Meal-plan
       generation's underlying backend rate-limit issue is still
       unresolved by Airo/GoDaddy, but no longer submission-blocking as
