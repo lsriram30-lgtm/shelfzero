@@ -1817,6 +1817,23 @@ can wait until after launch.
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
 
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a real
+      nearby-donation-centers endpoint (e.g. `GET
+      /api/donation-centers?lat=&lng=`) so Donate can show many real
+      food banks/pantries sorted by proximity, each with whether it's
+      currently open and what it accepts — not just today's 5 static
+      link-out resources (Feeding America, AmpleHarvest.org, 211,
+      FoodPantries.org, a maps search). No nationwide directory with
+      that data is exposed by any of those sites' own APIs (none of
+      them publish one), so this needs Airo to source/proxy a real
+      directory (e.g. Google Places API) server-side — keeping any API
+      key off the client, same reasoning as every other Airo-only
+      integration. Once this exists, the client-side follow-up is
+      adding real device location: the app collects none today
+      (Privacy Policy / App Store Data Safety answers explicitly say
+      so), so that also needs a permission prompt and a privacy-policy
+      update before it can be wired in.
+
 #### Claude Code (client-side)
 
 Buildable in this repo with no backend involvement.
