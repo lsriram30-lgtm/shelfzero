@@ -40,6 +40,13 @@ const DONATION_PARTNERS: DonationPartner[] = [
     accepts: "A general directory, not food-specific — ask what's accepted when you call.",
   },
   {
+    id: "foodpantries",
+    name: "FoodPantries.org",
+    description: "Directory of food pantries searchable by city, state, or zip code",
+    url: "https://www.foodpantries.org/",
+    accepts: "Varies by pantry — most list accepted items and hours on their own page.",
+  },
+  {
     id: "maps-search",
     name: "Search maps for food banks near me",
     description: "Opens your maps app with a search for nearby food banks",
@@ -57,7 +64,9 @@ export function DonateScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<{ count: number; partnerName: string } | null>(null);
+  const [done, setDone] = useState<{ count: number; partnerName: string; partnerUrl?: string } | null>(
+    null
+  );
 
   const candidates = useMemo(() => {
     const now = Date.now();
@@ -100,7 +109,7 @@ export function DonateScreen() {
         partnerName: partner.name,
         itemNames: removed.map((item) => item.name),
       });
-      setDone({ count: removed.length, partnerName: partner.name });
+      setDone({ count: removed.length, partnerName: partner.name, partnerUrl: partner.url });
     } catch (err) {
       if (removed.length > 0) {
         // These items are genuinely gone from the pantry already - log them
@@ -135,9 +144,22 @@ export function DonateScreen() {
           <Card style={styles.doneCard}>
             <Text style={[styles.doneTitle, { color: colors.text }]}>Thank you!</Text>
             <Text style={[styles.doneMessage, { color: colors.textMuted }]}>
-              {done.count} item{done.count === 1 ? "" : "s"} donated to {done.partnerName}.
+              {done.count} item{done.count === 1 ? "" : "s"} logged for {done.partnerName}. Nothing's
+              actually there yet — open their site to find a location and drop them off.
             </Text>
-            <Button label="Done" onPress={() => navigation.goBack()} style={styles.doneButton} />
+            {done.partnerUrl ? (
+              <Button
+                label={`Open ${done.partnerName}`}
+                onPress={() => Linking.openURL(done.partnerUrl!)}
+                style={styles.doneButton}
+              />
+            ) : null}
+            <Button
+              label="Done"
+              variant={done.partnerUrl ? "secondary" : "primary"}
+              onPress={() => navigation.goBack()}
+              style={styles.doneButton}
+            />
           </Card>
         </View>
       </Screen>
