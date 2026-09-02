@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { shoppingListApi } from "../api";
 import { NewShoppingListItem, ShoppingListItem } from "../types";
+import { useAuth } from "../context/AuthContext";
+import { isNoHouseholdError } from "../utils/apiErrors";
 
 export function useShoppingList() {
+  const { reportRemovedFromHousehold } = useAuth();
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,11 +18,18 @@ export function useShoppingList() {
       const data = await shoppingListApi.list();
       setItems(data.items);
     } catch (err) {
+      // See usePantry's identical check - a mid-session removal surfaces
+      // as this same error on whatever household-scoped hook refreshes
+      // next.
+      if (isNoHouseholdError(err)) {
+        reportRemovedFromHousehold();
+        return;
+      }
       setError(err instanceof Error ? err.message : "Failed to load shopping list");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [reportRemovedFromHousehold]);
 
   useEffect(() => {
     refresh();

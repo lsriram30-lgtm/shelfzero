@@ -54,9 +54,20 @@ export interface HouseholdInvite {
   created_at: string;
 }
 
-export type NewInvite = {
+// From GET /api/household/members - confirmed live 2026-08-30. Unlike
+// HouseholdInvite, `id` here is the member's real user account id (what
+// DELETE /api/household/members/:id actually expects), not an invite id.
+export interface HouseholdMember {
+  id: string;
   name: string;
   role: string;
+}
+
+export type NewInvite = {
+  name: string;
+  // Optional - confirmed live, the backend defaults to "Member" when this
+  // is left out. The invite flow no longer asks for a role up front.
+  role?: string;
   contact: string;
   contactType: ContactType;
 };

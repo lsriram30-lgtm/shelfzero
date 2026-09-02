@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 64 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 58 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1441,6 +1441,59 @@ pace I just won't be able to work much next week <3
         opportunity, not a correctness bug, so left for its own pass.
       6 tests added, suite at 249. Typecheck, all tests, and a real
       `expo export --platform ios` bundle all pass.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fixed household
+      link-sharing end to end, per live user testing. Several real,
+      confirmed-live fixes:
+      - **Invite flow was lying about sending anything.** The backend has
+        no way to actually text/email an invite — `POST /api/invites`
+        only ever creates a shareable link record, regardless of contact
+        info attached, and nothing is ever sent anywhere. The old flow
+        asked for a phone/email plus a name and role, then said "Invite
+        sent," which is exactly the bug reported live. Replaced with a
+        single "Generate invite link" action, no name/role/contact
+        fields at all (the invitee's real name/role come from their own
+        account once they accept, not a guess entered ahead of time),
+        and honest "Invite link ready" / "share this yourself" copy.
+      - **Household members are now actually visible.** Airo added
+        `GET /api/household/members` since the last check (previously
+        404, tracked as a backend blocker) — it returns real members
+        with their actual user account ids. Rewired Profile's household
+        members list to this real endpoint instead of the broken
+        `invites`-derived list, refetching on focus. Self is labeled
+        "(You)" and excluded from the remove action; confirm-remove now
+        reads "Are you sure you want to remove {name}?" per the exact
+        wording requested.
+      - **Removed-member experience.** Confirmed live: the moment
+        someone's removed, their access is cut instantly (immediate 403
+        "No household" on every household-scoped call) — there's no
+        window afterward to fetch what they had, so "keep their data"
+        isn't something a client can do after the fact. Built the
+        confirmed, buildable version instead: `AuthContext` now detects
+        this (on relaunch, comparing against a new
+        `hasHadHousehold`/account-scoped flag, and mid-session via
+        `usePantry`/`useShoppingList` catching the same "No household"
+        error) and shows a clear `RemovedFromHouseholdScreen` explaining
+        what happened, with a "Continue" button that sets them up with a
+        fresh household — same outcome "Leave household" already had,
+        now explained and consented to instead of silent.
+      - **"Leave household" already existed** (Profile screen, fixed for
+        its own bug in the pre-TestFlight review) — flagging since it
+        wasn't obvious in testing.
+      - **Repeat pantry items now merge.** Adding an item with the same
+        name and unit as one already in the pantry bumps its quantity
+        instead of creating a duplicate row, mirroring the shopping
+        list's existing dedupe behavior. Matched on name *and* unit
+        (unlike the shopping list) since a pantry item's unit actually
+        carries meaning — "Milk (1 L)" and "Milk (2 ct)" are genuinely
+        different tracked things, not one item with a confused quantity.
+      - Renamed Household Hub's "Members & invites" card to "Pending
+        invites," matching what it's always actually shown (it can never
+        list accepted members — see the fix above for where that now
+        lives).
+      Cross-member sharing (pantry, shopping list) was confirmed already
+      working correctly via live two-account testing — not touched.
+      New tests for the pantry merge logic; typecheck, all 254 tests, and
+      a real `expo export --platform ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -1452,22 +1505,6 @@ can wait until after launch.
 
 Requires a change in the Airo AI Builder dashboard — not buildable from
 this repo.
-
-- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Add a way to actually
-      list a household's accepted members with their real
-      user account id. Confirmed live on 8/29: `GET /api/invites` never
-      returns an invite once it's accepted (only pending ones come back,
-      regardless of query params tried), and there's no separate
-      members-list endpoint (`GET /api/household`, `/api/household/:id`,
-      `/api/household/members`, and `/api/users` all 404). `DELETE
-      /api/household/members/:id` itself works — confirmed with a real
-      two-account test — but needs the accepted member's actual user id,
-      which the client currently has no way to obtain since accepted
-      invites are invisible to it. Either have `GET /api/invites` include
-      accepted invites with the joined user's real id, or add a
-      dedicated members-list endpoint. Blocks the "Household members"
-      list and remove-member feature from ever actually working, not
-      just the id mismatch originally suspected.
 
 #### Claude Code (client-side)
 

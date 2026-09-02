@@ -5,6 +5,7 @@ import { NewPantryItem, PantryItem, UpdatePantryItem } from "../types";
 import { withAutoAddOptOut } from "../screens/pantry/pantryLogic";
 import { useAuth } from "../context/AuthContext";
 import { accountScopedKey } from "../utils/accountScopedKey";
+import { isNoHouseholdError } from "../utils/apiErrors";
 
 const CACHE_KEY_PREFIX = "shelfzero.pantryCache";
 const AUTO_ADD_OPT_OUT_KEY_PREFIX = "shelfzero.autoAddOptOutIds";
@@ -19,7 +20,7 @@ async function loadAutoAddOptOutIds(optOutKey: string): Promise<string[]> {
 }
 
 export function usePantry() {
-  const { currentEmail, isLoading: authLoading } = useAuth();
+  const { currentEmail, isLoading: authLoading, reportRemovedFromHousehold } = useAuth();
   const cacheKey = accountScopedKey(CACHE_KEY_PREFIX, currentEmail);
   const optOutKey = accountScopedKey(AUTO_ADD_OPT_OUT_KEY_PREFIX, currentEmail);
   const [items, setItems] = useState<PantryItem[]>([]);
@@ -41,6 +42,14 @@ export function usePantry() {
       setIsOffline(false);
       AsyncStorage.setItem(cacheKey, JSON.stringify(data)).catch(() => {});
     } catch (err) {
+      // A mid-session removal (someone else removes you while the app is
+      // already open) surfaces here first, since this is the household's
+      // most-frequently-refreshed data - report it instead of showing what
+      // would otherwise look like a generic, unexplained pantry error.
+      if (isNoHouseholdError(err)) {
+        reportRemovedFromHousehold();
+        return;
+      }
       setError(err instanceof Error ? err.message : "Failed to load pantry items");
       try {
         const cached = await AsyncStorage.getItem(cacheKey);
@@ -54,7 +63,7 @@ export function usePantry() {
     } finally {
       setLoading(false);
     }
-  }, [cacheKey]);
+  }, [cacheKey, reportRemovedFromHousehold]);
 
   useEffect(() => {
     // Wait for AuthContext to resolve the real signed-in email first, so

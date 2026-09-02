@@ -52,6 +52,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>;
   Join: { token: string };
   ResetPassword: { token?: string } | undefined;
+  RemovedFromHousehold: undefined;
 };
 
 declare global {

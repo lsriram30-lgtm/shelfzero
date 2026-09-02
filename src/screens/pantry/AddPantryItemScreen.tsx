@@ -13,6 +13,7 @@ import {
   filterByAllergies,
   filterByDietaryPrefs,
   filterCategoriesByDietaryPrefs,
+  findMatchingPantryItem,
   suggestCategory,
 } from "./pantryLogic";
 import { getCachedMealPlan } from "../../utils/mealPlanCache";
@@ -51,7 +52,7 @@ export function AddPantryItemScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<AddRouteProp>();
-  const { addItem, updateItem, removeItem, isAutoAddOptedOut, setAutoAddOptOut } = usePantry();
+  const { items, addItem, updateItem, removeItem, isAutoAddOptedOut, setAutoAddOptOut } = usePantry();
   const { profile } = useOnboarding();
   const { currentEmail } = useAuth();
 
@@ -210,7 +211,13 @@ export function AddPantryItemScreen() {
         await setAutoAddOptOut(editingItem.id, !autoAddEnabled);
         await updateItem(editingItem.id, payload);
       } else {
-        const created = await addItem(payload);
+        // Adding the same name+unit as something already in the pantry
+        // bumps its quantity instead of creating a second row, matching
+        // how the shopping list already handles repeat items.
+        const existing = findMatchingPantryItem(items, payload.name, payload.unit);
+        const created = existing
+          ? await updateItem(existing.id, { quantity: existing.quantity + payload.quantity })
+          : await addItem(payload);
         if (!autoAddEnabled) {
           await setAutoAddOptOut(created.id, true);
         }

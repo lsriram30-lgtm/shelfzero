@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useOnboarding } from "../../context/OnboardingContext";
 import { useAuth } from "../../context/AuthContext";
-import { useInvites } from "../../hooks/useInvites";
 import { Screen, Header, Card, Button, Pill, CardHeader } from "../../components";
 import { spacing, typography } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
@@ -15,6 +14,7 @@ import { TERMS_OF_SERVICE_URL } from "../../utils/termsOfService";
 import { SUPPORT_EMAIL_URL } from "../../utils/supportContact";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { householdApi } from "../../api/household";
+import { HouseholdMember } from "../../types";
 
 type ProfileNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "Profile">;
 
@@ -22,7 +22,6 @@ export function ProfileScreen() {
   const { colors, mode, setMode } = useTheme();
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile, resetOnboarding } = useOnboarding();
-  const { invites, removeMember } = useInvites();
   const { signOut, currentEmail } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [leavingHousehold, setLeavingHousehold] = useState(false);
@@ -30,19 +29,36 @@ export function ProfileScreen() {
   // stays hidden until we've actually confirmed ownership, rather than
   // flashing a control that a non-owner would just get a 403 from.
   const [isOwner, setIsOwner] = useState(false);
+  const [ownId, setOwnId] = useState<string | null>(null);
+  const [members, setMembers] = useState<HouseholdMember[]>([]);
 
-  useEffect(() => {
-    householdApi
-      .me()
-      .then((me) => setIsOwner(me.role === "owner"))
-      .catch(() => {});
+  // GET /api/household/members is a real, working endpoint (confirmed
+  // live 2026-08-30) - it didn't exist for most of this project, so the
+  // member list used to be derived (incorrectly - see the fixed bug this
+  // replaced) from GET /api/invites instead. Refetches on focus so
+  // removing/inviting someone elsewhere and coming back shows current data.
+  const refreshHousehold = useCallback(async () => {
+    try {
+      const me = await householdApi.me();
+      setIsOwner(me.role === "owner");
+      setOwnId(me.id);
+    } catch {
+      // Best-effort - the remove-member control just stays hidden.
+    }
+    try {
+      const list = await householdApi.members();
+      setMembers(list);
+    } catch {
+      // Best-effort - falls back to showing no members rather than an error
+      // for what's a secondary section of this screen.
+    }
   }, []);
 
-  // Confirmed live (see TASKS.md): GET /api/invites never actually returns
-  // an invite once it's accepted, so this is always empty in practice, not
-  // just when there really are no members yet. Left as-is (rather than
-  // removed) since the backend gap is the real blocker, not this logic.
-  const members = invites.filter((invite) => invite.status === "accepted");
+  useFocusEffect(
+    useCallback(() => {
+      refreshHousehold();
+    }, [refreshHousehold])
+  );
 
   const handleResetForTesting = () => {
     confirmDestructiveAction({
@@ -71,11 +87,12 @@ export function ProfileScreen() {
   const handleRemoveMember = (id: string, name: string) => {
     confirmDestructiveAction({
       title: "Remove member",
-      message: `Remove ${name} from your household? They'll lose access to the shared pantry and shopping list.`,
+      message: `Are you sure you want to remove ${name}? They'll lose access to the shared pantry, shopping list, and meal plan right away.`,
       confirmLabel: "Remove",
       onConfirm: async () => {
         try {
-          await removeMember(id);
+          await householdApi.removeMember(id);
+          setMembers((prev) => prev.filter((m) => m.id !== id));
         } catch (err) {
           Alert.alert(
             "Couldn't remove member",
@@ -224,30 +241,31 @@ export function ProfileScreen() {
           />
           {members.length === 0 ? (
             <Text style={[styles.detailMuted, { color: colors.textMuted }]}>
-              Accepted members aren't listed here yet — the server only
-              returns pending invites, not who's already joined. If someone
-              accepted your invite, they already have full access to this
-              household's shared pantry and shopping list even though they
-              won't show up in this list.
+              No members yet — invite someone to share your pantry.
             </Text>
           ) : (
-            members.map((member) => (
-              <View key={member.id} style={styles.memberRow}>
-                <Text style={[styles.detail, { color: colors.text }]}>
-                  {member.name} · {member.role}
-                </Text>
-                {isOwner ? (
-                  <Pressable
-                    onPress={() => handleRemoveMember(member.id, member.name)}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Remove ${member.name} from household`}
-                  >
-                    <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
-                  </Pressable>
-                ) : null}
-              </View>
-            ))
+            members.map((member) => {
+              const isSelf = member.id === ownId;
+              const roleLabel = member.role.charAt(0).toUpperCase() + member.role.slice(1);
+              return (
+                <View key={member.id} style={styles.memberRow}>
+                  <Text style={[styles.detail, { color: colors.text }]}>
+                    {member.name}
+                    {isSelf ? " (You)" : ""} · {roleLabel}
+                  </Text>
+                  {isOwner && !isSelf ? (
+                    <Pressable
+                      onPress={() => handleRemoveMember(member.id, member.name)}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Remove ${member.name} from household`}
+                    >
+                      <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+                    </Pressable>
+                  ) : null}
+                </View>
+              );
+            })
           )}
           <Button
             label={leavingHousehold ? "Leaving…" : "Leave household"}

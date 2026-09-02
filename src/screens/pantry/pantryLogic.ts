@@ -10,6 +10,26 @@ export function groupByCategory(items: PantryItem[]): Record<string, PantryItem[
   }, {});
 }
 
+// Matches by name AND unit (both case/whitespace-insensitive), unlike the
+// shopping list's name-only match - pantry items carry a unit, and "Milk
+// (1 L)" plus "Milk (2 ct)" are genuinely different tracked things, not
+// one item with a confused quantity. Only the quantity gets merged; the
+// existing item's category/expiry/notes are left as-is, same simplicity
+// as the shopping-list precedent this mirrors.
+export function findMatchingPantryItem(
+  items: PantryItem[],
+  name: string,
+  unit: string
+): PantryItem | undefined {
+  const normalizedName = name.trim().toLowerCase();
+  const normalizedUnit = unit.trim().toLowerCase();
+  return items.find(
+    (item) =>
+      item.name.trim().toLowerCase() === normalizedName &&
+      item.unit.trim().toLowerCase() === normalizedUnit
+  );
+}
+
 export function sortByExpiry(items: PantryItem[]): PantryItem[] {
   return [...items].sort((a, b) => {
     if (!a.expiresAt && !b.expiresAt) return 0;
