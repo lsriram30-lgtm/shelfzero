@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
 import { useInvites } from "../../hooks/useInvites";
 import { useShoppingList } from "../../hooks/useShoppingList";
+import { usePantry } from "../../hooks/usePantry";
+import { useHouseholdMembers } from "../../hooks/useHouseholdMembers";
 import { useNotificationPreferences } from "../../context/NotificationPreferencesContext";
 import { useDonations } from "../../context/DonationContext";
 import {
@@ -21,12 +23,12 @@ import {
   SwitchRow,
   SwipeToDelete,
 } from "../../components";
-import { spacing, typography } from "../../theme";
+import { spacing, typography, radius, readableTextColor, ThemeColors } from "../../theme";
 import { HouseholdStackParamList } from "../../navigation/types";
 import { inviteLink } from "../../utils/inviteLink";
 import { confirmDestructiveAction } from "../../utils/confirmDialog";
 import { hapticTap } from "../../utils/haptics";
-import { ShoppingListItem } from "../../types";
+import { HouseholdMember, ShoppingListItem } from "../../types";
 import { sendTestNotification } from "../../notifications/expiryNotifications";
 import {
   findMatchingUnchecked,
@@ -35,8 +37,78 @@ import {
   toggleSelectAll,
   toggleSelection,
 } from "./shoppingListLogic";
+import { computeLatestActivityByMember, MemberActivity } from "./householdActivity";
 
 type HouseholdNavigationProp = NativeStackNavigationProp<HouseholdStackParamList, "HouseholdHub">;
+
+// Deterministic so the same person always gets the same color across
+// screens/sessions, picked from the app's existing brand palette instead
+// of inventing new avatar-specific colors.
+const AVATAR_COLOR_KEYS: (keyof ThemeColors)[] = ["primary", "secondary", "accent", "highlight"];
+
+function avatarColorFor(id: string, colors: ThemeColors): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return colors[AVATAR_COLOR_KEYS[hash % AVATAR_COLOR_KEYS.length]];
+}
+
+function MemberAvatarRow({
+  members,
+  activityByMember,
+}: {
+  members: HouseholdMember[];
+  activityByMember: Record<string, MemberActivity>;
+}) {
+  const { colors } = useTheme();
+  if (members.length === 0) return null;
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.avatarRow}
+    >
+      {members.map((member) => {
+        const activity = activityByMember[member.id];
+        const bg = avatarColorFor(member.id, colors);
+        const initialColor = readableTextColor(bg);
+        return (
+          <View
+            key={member.id}
+            style={styles.avatarItem}
+            accessible
+            accessibilityLabel={
+              activity ? `${member.name}: ${activity.blurb}` : member.name
+            }
+          >
+            <View style={styles.avatarBadgeWrapper}>
+              <View style={[styles.avatarCircle, { backgroundColor: bg }]}>
+                <Text style={[styles.avatarInitial, { color: initialColor }]}>
+                  {member.name.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+              {activity ? (
+                <View
+                  style={[
+                    styles.activityBubble,
+                    { backgroundColor: colors.surface, borderColor: colors.border },
+                  ]}
+                >
+                  <Text style={[styles.activityText, { color: colors.text }]} numberOfLines={1}>
+                    {activity.blurb}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+            <Text style={[styles.avatarName, { color: colors.textMuted }]} numberOfLines={1}>
+              {member.name}
+            </Text>
+          </View>
+        );
+      })}
+    </ScrollView>
+  );
+}
 
 function ShoppingRow({
   item,
@@ -158,7 +230,20 @@ export function HouseholdHubScreen() {
     removeItems,
     setAllChecked,
   } = useShoppingList();
-  const { totalItemsDonated } = useDonations();
+  const { history: donationHistory, totalItemsDonated } = useDonations();
+  const { items: pantryItems } = usePantry();
+  const { members, refresh: refreshMembers } = useHouseholdMembers();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshMembers();
+    }, [refreshMembers])
+  );
+
+  const activityByMember = useMemo(
+    () => computeLatestActivityByMember(members, pantryItems, shoppingItems, donationHistory),
+    [members, pantryItems, shoppingItems, donationHistory]
+  );
 
   const refreshing = invitesLoading || shoppingLoading;
   const handleRefresh = () => {
@@ -374,59 +459,12 @@ export function HouseholdHubScreen() {
           </Pressable>
         }
       />
+      <MemberAvatarRow members={members} activityByMember={activityByMember} />
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         keyboardShouldPersistTaps="handled"
       >
-        <Card style={styles.card}>
-          <CardHeader
-            title="Pending invites"
-            action={
-              <CardHeaderLink label="Invite" onPress={() => navigation.navigate("InviteFlow")} />
-            }
-          />
-          {invitesError && invites.length === 0 && !invitesLoading ? (
-            <ErrorState
-              title="Couldn't load invites"
-              message={invitesError}
-              onRetry={refreshInvites}
-            />
-          ) : pendingInvites.length === 0 ? (
-            <Text style={[styles.empty, { color: colors.textMuted }]}>
-              No pending invites. Invite someone to share this pantry.
-            </Text>
-          ) : (
-            pendingInvites.map((invite) => (
-              <View key={invite.id} style={[styles.inviteRow, { borderColor: colors.border }]}>
-                <View style={styles.inviteInfo}>
-                  <Text style={[styles.inviteName, { color: colors.text }]}>{invite.name}</Text>
-                  <Text style={[styles.inviteMeta, { color: colors.textMuted }]}>
-                    {invite.role} · pending
-                    {invite.contact_type !== "link" ? ` · ${invite.contact}` : ""}
-                  </Text>
-                </View>
-                <View style={styles.inviteActions}>
-                  <Pressable
-                    onPress={() => handleCopyLink(invite.token)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Copy invite link for ${invite.name}`}
-                  >
-                    <Ionicons name="link-outline" size={18} color={colors.primary} />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleCancelInvite(invite.id, invite.name)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Cancel invite for ${invite.name}`}
-                  >
-                    <Ionicons name="close-circle-outline" size={18} color={colors.danger} />
-                  </Pressable>
-                </View>
-              </View>
-            ))
-          )}
-        </Card>
-
         <Card style={styles.card}>
           <CardHeader
             title="Shopping list"
@@ -588,6 +626,54 @@ export function HouseholdHubScreen() {
         </Card>
 
         <Card style={styles.card}>
+          <CardHeader
+            title="Pending invites"
+            action={
+              <CardHeaderLink label="Invite" onPress={() => navigation.navigate("InviteFlow")} />
+            }
+          />
+          {invitesError && invites.length === 0 && !invitesLoading ? (
+            <ErrorState
+              title="Couldn't load invites"
+              message={invitesError}
+              onRetry={refreshInvites}
+            />
+          ) : pendingInvites.length === 0 ? (
+            <Text style={[styles.empty, { color: colors.textMuted }]}>
+              No pending invites. Invite someone to share this pantry.
+            </Text>
+          ) : (
+            pendingInvites.map((invite) => (
+              <View key={invite.id} style={[styles.inviteRow, { borderColor: colors.border }]}>
+                <View style={styles.inviteInfo}>
+                  <Text style={[styles.inviteName, { color: colors.text }]}>{invite.name}</Text>
+                  <Text style={[styles.inviteMeta, { color: colors.textMuted }]}>
+                    {invite.role} · pending
+                    {invite.contact_type !== "link" ? ` · ${invite.contact}` : ""}
+                  </Text>
+                </View>
+                <View style={styles.inviteActions}>
+                  <Pressable
+                    onPress={() => handleCopyLink(invite.token)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Copy invite link for ${invite.name}`}
+                  >
+                    <Ionicons name="link-outline" size={18} color={colors.primary} />
+                  </Pressable>
+                  <Pressable
+                    onPress={() => handleCancelInvite(invite.id, invite.name)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Cancel invite for ${invite.name}`}
+                  >
+                    <Ionicons name="close-circle-outline" size={18} color={colors.danger} />
+                  </Pressable>
+                </View>
+              </View>
+            ))
+          )}
+        </Card>
+
+        <Card style={styles.card}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>Notifications</Text>
           <SwitchRow
             label="Expiry reminders"
@@ -617,6 +703,51 @@ export function HouseholdHubScreen() {
 }
 
 const styles = StyleSheet.create({
+  avatarRow: {
+    flexDirection: "row",
+    gap: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+  },
+  avatarItem: {
+    alignItems: "center",
+    width: 64,
+  },
+  avatarBadgeWrapper: {
+    position: "relative",
+  },
+  avatarCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarInitial: {
+    ...typography.h2,
+  },
+  activityBubble: {
+    position: "absolute",
+    top: -6,
+    right: -14,
+    maxWidth: 76,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+  },
+  activityText: {
+    ...typography.label,
+    fontSize: 10,
+    letterSpacing: 0,
+  },
+  avatarName: {
+    ...typography.caption,
+    marginTop: spacing.xs,
+    maxWidth: 64,
+    textAlign: "center",
+  },
   content: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxxl,

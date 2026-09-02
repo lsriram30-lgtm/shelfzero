@@ -7,6 +7,11 @@ export interface PantryItem {
   expiresAt: string | null;
   imageSlot?: string | null;
   notes?: string | null;
+  // Real user account id (same id space as HouseholdMember.id) - confirmed
+  // live. Previously not modeled since there was no way to turn a raw id
+  // into a display name (unlike the shopping list's addedBy, which is
+  // already a name) until the household-members endpoint existed.
+  addedBy?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -202,4 +207,8 @@ export interface DonationRecord {
   partnerId: string;
   partnerName: string;
   itemNames: string[];
+  // Real user account id (same id space as HouseholdMember.id) - confirmed
+  // live on GET /api/donations. Not modeled until the household-members
+  // activity feed needed a way to attribute a donation to a member.
+  donatedBy?: string;
 }
