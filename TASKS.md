@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 81 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 58 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 59 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1936,6 +1936,31 @@ pace I just won't be able to work much next week <3
       long-shelf-life items the new categories add. 9 tests added, suite
       at 291. Typecheck, tests, and a real `expo export --platform ios`
       bundle all pass.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Redesigned
+      Household Hub with a member avatar row and reordered
+      sections, per direct request. A horizontal row of circular avatars
+      now sits at the top (each a color-coded initial, deterministic per
+      person so the same member always gets the same color, using
+      `readableTextColor` — same contrast utility as the Pantry Stats
+      audit — so the initial is always readable against whichever of the
+      4 palette colors that member landed on). Each avatar shows a small
+      bubble in its top-right corner with that member's most recent real
+      activity: `+ ItemName` for a pantry or shopping-list addition,
+      "❤️ Donated" for a donation — deliberately only built from data the
+      app actually tracks (pantry/shopping `addedBy`, donations'
+      `donatedBy`, now modeled in `PantryItem`/`DonationRecord` since
+      nothing previously needed them client-side) via a new tested
+      `computeLatestActivityByMember()`. Sections below reordered to
+      Shopping list, Donate surplus, Pending invites, Notifications, per
+      the exact order requested. 8 tests added, suite at 299. Typecheck,
+      tests, and a real `expo export --platform ios` bundle all pass.
+      **Not built:** changing your own profile picture — investigated
+      live, BetterAuth's standard `POST /api/auth/update-user` route
+      exists (returns a real `401`, not a routing `404`) but rejects this
+      app's Bearer-token auth entirely; every other variant tried
+      (`PATCH`/`PUT`/`POST` on `/api/me` and a few `/api/auth/*` paths)
+      404s. There's currently no way to persist a profile image from this
+      client at all — see the new backend task below.
 
 ### Not yet assigned
 
@@ -1964,6 +1989,17 @@ this repo.
       (Privacy Policy / App Store Data Safety answers explicitly say
       so), so that also needs a permission prompt and a privacy-policy
       update before it can be wired in.
+- [ ] ![Later](https://img.shields.io/badge/Later-green) Add a way to
+      set a user's profile picture that actually works with this
+      app's Bearer-token auth. Confirmed live: BetterAuth's standard
+      `POST /api/auth/update-user` route exists (a real `401`, not the
+      generic Express `404` every made-up route returns) but rejects the
+      Bearer token every other `/api/*` route accepts — it expects a
+      session cookie instead, which this client never has. Needs either
+      a custom Bearer-token-compatible endpoint (e.g. `PATCH /api/me`
+      accepting an `image` field/upload) or a way for the client to also
+      obtain a BetterAuth session cookie. Until then, Household Hub's
+      member avatars are initials-only, generated client-side.
 
 #### Claude Code (client-side)
 
