@@ -64,22 +64,39 @@ const CATEGORY_KEYWORDS: { category: string; keywords: string[] }[] = [
       "cantaloupe", "garlic", "mushroom", "celery", "corn",
     ],
   },
-  { category: "Meat", keywords: ["chicken", "beef", "pork", "turkey", "bacon", "sausage", "fish", "salmon", "shrimp", "steak"] },
+  { category: "Meat", keywords: ["chicken", "beef", "pork", "turkey", "bacon", "sausage", "steak"] },
+  {
+    category: "Seafood",
+    keywords: ["fish", "salmon", "shrimp", "tuna", "crab", "lobster", "cod", "tilapia", "scallop", "clam", "mussel"],
+  },
   { category: "Bakery", keywords: ["bread", "bagel", "muffin", "croissant", "tortilla", "baguette", "cake"] },
   { category: "Beverages", keywords: ["juice", "soda", "coffee", "tea", "wine", "beer", "water"] },
   { category: "Dairy", keywords: ["milk", "cheese", "yogurt", "butter", "cream", "egg"] },
   {
+    category: "Snacks",
+    keywords: ["chip", "cracker", "pretzel", "popcorn", "granola bar", "trail mix"],
+  },
+  {
+    category: "Condiments",
+    keywords: ["ketchup", "mustard", "mayonnaise", "mayo", "hot sauce", "salsa", "dressing", "jam", "jelly", "syrup", "sauce", "honey"],
+  },
+  {
+    category: "Spices & Seasonings",
+    keywords: ["spice", "seasoning", "cinnamon", "paprika", "cumin", "oregano", "basil", "thyme"],
+  },
+  {
+    category: "Baking",
+    keywords: ["flour", "sugar", "baking soda", "baking powder", "chocolate chip", "cocoa powder", "yeast"],
+  },
+  {
     category: "Pantry",
-    keywords: [
-      "rice", "pasta", "flour", "sugar", "salt", "oil", "beans", "cereal",
-      "sauce", "soup", "spice", "honey", "cracker", "peanut butter",
-    ],
+    keywords: ["rice", "pasta", "salt", "oil", "beans", "cereal", "soup", "peanut butter"],
   },
 ];
 
 const DIET_EXCLUDED_TAGS: Record<string, string[]> = {
-  Vegetarian: ["meat"],
-  Vegan: ["meat", "dairy", "egg"],
+  Vegetarian: ["meat", "seafood"],
+  Vegan: ["meat", "seafood", "dairy", "egg"],
   Pescatarian: ["meat"],
 };
 
@@ -102,13 +119,25 @@ export function filterByDietaryPrefs<T extends { dietTags?: string[] }>(
   return items.filter((item) => !(item.dietTags ?? []).some((tag) => excluded.has(tag)));
 }
 
+// Maps a pantry category to the diet tag it represents, so
+// filterCategoriesByDietaryPrefs can hide it for whoever excludes that tag -
+// e.g. Seafood stays visible for a Pescatarian (only "meat" is excluded for
+// them) but is hidden for Vegetarian/Vegan, same as Meat already was.
+const CATEGORY_DIET_TAGS: Record<string, string> = {
+  Meat: "meat",
+  Seafood: "seafood",
+};
+
 export function filterCategoriesByDietaryPrefs(
   categories: string[],
   dietaryPrefs: string[]
 ): string[] {
   const excluded = excludedTagsForPrefs(dietaryPrefs);
-  if (!excluded.has("meat")) return categories;
-  return categories.filter((category) => category !== "Meat");
+  if (excluded.size === 0) return categories;
+  return categories.filter((category) => {
+    const tag = CATEGORY_DIET_TAGS[category];
+    return !tag || !excluded.has(tag);
+  });
 }
 
 // Standard allergy options that map to a broader ingredient category, e.g.
