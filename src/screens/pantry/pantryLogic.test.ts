@@ -5,6 +5,7 @@ import {
   filterByDietaryPrefs,
   filterByName,
   filterCategoriesByDietaryPrefs,
+  findMatchingPantryItem,
   formatExpiryLabel,
   groupByCategory,
   singularize,
@@ -166,6 +167,32 @@ describe("withAutoAddOptOut", () => {
 
   it("is a no-op removing an id that isn't present", () => {
     expect(withAutoAddOptOut(["a"], "b", false)).toEqual(["a"]);
+  });
+});
+
+describe("findMatchingPantryItem", () => {
+  it("matches an existing item by name and unit", () => {
+    const milk = item({ id: "1", name: "Milk", unit: "L" });
+    expect(findMatchingPantryItem([milk], "Milk", "L")).toBe(milk);
+  });
+
+  it("is case/whitespace-insensitive on both name and unit", () => {
+    const milk = item({ id: "1", name: "Milk", unit: "L" });
+    expect(findMatchingPantryItem([milk], "  milk  ", "l")).toBe(milk);
+  });
+
+  it("does not match the same name with a different unit", () => {
+    const milk = item({ id: "1", name: "Milk", unit: "L" });
+    expect(findMatchingPantryItem([milk], "Milk", "ct")).toBeUndefined();
+  });
+
+  it("does not match a different name with the same unit", () => {
+    const milk = item({ id: "1", name: "Milk", unit: "L" });
+    expect(findMatchingPantryItem([milk], "Juice", "L")).toBeUndefined();
+  });
+
+  it("returns undefined for an empty pantry", () => {
+    expect(findMatchingPantryItem([], "Milk", "L")).toBeUndefined();
   });
 });
 

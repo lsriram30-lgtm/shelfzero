@@ -2,6 +2,8 @@ import { apiClient } from "./client";
 import { HouseholdMember } from "../types";
 
 export type CurrentUser = {
+  id: string;
+  name: string;
   householdId: string | null;
   role?: "owner" | "member";
 };

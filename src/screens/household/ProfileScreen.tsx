@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../context/ThemeContext";
@@ -22,7 +22,7 @@ export function ProfileScreen() {
   const { colors, mode, setMode } = useTheme();
   const navigation = useNavigation<ProfileNavigationProp>();
   const { profile, resetOnboarding } = useOnboarding();
-  const { members, removeMember } = useHouseholdMembers();
+  const { members, removeMember, refresh: refreshMembers } = useHouseholdMembers();
   const { signOut, currentEmail } = useAuth();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [leavingHousehold, setLeavingHousehold] = useState(false);
@@ -30,13 +30,26 @@ export function ProfileScreen() {
   // stays hidden until we've actually confirmed ownership, rather than
   // flashing a control that a non-owner would just get a 403 from.
   const [isOwner, setIsOwner] = useState(false);
+  const [ownId, setOwnId] = useState<string | null>(null);
 
-  useEffect(() => {
-    householdApi
-      .me()
-      .then((me) => setIsOwner(me.role === "owner"))
-      .catch(() => {});
+  const refreshOwnRole = useCallback(async () => {
+    try {
+      const me = await householdApi.me();
+      setIsOwner(me.role === "owner");
+      setOwnId(me.id);
+    } catch {
+      // Best-effort - the remove-member control just stays hidden.
+    }
   }, []);
+
+  // Refetches on focus, not just mount, so removing/inviting someone
+  // elsewhere and coming back to this screen shows current data.
+  useFocusEffect(
+    useCallback(() => {
+      refreshOwnRole();
+      refreshMembers();
+    }, [refreshOwnRole, refreshMembers])
+  );
 
   const handleResetForTesting = () => {
     confirmDestructiveAction({
@@ -65,7 +78,7 @@ export function ProfileScreen() {
   const handleRemoveMember = (id: string, name: string) => {
     confirmDestructiveAction({
       title: "Remove member",
-      message: `Remove ${name} from your household? They'll lose access to the shared pantry and shopping list.`,
+      message: `Are you sure you want to remove ${name}? They'll lose access to the shared pantry, shopping list, and meal plan right away.`,
       confirmLabel: "Remove",
       onConfirm: async () => {
         try {
@@ -221,23 +234,28 @@ export function ProfileScreen() {
               No members yet — invite someone to share your pantry.
             </Text>
           ) : (
-            members.map((member) => (
-              <View key={member.id} style={styles.memberRow}>
-                <Text style={[styles.detail, { color: colors.text }]}>
-                  {member.name} · {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
-                </Text>
-                {isOwner ? (
-                  <Pressable
-                    onPress={() => handleRemoveMember(member.id, member.name)}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Remove ${member.name} from household`}
-                  >
-                    <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
-                  </Pressable>
-                ) : null}
-              </View>
-            ))
+            members.map((member) => {
+              const isSelf = member.id === ownId;
+              const roleLabel = member.role.charAt(0).toUpperCase() + member.role.slice(1);
+              return (
+                <View key={member.id} style={styles.memberRow}>
+                  <Text style={[styles.detail, { color: colors.text }]}>
+                    {member.name}
+                    {isSelf ? " (You)" : ""} · {roleLabel}
+                  </Text>
+                  {isOwner && !isSelf ? (
+                    <Pressable
+                      onPress={() => handleRemoveMember(member.id, member.name)}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Remove ${member.name} from household`}
+                    >
+                      <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
+                    </Pressable>
+                  ) : null}
+                </View>
+              );
+            })
           )}
           <Button
             label={leavingHousehold ? "Leaving…" : "Leave household"}

@@ -381,7 +381,7 @@ export function HouseholdHubScreen() {
       >
         <Card style={styles.card}>
           <CardHeader
-            title="Members & invites"
+            title="Pending invites"
             action={
               <CardHeaderLink label="Invite" onPress={() => navigation.navigate("InviteFlow")} />
             }

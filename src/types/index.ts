@@ -56,6 +56,9 @@ export type InviteRole = "adult" | "teen" | "child" | "guest";
 export type InviteStatus = "pending" | "accepted" | "cancelled";
 export type ContactType = "phone" | "email" | "link";
 
+// From GET /api/household/members - confirmed live 2026-08-30. Unlike
+// HouseholdInvite, `id` here is the member's real user account id (what
+// DELETE /api/household/members/:id actually expects), not an invite id.
 export interface HouseholdMember {
   id: string;
   name: string;
@@ -75,7 +78,9 @@ export interface HouseholdInvite {
 
 export type NewInvite = {
   name: string;
-  role: string;
+  // Optional - confirmed live, the backend defaults to "Member" when this
+  // is left out. The invite flow no longer asks for a role up front.
+  role?: string;
   contact: string;
   contactType: ContactType;
 };

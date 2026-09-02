@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 81 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 58 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1805,6 +1805,60 @@ pace I just won't be able to work much next week <3
       national food-pantry directory), rounding the suggestion list out
       to five. Typecheck, all 270 tests, and a real `expo export
       --platform ios` bundle all pass.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fixed household
+      link-sharing end to end, per live user testing — independently
+      discovered the same `GET /api/household/members` endpoint as
+      Laasya's session above (both found it live-testing around the same
+      time) and built on her `useHouseholdMembers` hook once reconciling
+      the two branches. Several real, confirmed-live fixes beyond the
+      members-endpoint wiring:
+      - **Invite flow was lying about sending anything.** The backend has
+        no way to actually text/email an invite — `POST /api/invites`
+        only ever creates a shareable link record, regardless of contact
+        info attached, and nothing is ever sent anywhere. The old flow
+        asked for a phone/email plus a name and role, then said "Invite
+        sent," which is exactly the bug reported live. Replaced with a
+        single "Generate invite link" action, no name/role/contact
+        fields at all (the invitee's real name/role come from their own
+        account once they accept, not a guess entered ahead of time),
+        and honest "Invite link ready" / "share this yourself" copy.
+      - **Self-exclusion + exact wording on remove-member.** Building on
+        the members endpoint, excluded the signed-in user's own row from
+        the remove action (labeled "(You)" instead) and reworded the
+        confirm dialog to "Are you sure you want to remove {name}?" per
+        the exact wording requested, plus refetch-on-focus so
+        removing/inviting elsewhere and coming back shows current data.
+      - **Removed-member experience.** Confirmed live: the moment
+        someone's removed, their access is cut instantly (immediate 403
+        "No household" on every household-scoped call) — there's no
+        window afterward to fetch what they had, so "keep their data"
+        isn't something a client can do after the fact. Built the
+        confirmed, buildable version instead: `AuthContext` now detects
+        this (on relaunch, comparing against a new
+        `hasHadHousehold`/account-scoped flag, and mid-session via
+        `usePantry`/`useShoppingList` catching the same "No household"
+        error) and shows a clear `RemovedFromHouseholdScreen` explaining
+        what happened, with a "Continue" button that sets them up with a
+        fresh household — same outcome "Leave household" already had,
+        now explained and consented to instead of silent.
+      - **"Leave household" already existed** (Profile screen, fixed for
+        its own bug in the pre-TestFlight review) — flagging since it
+        wasn't obvious in testing.
+      - **Repeat pantry items now merge.** Adding an item with the same
+        name and unit as one already in the pantry bumps its quantity
+        instead of creating a duplicate row, mirroring the shopping
+        list's existing dedupe behavior. Matched on name *and* unit
+        (unlike the shopping list) since a pantry item's unit actually
+        carries meaning — "Milk (1 L)" and "Milk (2 ct)" are genuinely
+        different tracked things, not one item with a confused quantity.
+      - Renamed Household Hub's "Members & invites" card to "Pending
+        invites," matching what it's always actually shown (it can never
+        list accepted members — the real list lives on Profile).
+      Cross-member sharing (pantry, shopping list) was confirmed already
+      working correctly via live two-account testing — not touched.
+      New tests for the pantry merge logic; typecheck, all tests, and a
+      real `expo export --platform ios` bundle all pass after reconciling
+      both branches together.
 - [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Deep-link
       donation partners to real location-scoped results (branch:
       `feature/donation-location-deep-links`) — merged into `master`.

@@ -6,6 +6,7 @@ import { AuthStackNavigator } from "./AuthStackNavigator";
 import { OnboardingScreen } from "../screens/onboarding/OnboardingScreen";
 import { JoinScreen } from "../screens/JoinScreen";
 import { ResetPasswordScreen } from "../screens/ResetPasswordScreen";
+import { RemovedFromHouseholdScreen } from "../screens/RemovedFromHouseholdScreen";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -13,7 +14,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   const { isComplete, isLoading: onboardingLoading } = useOnboarding();
-  const { isSignedIn, isLoading: authLoading } = useAuth();
+  const { isSignedIn, isLoading: authLoading, removedFromHousehold } = useAuth();
 
   if (authLoading || onboardingLoading) return null;
 
@@ -29,6 +30,8 @@ export function RootNavigator() {
         <Stack.Screen name="Auth" component={AuthStackNavigator} />
       ) : !isComplete ? (
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+      ) : removedFromHousehold ? (
+        <Stack.Screen name="RemovedFromHousehold" component={RemovedFromHouseholdScreen} />
       ) : (
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
