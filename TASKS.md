@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 76 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 77 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1789,6 +1789,22 @@ pace I just won't be able to work much next week <3
       now always starts at the account step. 3 tests added, suite at
       270. Typecheck, tests, and a real `expo export --platform ios`
       bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Make
+      donation confirmation actually send you to a place to donate
+      (branch: `feature/donation-take-me-there`) — merged into
+      `master`. The real fix behind this was already merged
+      (`feature/donation-suggestions`, `feature/donation-accepted-items`)
+      — real link-out resources since there's no real food-bank API or
+      location data to integrate with — but the actual "go there" link
+      was a small icon on the partner-selection row, separate from the
+      Donate button, easy to never tap; confirming a donation just said
+      "N items donated to X" with nothing having actually happened. The
+      confirmation screen now leads with an "Open X" button that opens
+      the partner's real site, plus honest copy clarifying nothing's
+      happened yet until you do. Also added FoodPantries.org (a real
+      national food-pantry directory), rounding the suggestion list out
+      to five. Typecheck, all 270 tests, and a real `expo export
+      --platform ios` bundle all pass.
 
 ### Not yet assigned
 
