@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 79 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 80 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1840,6 +1840,27 @@ pace I just won't be able to work much next week <3
       there's no real per-item cost data to base a meaningful number on.
       Typecheck, all 284 tests, and a real `expo export --platform ios`
       bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Stop
+      `retryOnce` from immediately retrying a 429, fix stale "7-day
+      plan" copy (branch: `feature/mealplan-no-retry-on-429`) — merged
+      into `master`. Reported as "meal planning isn't working" —
+      live-tested again (9/2) and confirmed it's the same still-open
+      backend rate-limit issue from the entry below, not a new
+      regression: a single isolated call still succeeds cleanly
+      (~7-8s), but a few calls in quick succession still reliably hit a
+      `504` then two `429 "temporarily busy"` responses. Not fixable
+      client-side, but found one real improvement along the way:
+      `retryOnce` retried a 429 exactly like any other failure — an
+      instant second request into a backend that just said "I'm
+      rate-limited" only adds load and makes the user wait through two
+      failing calls for no realistic chance of a different result. Now
+      skips the retry specifically for a 429, still retrying instantly
+      for a genuine transient failure like a 504 (what it was built
+      for). Also fixed `MealPlanHistoryScreen`'s empty-state message,
+      still saying "generate a full 7-day plan" — stale since the
+      day-by-day rebuild removed that single action entirely. 2 tests
+      added, suite at 286. Typecheck, tests, and a real `expo export
+      --platform ios` bundle all pass.
 
 ### Not yet assigned
 
@@ -2038,6 +2059,18 @@ outside this repo.
       entry above. The GoDaddy ticket about the underlying rate limit is
       still open and unanswered, but the app no longer depends on it
       being fixed to work reliably.
+      **Update, 9/2:** reported live by Laasya/Laya as "meal planning
+      isn't working" — re-tested and confirmed the underlying issue is
+      still there: a single isolated call still succeeds cleanly
+      (~7-8s), but three calls in quick succession got a `504` then two
+      `429`s. So the day-by-day rebuild's "no depends on the ceiling
+      being fixed" claim above holds for a user adding one day at a
+      time with real pauses between, but not for someone (or a test
+      session) adding several days back-to-back in one sitting. Still
+      genuinely open on Airo's end — see the completed
+      `feature/mealplan-no-retry-on-429` entry above for the one
+      client-side improvement made alongside this (stopped `retryOnce`
+      from adding a second request into an already-429'd call).
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Recipe search
       (`GET /api/recipes?q=`, a separate endpoint from
       `/api/meal-plan`) is still fully broken — still `504`s (~11s,
