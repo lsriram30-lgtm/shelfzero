@@ -303,7 +303,7 @@ export function MealPlannerScreen() {
                 }
               />
               {day.meals.map((meal, index) => {
-                const missing = missingIngredients(meal.ingredients);
+                const missing = missingIngredients(meal.ingredients, currentPantryNames);
                 const key = `${day.day}-${meal.title}`;
                 const added = addedMissingKeys.has(key);
                 const adding = addingMissingKey === key;
