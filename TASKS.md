@@ -1970,6 +1970,13 @@ pace I just won't be able to work much next week <3
       Added an explicit `height` to the `ScrollView`'s own `style`,
       computed from the actual padding/circle/text tokens instead of
       guessed.
+      **Follow-up, per live device feedback:** still touching. The
+      computed value used the raw `typography.caption` `lineHeight`
+      token, which measures shorter than how the name text actually
+      renders on a real device. Bumped the height further (104 → 132)
+      and added real breathing room (bottom padding + a margin) below the
+      row instead of a tight fit, so it's not right back to touching the
+      next time text rendering measures a few px taller than expected.
 
 ### Not yet assigned
 

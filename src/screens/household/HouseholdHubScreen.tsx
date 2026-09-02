@@ -707,18 +707,21 @@ const styles = StyleSheet.create({
   // A horizontal ScrollView with only contentContainerStyle set doesn't
   // reliably shrink-wrap to its content's height - it was collapsing
   // shorter than the circle+name it contains, so the main content
-  // ScrollView's first card started overlapping the name labels. Explicit
-  // height here (paddingTop 8 + circle 56 + name's marginTop 4 + caption
-  // line height 18 + paddingBottom 12, plus a small buffer) fixes that.
+  // ScrollView's first card started overlapping the name labels. The
+  // first fix (104) was still too tight in practice, so this is now
+  // deliberately generous - real device text rendering measures taller
+  // than the raw lineHeight token - plus real breathing room below the
+  // names before the first card starts.
   avatarScroll: {
-    height: 104,
+    height: 132,
+    marginBottom: spacing.sm,
   },
   avatarRow: {
     flexDirection: "row",
     gap: spacing.lg,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.lg,
   },
   avatarItem: {
     alignItems: "center",
