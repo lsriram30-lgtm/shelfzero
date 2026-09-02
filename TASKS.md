@@ -2043,6 +2043,29 @@ this repo.
       accepting an `image` field/upload) or a way for the client to also
       obtain a BetterAuth session cookie. Until then, Household Hub's
       member avatars are initials-only, generated client-side.
+- [ ] ![MVP](https://img.shields.io/badge/MVP-red) Make `/api/meal-plan`
+      actually build meals around the pantry items it's sent, not just
+      loosely riff. Confirmed live, twice, not a one-off: sending
+      `pantryItems: ["pasta", "alfredo sauce", "broccoli", "carrots",
+      "onion"]` came back with Yogurt with Berries and Granola /
+      Chicken Salad Sandwich / Baked Salmon with Asparagus for the
+      day — zero connection to any pantry item, pasta and alfredo sauce
+      unused anywhere. A separate earlier test (chicken, rice, broccoli,
+      onion, garlic, olive oil, tomato) showed the same pattern
+      (salmon for dinner, no real pantry tie-in). This is distinct from
+      the already-fixed `inPantry` flag bug (see the completed
+      `feature/mealplan-real-pantry-match` entry above) — that was
+      about mislabeling ingredients that *were* used; this is about the
+      model not reliably choosing to use them in the first place. Since
+      the whole feature is meant to suggest meals *from what you have*,
+      this undercuts the core value of Meal Planner as it stands.
+      Needs Airo to look at the prompt actually sent to the model and
+      make it weight/require pantry items more strongly — not
+      something fixable from this repo, since the client only sends
+      the list and displays whatever comes back. Marked MVP since it's
+      core to what the feature is supposed to do, but worth a joint
+      call with Laya on priority given the backend rate-limit issue
+      above is also still open.
 
 #### Claude Code (client-side)
 
@@ -2236,11 +2259,19 @@ outside this repo.
       `ingredients[].inPantry` flag is unreliable (see the completed
       `feature/mealplan-real-pantry-match` entry above), but that's a
       different bug from whether the model chooses relevant meals in
-      the first place. Still needs a clean re-test with the exact
-      repro that prompted this (pasta, alfredo sauce, a few vegetables)
-      once the rate limit isn't actively interfering — couldn't get a
-      non-429 response for it in this session despite several spaced
-      retries.
+      the first place.
+      **Update, 9/2, confirmed:** got a clean non-429 response for the
+      exact repro (pantryItems: pasta, alfredo sauce, broccoli,
+      carrots, onion) after the rate limit finally cleared. All three
+      meals (Yogurt with Berries and Granola / Chicken Salad Sandwich /
+      Baked Salmon with Asparagus) came back with zero connection to
+      the pantry — pasta and alfredo sauce weren't used anywhere in the
+      day. Not a one-off: same pattern as the earlier chicken/rice/
+      broccoli test. This is now a confirmed, repeatable finding, not
+      just a hunch — see the new dedicated entry in "Backend (Airo
+      only)" below, since fixing it means the AI prompt on Airo's side
+      needs to actually weight pantry items instead of mostly ignoring
+      them.
 - [ ] ![Later](https://img.shields.io/badge/Later-green) Recipe search
       (`GET /api/recipes?q=`, a separate endpoint from
       `/api/meal-plan`) is still fully broken — still `504`s (~11s,
