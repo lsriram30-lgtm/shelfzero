@@ -80,15 +80,6 @@ export function PantryStatsScreen() {
     ).length;
   }, [items]);
 
-  const expiredCount = useMemo(
-    () =>
-      items.filter((item) => item.expiresAt && new Date(item.expiresAt).getTime() < Date.now())
-        .length,
-    [items]
-  );
-
-  const wasteSavingsEstimate = Math.max(0, items.length - expiredCount) * 3.5;
-
   return (
     <Screen>
       <Header title="Pantry stats" subtitle="How your pantry is trending" />
@@ -128,17 +119,6 @@ export function PantryStatsScreen() {
                 />
               ))
             )}
-          </Card>
-
-          <Card style={styles.card}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Estimated waste savings</Text>
-            <Text style={[styles.savingsValue, { color: colors.success }]}>
-              ~${wasteSavingsEstimate.toFixed(0)}
-            </Text>
-            <Text style={[styles.savingsCaption, { color: colors.textMuted }]}>
-              A rough estimate — assumes $3.50 saved per item that hasn't expired, not based on
-              what you actually paid.
-            </Text>
           </Card>
         </ScrollView>
       )}
@@ -198,12 +178,5 @@ const styles = StyleSheet.create({
     ...typography.caption,
     width: 24,
     textAlign: "right",
-  },
-  savingsValue: {
-    ...typography.display,
-  },
-  savingsCaption: {
-    ...typography.body,
-    marginTop: spacing.xs,
   },
 });
