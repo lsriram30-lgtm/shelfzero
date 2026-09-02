@@ -36,7 +36,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 
 | | Completed |
 |---|---|
-| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 77 / 70 |
+| ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 79 / 70 |
 | ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 57 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
@@ -1805,6 +1805,41 @@ pace I just won't be able to work much next week <3
       national food-pantry directory), rounding the suggestion list out
       to five. Typecheck, all 270 tests, and a real `expo export
       --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Deep-link
+      donation partners to real location-scoped results (branch:
+      `feature/donation-location-deep-links`) — merged into `master`.
+      Wanted: many food banks nationwide, sorted by proximity, with real
+      open/closed status and what they accept — flagged as a new
+      Airo-only backend task (needs a real directory API proxied
+      server-side plus device location, which the app collects none of
+      today). This is the smaller, no-backend-needed piece done in the
+      meantime: Feeding America's and FoodPantries.org's links used to
+      just open each site's bare homepage. Verified against the real
+      sites (not guessed) that both actually support a URL-driven
+      search — Feeding America's locator JS reads `?zip=`/`?state=` and
+      auto-runs the search on load; FoodPantries.org has real
+      `/zip/{zip}` and `/st/{state}` pages. New `donateLocationLinks.ts`
+      parses the onboarding "City, State" text for a zip or a real state
+      abbreviation and builds the location-scoped URL, falling back to
+      the plain homepage otherwise. AmpleHarvest's search is AJAX-only
+      (no URL param) and 211 has no unified national search, so those
+      two are unchanged. Also improved the maps-search link to use the
+      actual typed location instead of a hardcoded "near me". Honest
+      caveat: onboarding has no dedicated zip field, so most users
+      typing just "City, State" land on the coarser state-level result,
+      not the zip-level one. 14 tests added, suite at 284. Typecheck,
+      tests, and a real `expo export --platform ios` bundle all pass.
+- [x] ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) Remove the
+      "Estimated waste savings" card from Pantry Stats (branch:
+      `feature/remove-waste-savings`) — merged into `master`. It
+      computed $3.50 × every non-expired pantry item, regardless of
+      whether that item was ever actually at risk of being wasted —
+      buying 10 items and never touching them "saved" $35, which didn't
+      hold up as a real metric even with the existing "rough estimate"
+      disclaimer. Removed outright rather than patching the math, since
+      there's no real per-item cost data to base a meaningful number on.
+      Typecheck, all 284 tests, and a real `expo export --platform ios`
+      bundle all pass.
 
 ### Not yet assigned
 
