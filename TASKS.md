@@ -37,7 +37,7 @@ didn't do it can tell at a glance "oh, they finished that" and go review it.
 | | Completed |
 |---|---|
 | ![Laasya](https://img.shields.io/badge/Laasya-FFB3C6) | 80 / 70 |
-| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 59 / 70 |
+| ![Laya](https://img.shields.io/badge/Laya-B5EAD7) | 60 / 70 |
 
 **Goal:** 70 tasks each (total) by end of day 9/5.
 
@@ -1940,6 +1940,15 @@ pace I just won't be able to work much next week <3
       (`PATCH`/`PUT`/`POST` on `/api/me` and a few `/api/auth/*` paths)
       404s. There's currently no way to persist a profile image from this
       client at all — see the new backend task below.
+- [x] ![Laya](https://img.shields.io/badge/Laya-B5EAD7) Fixed the avatar
+      row overlapping the Shopping list card below it. A horizontal
+      `ScrollView` with only `contentContainerStyle` set doesn't reliably
+      shrink-wrap to its content's real height — it was collapsing
+      shorter than the avatar circle + name label it contains, so the
+      names got visually covered by whatever card came right after it.
+      Added an explicit `height` to the `ScrollView`'s own `style`,
+      computed from the actual padding/circle/text tokens instead of
+      guessed.
 
 ### Not yet assigned
 

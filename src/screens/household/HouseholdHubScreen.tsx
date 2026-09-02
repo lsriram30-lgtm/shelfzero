@@ -66,6 +66,7 @@ function MemberAvatarRow({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      style={styles.avatarScroll}
       contentContainerStyle={styles.avatarRow}
     >
       {members.map((member) => {
@@ -703,6 +704,15 @@ export function HouseholdHubScreen() {
 }
 
 const styles = StyleSheet.create({
+  // A horizontal ScrollView with only contentContainerStyle set doesn't
+  // reliably shrink-wrap to its content's height - it was collapsing
+  // shorter than the circle+name it contains, so the main content
+  // ScrollView's first card started overlapping the name labels. Explicit
+  // height here (paddingTop 8 + circle 56 + name's marginTop 4 + caption
+  // line height 18 + paddingBottom 12, plus a small buffer) fixes that.
+  avatarScroll: {
+    height: 104,
+  },
   avatarRow: {
     flexDirection: "row",
     gap: spacing.lg,
